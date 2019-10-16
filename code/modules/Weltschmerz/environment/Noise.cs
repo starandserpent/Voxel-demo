@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public class Weltschmerz : Node
+public class Noise : Node
 {
     // Declare member variables here. Examples:
     // private int a = 2;

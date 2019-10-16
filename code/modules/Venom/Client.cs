@@ -4,7 +4,7 @@ using System;
 public class Client
 {
     private Server server;
-    public Client(Server server, GameControler controler){
+    public Client(){
         this.server = server;
     }
 

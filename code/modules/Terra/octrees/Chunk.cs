@@ -8,5 +8,5 @@ public struct Chunk
     public int Y{get; set;}
     public int Z{get; set;}
 
-    public Span<int> ids{get; set;}
+    public Span<int> voxels{get; set;}
 }

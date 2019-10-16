@@ -1,21 +1,10 @@
 using Godot;
 using System;
 
-public class OctreeNode : Node
+public struct OctreeNode
 {
-    // Declare member variables here. Examples:
-    // private int a = 2;
-    // private string b = "text";
-
-    // Called when the node enters the scene tree for the first time.
-    public override void _Ready()
-    {
-        
-    }
-
-//  // Called every frame. 'delta' is the elapsed time since the previous frame.
-//  public override void _Process(float delta)
-//  {
-//      
-//  }
+    private uint x {get; set;}
+    private uint y {get; set;}
+    private uint z {get; set;}
+    private OctreeNode[] children{get; set;}
 }

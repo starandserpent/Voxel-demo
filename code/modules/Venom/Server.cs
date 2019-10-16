@@ -4,9 +4,9 @@ using System;
 public class Server
 {
     private Registry registry;
-    public Server(){
+    public Server(Client client){
         TerraModule module = new TerraModule("testgame");
         registry = new Registry();
-        PrimitiveResources resources = new PrimitiveResources();
+        module.RegisterObjects(registry);
     }
 }
