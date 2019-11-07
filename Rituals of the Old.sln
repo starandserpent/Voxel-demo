@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rituals of the Old", "Rituals of the Old.csproj", "{505AED79-EFCE-474E-B640-55FA51D4A7A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rituals of the Old", "Rituals of the Old.csproj", "{4C82CEAC-C9EF-4D4E-9EFE-F99D44116E23}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,11 +9,11 @@ Global
 	Tools|Any CPU = Tools|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{505AED79-EFCE-474E-B640-55FA51D4A7A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{505AED79-EFCE-474E-B640-55FA51D4A7A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{505AED79-EFCE-474E-B640-55FA51D4A7A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{505AED79-EFCE-474E-B640-55FA51D4A7A9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{505AED79-EFCE-474E-B640-55FA51D4A7A9}.Tools|Any CPU.ActiveCfg = Tools|Any CPU
-		{505AED79-EFCE-474E-B640-55FA51D4A7A9}.Tools|Any CPU.Build.0 = Tools|Any CPU
+		{4C82CEAC-C9EF-4D4E-9EFE-F99D44116E23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C82CEAC-C9EF-4D4E-9EFE-F99D44116E23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C82CEAC-C9EF-4D4E-9EFE-F99D44116E23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C82CEAC-C9EF-4D4E-9EFE-F99D44116E23}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C82CEAC-C9EF-4D4E-9EFE-F99D44116E23}.Tools|Any CPU.ActiveCfg = Tools|Any CPU
+		{4C82CEAC-C9EF-4D4E-9EFE-F99D44116E23}.Tools|Any CPU.Build.0 = Tools|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -19,10 +19,6 @@ config/name="Rituals of the Old"
 run/main_scene="res://assets/scenes/Game.tscn"
 config/icon="res://icon.png"
 
-[editor]
-
-include_scripts_content=false
-
 [rendering]
 
 environment/default_environment="res://default_env.tres"
