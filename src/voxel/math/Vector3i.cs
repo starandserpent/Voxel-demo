@@ -1,5 +1,8 @@
 using Godot;
 using System;
+using Util;
+
+namespace Math3D{
 
 public struct Vector3i
 {
@@ -95,6 +98,22 @@ public struct Vector3i
     public bool AreValuesEqual(){
         return x == y && y == z;
     }
+
+    public Vector3i udiv(int d) {
+		return new Vector3i(Utility.udiv(x, d), Utility.udiv(y, d), Utility.udiv(z, d));
+	}
+
+	public Vector3i udiv(Vector3i d) {
+		return new Vector3i(Utility.udiv(x, d.x), Utility.udiv(y, d.y), Utility.udiv(z, d.z));
+	}
+
+    public Vector3i wrap( Vector3i d) {
+		return new Vector3i(Utility.wrap(x, d.x), Utility.wrap(y, d.y), Utility.wrap(z, d.z));
+	}
+
+    public static Vector3i min(Vector3i a, Vector3i b) {
+		return new Vector3i((int)Utility.min(a.x, b.x), (int)Utility.min(a.y, b.y), (int)Utility.min(a.z, b.z));
+	}
 
     public static Vector3i GetVectorFromIndex(int i, Vector3i areaSize){
         Vector3i pos;
@@ -212,4 +231,5 @@ public struct Vector3i
         }
      }
 
+}
 }

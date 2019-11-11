@@ -1,4 +1,3 @@
-using System.Numerics;
 public class CubeTables
 {
     // The following tables respect the following conventions

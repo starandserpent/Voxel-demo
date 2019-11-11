@@ -1,4 +1,6 @@
 using System;
+
+namespace Math3D{
 public class Rect3i
 {
      Vector3i pos;
@@ -177,7 +179,7 @@ public class Rect3i
 	}
 
 	 public Rect3i Downscaled(int step_size) {
-		Rect3i o = new Rect3i;
+		Rect3i o = new Rect3i();
 		o.pos = pos.udiv(step_size);
 		Vector3i max_pos = (pos + size - new Vector3i(1)).udiv(step_size);
 		o.size = max_pos - o.pos + new Vector3i(1);
@@ -187,7 +189,7 @@ public class Rect3i
 	public void Clip(Rect3i lim) {
 	    Vector3i max_pos = lim.pos + lim.size;
 		pos.ClampTo(lim.pos, max_pos);
-		size = Vector3i::min(size, max_pos - pos);
+		size = Vector3i.min(size, max_pos - pos);
 	}
 
     public static bool operator !=(Rect3i a, Rect3i b) {
@@ -197,4 +199,5 @@ public class Rect3i
      public static bool operator ==(Rect3i a, Rect3i b) {
 	    return a.pos == b.pos && a.size == b.size;
     }
+}
 }
