@@ -3,11 +3,11 @@ using Math3D;
 namespace VoxelOctree{
 public struct InputBlock<T>
 {
-    T data;
-    Vector3i position;
+    public T data;
+    public Vector3i position;
 
-    int lod;
-    bool CanBeDiscarded;
-    float SortHeuristic;
+    public int lod;
+    public bool canBeDiscarded;
+    public float sortHeuristic;
 }
 }

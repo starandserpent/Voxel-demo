@@ -56,7 +56,13 @@
     <Compile Include="src\voxel\math\Vector3i.cs" />
     <Compile Include="src\voxel\util\Utility.cs" />
     <Compile Include="src\voxel\OctreeTables.cs" />
-     <Compile Include="src\voxel\terrain\Stats.cs" />
+    <Compile Include="src\voxel\terrain\Stats.cs" />
+    <Compile Include="src\voxel\terrain\OutputBlock.cs" />
+    <Compile Include="src\voxel\terrain\Output.cs" />
+    <Compile Include="src\voxel\terrain\InputBlock.cs" /> 
+    <Compile Include="src\voxel\terrain\JobData.cs" />
+    <Compile Include="src\voxel\terrain\BlockThreadManager.cs" />
+
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

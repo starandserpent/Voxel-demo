@@ -6,16 +6,16 @@ using Godot;
 namespace VoxelOctree{
 public class Input<T>
 {
-    List<InputBlock<T>> Blocks;
-    Vector3i PriorityPosition;
-    Vector3 PriorityDirection;
-    int ExlusiveRegionExtent;
-    int ExlusiveRegionMaxLOD;
-    bool UseExlusiveRegion;
-    int MaxLODIndex;
+    public List<InputBlock<T>> blocks;
+    public Vector3i priorityPosition;
+    public Vector3 priorityDirection;
+    public int exlusiveRegionExtent;
+    public int exlusiveRegionMaxLOD;
+    public bool useExlusiveRegion;
+    public int maxLODIndex;
 
     public bool IsEmpty(){
-        return Blocks.Count == 0;
+        return blocks.Count == 0;
     }
 }
 }

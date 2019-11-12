@@ -1,4 +1,3 @@
-using System.Numerics;
 using System;
 using Godot;
 using Math3D;
@@ -22,7 +21,7 @@ public class LODOctree<T>
     }  
     
     public void Clear(Action destroyAction){
-        JoinAllRecursively(root, new Vector3i(), MaxDepth, destroyAction);
+		//JoinAllRecursively(root, new Vector3i(), MaxDepth, destroyAction);
 		MaxDepth = 0;
 		BaseSize = 0;
     }
@@ -74,13 +73,14 @@ public class LODOctree<T>
 	void Update(Vector3 view_pos, Action create_action, Action destroy_action) {
 
 		if (root.Block != null || root.HasChildren()) {
-			Update(ROOT_INDEX, new Vector3(), MaxDepth, view_pos, create_action, destroy_action);
+			Update(ROOT_INDEX, new Vector3i(), MaxDepth, view_pos, create_action, destroy_action);
 
 		} else {
 			// Treat the root in a slightly different way the first time.
-			if (create_action.can_do_root(MaxDepth)) {
+		/*	if (create_action.can_do_root(MaxDepth)) {
 				root.Block = create_action(root, new Vector3i(), MaxDepth);
 			}
+			*/
 		}
 	}
 
@@ -104,7 +104,7 @@ public class LODOctree<T>
 		if (!node.HasChildren()) {
 
 			// If it's not the last LOD, if close enough and custom conditions get fulfilled
-			if (lod > 0 && world_center.DistanceTo(view_pos) < split_distance && create_action.can_do_children(node, node_pos, lod - 1)) {
+		/*	if (lod > 0 && world_center.DistanceTo(view_pos) < split_distance && create_action.can_do_children(node, node_pos, lod - 1)) {
 				// Split
 
 				int first_child = pool.AllocateChildren();
@@ -162,6 +162,7 @@ public class LODOctree<T>
 				}
 			}
 		}
+		*/
 	}
 
     static Vector3i GetChildPosition(Vector3i parentPosition, int i){
@@ -171,7 +172,7 @@ public class LODOctree<T>
 				parentPosition.z * 2 + OctreeTables.GOctantPosition[i][2]);
     }
 
-    private void JoinAllRecursively(Node<T> node, Vector3i nodePos, int lod, Action  destroyAction){
+ void JoinAllRecursively(Node<T> node, Vector3i nodePos, int lod, Action  destroyAction){
           if (node.HasChildren()) {
 		    int first_child = node.FirstChild;
 
@@ -188,5 +189,6 @@ public class LODOctree<T>
 			node.Block = default(T);
 		}
 	}
+}
 }
 }

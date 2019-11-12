@@ -1,21 +1,23 @@
 using System.Reflection;
 namespace VoxelOctree{
-public class Stats
+public class Stats<T>
 {
-    bool First;
-    int MinTime;
-    int MaxTime;
-    int SortingTime;
-    int[] RemainingBlocks;
-    int ThreadCount;
-    int DroppedCount;
-    ProcessorArchitecture processor;
+    public bool first;
+    public int minTime;
+    public int maxTime;
+    public int sortingTime;
+    public int[] remainingBlocks;
+    public int threadCount;
+    public int droppedCount;
+    public ProcessorStats processor;
 
-    public void init(){
-        RemainingBlocks = new int[VoxelBlockThreadManager.MAX_JOBS];
-        for (int i = 0; i < VoxelBlockThreadManager.MAX_JOBS; ++i) {
-				RemainingBlocks[i] = 0;
+    public Stats<T> init(){
+        remainingBlocks = new int[VoxelBlockThreadManager<T>.MAX_JOBS];
+        for (int i = 0; i < VoxelBlockThreadManager<T>.MAX_JOBS; ++i) {
+				remainingBlocks[i] = 0;
 		}
+
+        return this;
     }
 }
 }
