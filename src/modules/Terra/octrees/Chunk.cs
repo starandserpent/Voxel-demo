@@ -1,12 +1,9 @@
-using Godot;
 using System;
-using System.Memory;
 
-public struct Chunk
-{
-    public int X{get; set;}
-    public int Y{get; set;}
-    public int Z{get; set;}
+public struct Chunk{
+    public int x{get; set;}
+    public int y{get; set;}
+    public int z{get; set;}
 
-    public Span<int> voxels{get; set;}
+    public Memory<byte> voxels{get; set;}
 }

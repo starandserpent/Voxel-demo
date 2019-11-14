@@ -1,4 +1,3 @@
-using System.Net.Http;
 using Godot;
 using System;
 
@@ -14,7 +13,7 @@ public class WorldControler : Node
     public override void _Ready()
     {
         Server server = new Server();
-        Client client = new Client(server, this);
+        Client client = new Client(server);
     }
 
 //  // Called every frame. 'delta' is the elapsed time since the previous frame.

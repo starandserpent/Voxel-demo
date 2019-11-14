@@ -5,5 +5,4 @@ public struct ProcessorStats
     public int fileOpenings;
     public int timeSpentOpeningFiles;
 }
-
 }

@@ -1,4 +1,3 @@
-using System.Threading.Tasks.Dataflow;
 using System.Collections.Generic;
 using Godot;
 
@@ -26,24 +25,24 @@ public class Registry
         int worldID = objects.IndexOf(terraObject);
 
         terraObject.worldID = worldID;
-        nameToObject.Add(fullName, material);
+        //nameToObject.Add(fullName, material);
 
         GD.Print(terraObject.fullName +":"+worldID);   
     }
 
     
-    public TerraObject SelectByName(string fullName){
+   /* public TerraObject SelectByName(string fullName){
         return nameToObject.TryGetValue(fullName);
-    }
+    }*/
 
 
-    public TerraObject SelectByName(TerraModule module, String name){
+    /*public TerraObject SelectByName(TerraModule module, string name){
         return nameToObject.TryGetValue(module.uniqueID + ":" + name);
-    }
+    }*/
 
-    public TerraObject SelectByID(int id){
-        return objects.Find(id);
-    }
+    /*public TerraObject SelectByID(int id){
+        return objects.FindLastIndex(id);
+    }*/
 
     public List<TerraObject> GetAllMaterials(){
         return objects;

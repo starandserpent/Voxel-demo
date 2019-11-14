@@ -7,18 +7,17 @@ public struct TerraObject
         return new Builder();
     }
 
-    private int worldID{get; set;}
-    private string fullName{get; set;}
-    private string name{get; set;}
+    public int worldID{get; set;}
+    public string fullName{get; set;}
+    public string name{get; set;}
 
-    private TerraModule mod{get; set;}
-    private Texture texture{get; set;}
-    private TerraMesh mesh{get; set;}
-}
+    public TerraModule mod{get; set;}
+    public Texture texture{get; set;}
+    public TerraMesh mesh{get; set;}
 
-public static class Builder{
+    public class Builder{
     private TerraObject terraObject;
-    private Builder(){
+    public Builder(){
         terraObject = new TerraObject();
     }
 
@@ -45,4 +44,5 @@ public static class Builder{
     public TerraObject build(){
         return terraObject;
     }
+}
 }

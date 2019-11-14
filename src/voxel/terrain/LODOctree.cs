@@ -165,14 +165,14 @@ public class LODOctree<T>
 		*/
 	}
 
-    static Vector3i GetChildPosition(Vector3i parentPosition, int i){
+ Vector3i GetChildPosition(Vector3i parentPosition, int i){
         return new Vector3i(
             parentPosition.x * 2 + OctreeTables.GOctantPosition[i][0],
 				parentPosition.y * 2 + OctreeTables.GOctantPosition[i][1],
 				parentPosition.z * 2 + OctreeTables.GOctantPosition[i][2]);
     }
 
- void JoinAllRecursively(Node<T> node, Vector3i nodePos, int lod, Action  destroyAction){
+ /*void JoinAllRecursively(Node<T> node, Vector3i nodePos, int lod, Action  destroyAction){
           if (node.HasChildren()) {
 		    int first_child = node.FirstChild;
 
@@ -189,6 +189,7 @@ public class LODOctree<T>
 			node.Block = default(T);
 		}
 	}
+	*/
 }
 }
 }

@@ -1,14 +1,12 @@
-using System.Linq;
-using Godot;
-using System;
+using System.Collections.Generic;
 
 public class TerraModule
 {
-    private string uniqueID{get; set;}
+    public string uniqueID{get; set;}
 
     private bool registred = false;
 
-    private List<TerraObject> objects;
+    private List<TerraObject> textures;
 
     public TerraModule(string id){
         this.uniqueID = id;
@@ -16,11 +14,12 @@ public class TerraModule
     }
     public TerraObject.Builder newMaterial(){
         TerraObject.Builder builder = TerraObject.builder().module(this);
-        objects.Append(builder.build());
+        textures.Add(builder.build());
+        return builder;
     }
 
     public void RegisterObjects(Registry reg){
-        foreach(TerraObject terraObject in objects){
+        foreach(TerraObject terraObject in textures){
             reg.RegisterObject(terraObject, this);
         }
     }
