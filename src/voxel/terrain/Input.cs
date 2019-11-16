@@ -1,4 +1,3 @@
-using System.Numerics;
 using System.Collections.Generic;
 using Math3D;
 using Godot;

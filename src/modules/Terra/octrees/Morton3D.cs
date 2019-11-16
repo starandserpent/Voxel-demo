@@ -10,7 +10,7 @@ using System;
 
 public class Morton3D
 {
-private static const int[] MortonTable3D256
+private static readonly int[] MortonTable3D256
             = {
             0x00000000,
             0x00000001, 0x00000008, 0x00000009, 0x00000040, 0x00000041, 0x00000048, 0x00000049, 0x00000200,
@@ -47,7 +47,7 @@ private static const int[] MortonTable3D256
             0x00249201, 0x00249208, 0x00249209, 0x00249240, 0x00249241, 0x00249248, 0x00249249
     };
 
-    private static const int[] MortonTable512DecodeX = {
+    private static readonly int[] MortonTable512DecodeX = {
             0, 1, 0, 1, 0, 1, 0, 1, 2, 3, 2, 3, 2, 3, 2, 3,
             0, 1, 0, 1, 0, 1, 0, 1, 2, 3, 2, 3, 2, 3, 2, 3,
             0, 1, 0, 1, 0, 1, 0, 1, 2, 3, 2, 3, 2, 3, 2, 3,
@@ -82,7 +82,7 @@ private static const int[] MortonTable3D256
             4, 5, 4, 5, 4, 5, 4, 5, 6, 7, 6, 7, 6, 7, 6, 7
     };
 
-    private static const int[] MortonTable512DecodeY = {
+    private static readonly int[] MortonTable512DecodeY = {
             0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1,
             2, 2, 3, 3, 2, 2, 3, 3, 2, 2, 3, 3, 2, 2, 3, 3,
             0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1,
@@ -117,7 +117,7 @@ private static const int[] MortonTable3D256
             6, 6, 7, 7, 6, 6, 7, 7, 6, 6, 7, 7, 6, 6, 7, 7
     };
 
-    private static const int[] MortonTable512DecodeZ = {
+    private static readonly int[] MortonTable512DecodeZ = {
             0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1,
             0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1,
             2, 2, 2, 2, 3, 3, 3, 3, 2, 2, 2, 2, 3, 3, 3, 3,
@@ -180,10 +180,10 @@ private static const int[] MortonTable3D256
      * @param c morton code up to 64 bits
      * @return array [x,y,z] .
      */
-    public static int[] decode(long c) {
+    public static int[] decode(int c) {
         int[] result = new int[3];
         // Morton codes up to 64 bits
-        if (c < Math.pow(2, 48)) {
+        if (c < Math.Pow(2, 48)) {
             result[0] = decodeHelper(c, MortonTable512DecodeX);
             result[1] = decodeHelper(c, MortonTable512DecodeY);
             result[2] = decodeHelper(c, MortonTable512DecodeZ);
@@ -198,11 +198,11 @@ private static const int[] MortonTable3D256
      * @param coord morton decode LUT
      * @return decoded value
      */
-    private static int decodeHelper(long c, int[] coord) {
+    private static int decodeHelper(int c, int[] coord) {
         long a = 0;
         long NINEBITMASK = 0x000001ff;
-        long loops = (long) Math.floor(64.0f / 9.0f);
-        for (long i = 0; i < loops; ++i) {
+        int loops = (int) Math.Floor(64.0f / 9.0f);
+        for (int i = 0; i < loops; ++i) {
             a |= (coord[(int) ((c >> (i * 9)) & NINEBITMASK)] << (3 * i));
         }
         return (int) a;

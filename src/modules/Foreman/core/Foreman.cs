@@ -12,9 +12,9 @@ public class Foreman
         weltschmerz = new Weltschmerz();
     }
 
-    public void SetMaterials(TerraModule module, Registry registry){
-     //   dirtID = registry.SelectByName(module, "dirt").worldID;
-       // grassID = registry.SelectByName(module, "grass").worldID;
+    public void SetMaterials(Registry registry){
+        dirtID = registry.SelectByName("dirt").worldID;
+        grassID = registry.SelectByName("grass").worldID;
     }
 
     public Chunk GetChunk(float posX, float posY, float posZ){
@@ -23,13 +23,13 @@ public class Foreman
         chunk.y = (int) posY;
         chunk.z = (int) posZ;
         
-        chunk.voxels = new Memory<byte>(new byte[262144]);
+        chunk.voxels = new Span<byte>(new byte[262144]);
 
         int posx = (int)(posX / 16);
         int posz = (int)(posZ / 16);
         int posy = (int)(posY * 4);
 
-        chunk.voxels.Span.Fill((byte) 1);
+        chunk.voxels.Fill((byte) 0);
 
         bool isDifferent = false;
 
@@ -38,16 +38,16 @@ public class Foreman
                 int elevation = (int) Math.Round(weltschmerz.getElevation(x + posx * 64, z + posz * 64));
                 for (int y = 0; y < 64; y++) {
                     if ((elevation / 64) > (posy / 64)) {
-                         chunk.voxels.Span[x + (y * 64) + (z * 4096)] = (byte) dirtID;
+                         chunk.voxels[x + (y * 64) + (z * 4096)] = (byte) dirtID;
                     } else if (elevation / 64 == (posy / 64)) {
-                        if (Math.Abs(elevation % 64) >= y) {
-                            chunk.voxels.Span[x + (y * 64) + (z * 4096)] = (byte) dirtID;
+                        if (Math.Abs((elevation % 64)) >= y) {
+                            chunk.voxels[x + (y * 64) + (z * 4096)] = (byte) dirtID;
                             isDifferent = true;
                         }
                     }
                 }
                 if (isDifferent) {
-                    chunk.voxels.Span[x + Math.Abs((elevation % 64) * 64) + (z * 4096)] = (byte) grassID;
+                    chunk.voxels[x + Math.Abs((elevation % 64) * 64) + (z * 4096)] = (byte) grassID;
                    /* if (random.getBoolean()) {
                         blockBuffer.put(x + Math.Abs(((elevation + 1) % 64) * 64) + (z * 4096), (byte) grassMeshID);
                     }*/

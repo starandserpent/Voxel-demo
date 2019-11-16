@@ -1,9 +1,9 @@
 using System;
 
-public struct Chunk{
+public ref struct Chunk{
     public int x{get; set;}
     public int y{get; set;}
     public int z{get; set;}
 
-    public Memory<byte> voxels{get; set;}
+    public Span<byte> voxels{get; set;}
 }

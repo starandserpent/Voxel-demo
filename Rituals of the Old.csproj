@@ -1,14 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Configuration Condition=" '$(Configuration)' == '' ">Tools</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4C82CEAC-C9EF-4D4E-9EFE-F99D44116E23}</ProjectGuid>
     <OutputType>Library</OutputType>
     <OutputPath>.mono\temp\bin\$(Configuration)</OutputPath>
     <RootNamespace>RitualsoftheOld</RootNamespace>
     <AssemblyName>Rituals of the Old</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <LangVersion>7.3</LangVersion>
     <BaseIntermediateOutputPath>.mono\temp\obj</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)\$(Configuration)</IntermediateOutputPath>
   </PropertyGroup>
@@ -49,38 +50,10 @@
     <Reference Include="System" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Memory" />
+    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.24.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\core\GameControler.cs" />
-    <Compile Include="src\core\PrimitiveResources.cs" />
-    <Compile Include="src\voxel\terrain\Node.cs" />
-    <Compile Include="src\voxel\terrain\NodePool.cs" />
-    <Compile Include="src\voxel\math\Vector3i.cs" />
-    <Compile Include="src\voxel\util\Utility.cs" />
-    <Compile Include="src\voxel\OctreeTables.cs" />
-    <Compile Include="src\voxel\terrain\Stats.cs" />
-    <Compile Include="src\voxel\terrain\OutputBlock.cs" />
-    <Compile Include="src\voxel\terrain\Output.cs" />
-    <Compile Include="src\voxel\terrain\InputBlock.cs" />
-    <Compile Include="src\voxel\terrain\JobData.cs" />
-    <Compile Include="src\voxel\terrain\BlockThreadManager.cs" />
-    <Compile Include="src\voxel\terrain\ProcessorStats.cs" />
-    <Compile Include="src\voxel\terrain\LODOctree.cs" />
-    <Compile Include="src\voxel\terrain\Input.cs" />
-    <Compile Include="src\modules\Venom\Client.cs" />
-    <Compile Include="src\modules\Venom\Server.cs" />
-    <Compile Include="src\modules\Foreman\core\Foreman.cs" />
-    <Compile Include="src\modules\Terra\core\Terra.cs" />
-    <Compile Include="src\modules\Terra\materials\Registry.cs" />
-    <Compile Include="src\modules\Terra\materials\TerraObject.cs" />
-    <Compile Include="src\modules\Terra\materials\TerraMesh.cs" />
-    <Compile Include="src\modules\Terra\core\TerraModule.cs" />
-    <Compile Include="src\modules\Terra\octrees\Chunk.cs" />
-    <Compile Include="src\modules\Terra\octrees\OctreeNode.cs" />
-    <Compile Include="src\modules\Weltschmerz\core\Weltschmerz.cs" />
-    <Compile Include="src\modules\Weltschmerz\environment\Noise.cs" />
-    <Compile Include="FastNoise_CSharp\FastNoise.cs" />
+    <Compile Include="**\*.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Memory">

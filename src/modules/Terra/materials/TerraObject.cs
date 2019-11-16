@@ -1,48 +1,16 @@
 using Godot;
 using System;
 
-public struct TerraObject
+public class TerraObject
 {
-    public static Builder builder(){
-        return new Builder();
-    }
-
     public int worldID{get; set;}
     public string fullName{get; set;}
-    public string name{get; set;}
-
-    public TerraModule mod{get; set;}
-    public Texture texture{get; set;}
+    public string name{get;}
+    public Texture texture{get;}
     public TerraMesh mesh{get; set;}
 
-    public class Builder{
-    private TerraObject terraObject;
-    public Builder(){
-        terraObject = new TerraObject();
+    public TerraObject(string name, Texture texture){
+        this.name = name;
+        this.texture = texture;
     }
-
-    public Builder module(TerraModule mod){
-        terraObject.mod = mod;
-        return this;
-    }
-
-    public Builder name(String name){
-        terraObject.name = name;
-        return this;
-    }
-
-    public Builder model(TerraMesh mesh){
-        terraObject.mesh = mesh;
-        return this;
-    }
-
-    public Builder texture (Texture texture){
-        terraObject.texture = texture;
-        return this;
-    }
-
-    public TerraObject build(){
-        return terraObject;
-    }
-}
 }

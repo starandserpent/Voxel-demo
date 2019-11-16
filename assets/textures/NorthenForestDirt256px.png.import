@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/NorthenForestDirt256px.png-e96768a42158488208dcea23fffea20d.stex"
+path="res://.import/NorthenForestDirt256px.png-a31c68c23891fb8cb426b69598ab3e0e.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://src/assets/textures/NorthenForestDirt256px.png"
-dest_files=[ "res://.import/NorthenForestDirt256px.png-e96768a42158488208dcea23fffea20d.stex" ]
+source_file="res://assets/textures/NorthenForestDirt256px.png"
+dest_files=[ "res://.import/NorthenForestDirt256px.png-a31c68c23891fb8cb426b69598ab3e0e.stex" ]
 
 [params]
 

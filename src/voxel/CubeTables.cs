@@ -60,7 +60,7 @@ public class CubeTables
     };
 
     // Index convention used in some lookup tables
-    enum Corner {
+    /*enum Corner {
 	    CORNER_BOTTOM_BACK_LEFT = 0,
     	CORNER_BOTTOM_BACK_RIGHT,
     	CORNER_BOTTOM_FRONT_RIGHT,
@@ -202,4 +202,5 @@ public static Vector3i[] mooreNeighboring3d = {
 	new Vector3i(0, 1, 1),
 	new Vector3i(1, 1, 1),
 };
+*/
 }

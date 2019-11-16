@@ -52,6 +52,8 @@ public class VoxelBuffer : Reference
 	public void create(int sx, int sy, int sz){
 
     }
+
+	/*
 	public void create(Vector3i size){}
 
 	public void clear(){}
@@ -179,4 +181,5 @@ private	struct Channel {
 	// How many voxels are there in the three directions. All populated channels have the same size.
 	Vector3i _size;
 };
+*/
 }

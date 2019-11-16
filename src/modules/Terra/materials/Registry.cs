@@ -13,36 +13,30 @@ public class Registry
     }
 
     private void RegisterDefaultObjects(){
-        TerraModule module = new TerraModule("base");
-        RegisterObject(module.newMaterial().name("air").build(), module);
+        TerraObject air = new TerraObject("air", null);
+        RegisterObject(air);
     }
 
-    public void RegisterObject(TerraObject terraObject, TerraModule mod){
-        string fullName = mod.uniqueID + ":" + terraObject.name;
-        terraObject.fullName = fullName;
-
+    public void RegisterObject(TerraObject terraObject){
+       
         objects.Add(terraObject);
         int worldID = objects.IndexOf(terraObject);
 
         terraObject.worldID = worldID;
-        //nameToObject.Add(fullName, material);
 
-        GD.Print(terraObject.fullName +":"+worldID);   
+        string fullName = terraObject.name;
+        terraObject.fullName = fullName;
+        nameToObject.Add(fullName, terraObject);
+
+        GD.Print(terraObject.fullName);   
     }
 
-    
-   /* public TerraObject SelectByName(string fullName){
-        return nameToObject.TryGetValue(fullName);
-    }*/
-
-
-    /*public TerraObject SelectByName(TerraModule module, string name){
-        return nameToObject.TryGetValue(module.uniqueID + ":" + name);
-    }*/
-
-    /*public TerraObject SelectByID(int id){
-        return objects.FindLastIndex(id);
-    }*/
+    public TerraObject SelectByName(string fullName){
+        return nameToObject[fullName];
+    }
+    public TerraObject SelectByID(int id){
+        return objects[id];
+    }
 
     public List<TerraObject> GetAllMaterials(){
         return objects;
