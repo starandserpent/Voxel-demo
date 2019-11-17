@@ -1,7 +1,9 @@
-using System;
+using System.Reflection;
 using System.Linq;
+using System;
 using System.Collections.Generic;
 using Godot;
+using GodotArray = Godot.Collections.Array;
 public class GameMesher
 {
     private List<MeshInstance> instances;
@@ -13,18 +15,12 @@ public class GameMesher
     }
 
     public void ChunkLoaded(Chunk chunk){
-        int verticeIndex = 0;
-        SurfaceTool surfaceTool = new SurfaceTool();
-        surfaceTool.Begin(Mesh.PrimitiveType.Triangles);
-        SpatialMaterial material = new SpatialMaterial();
-       surfaceTool.AddColor(new Color(0, 255, 0, 127));
-        surfaceTool.SetMaterial(material);
-
+        Dictionary<Texture, List<Vector3>> verticeArrays = new Dictionary<Texture,  List<Vector3>>();
+        Dictionary<Texture, List<Vector2>> textureCoordArrays = new Dictionary<Texture,  List<Vector2>>();
         Dictionary<int, Dictionary<int, Face>> sector = greedyMesher.cull(chunk);
         // Reset buffer to starting position
 
         if (sector.Count > 0) {
-
             //Finishing greedy meshing
             foreach (int key in sector.Keys) {
                 if (key != 6) {
@@ -44,22 +40,39 @@ public class GameMesher
                     Dictionary<int, Face> faces = sector[key];
 
                     foreach (int faceKey in faces.Keys.ToArray()) {
-                       // GetIndexes(surfaceTool, verticeIndex);
                         Face completeFace = faces[faceKey];
-                        surfaceTool.AddVertex(completeFace.vector3s[0]);
-                        surfaceTool.AddVertex(completeFace.vector3s[1]);
-                        surfaceTool.AddVertex(completeFace.vector3s[2]);
-                        surfaceTool.AddVertex(completeFace.vector3s[2]);
-                        surfaceTool.AddVertex(completeFace.vector3s[3]);
-                        surfaceTool.AddVertex(completeFace.vector3s[0]);
-                        verticeIndex += 4;
+
+                        Texture texture = completeFace.terraObject.texture;
+
+                        if(!verticeArrays.ContainsKey(texture) || !textureCoordArrays.ContainsKey(texture)){
+                            verticeArrays.Add(texture, new List<Vector3>());
+                            textureCoordArrays.Add(texture, new List<Vector2>());
+                        }
+
+                        List<Vector2> textureCoords = textureCoordArrays[texture];
+                        List<Vector3> vector3s = verticeArrays[texture];
+            
+                        //completeFace = setTextureCoords(completeFace, key);
+
+                        textureCoords.Add(new Vector2(0, 0));
+                        textureCoords.Add(new Vector2(texture.GetWidth()/2048f, 0));
+                        textureCoords.Add(new Vector2(texture.GetWidth()/2048f, texture.GetHeight()/2048f));
+                        textureCoords.Add(new Vector2(texture.GetWidth()/2048f, texture.GetHeight()/2048f));
+                        textureCoords.Add(new Vector2(0, texture.GetHeight()/2048f));
+                        textureCoords.Add(new Vector2(0, 0));
+
+                        vector3s.Add(completeFace.vector3s[0]);
+                        vector3s.Add(completeFace.vector3s[1]);
+                        vector3s.Add(completeFace.vector3s[2]);
+                        vector3s.Add(completeFace.vector3s[2]);
+                        vector3s.Add(completeFace.vector3s[3]);
+                        vector3s.Add(completeFace.vector3s[0]);
+
                         sector[key].Remove(faceKey);
                     }
                     faces.Clear();
                 }
             }
-
-            surfaceTool.GenerateNormals();
 
             //Unusual meshes
             Dictionary<int, Face> side = sector[6];
@@ -130,48 +143,34 @@ public class GameMesher
                     }
                 }
             }*/
-        
-        
-        Mesh mesh = surfaceTool.Commit();
+
+        ArrayMesh mesh = new ArrayMesh();
+
         MeshInstance meshInstance = new MeshInstance();
         meshInstance.Name = "chunk:" + chunk.x + "," + chunk.y + "," + chunk.z;
         meshInstance.Translate(new Vector3(chunk.x, chunk.y, chunk.z));
-        meshInstance.Mesh = mesh;
-      //  meshInstance.MaterialOverride = material;
-        instances.Add(meshInstance);
-        surfaceTool.Clear();
-    }
-    }
 
-        /*public void setTextureCoords(List<Face> faces, SurfaceTool surfaceTool, int side) {
-        foreach (Face completeFace in faces) {
-            switch (side) {
-                case 0:
-                case 1:
-                    surfaceTool.setTextureCoords(completeFace.getVector3fs()[0].z * 2048f / completeFace.getObject().getTexture().getWidth(), completeFace.getVector3fs()[0].y * 2048f / completeFace.getObject().getTexture().getHeight(), 0);
-                    completeFace.setTextureCoords(completeFace.getVector3fs()[0].z * 2048f / completeFace.getObject().getTexture().getWidth(), completeFace.getVector3fs()[2].y * 2048f / completeFace.getObject().getTexture().getHeight(), 1);
-                    completeFace.setTextureCoords(completeFace.getVector3fs()[2].z * 2048f / completeFace.getObject().getTexture().getWidth(), completeFace.getVector3fs()[2].y * 2048f / completeFace.getObject().getTexture().getHeight(), 2);
-                    completeFace.setTextureCoords(completeFace.getVector3fs()[2].z * 2048f / completeFace.getObject().getTexture().getWidth(), completeFace.getVector3fs()[0].y * 2048f / completeFace.getObject().getTexture().getHeight(), 3);
-                    break;
-
-                case 2:
-                case 3:
-                    completeFace.setTextureCoords(completeFace.getVector3fs()[0].x * 2048f / completeFace.getObject().getTexture().getWidth(), completeFace.getVector3fs()[0].z * 2048f / completeFace.getObject().getTexture().getHeight(), 0);
-                    completeFace.setTextureCoords(completeFace.getVector3fs()[0].x * 2048f / completeFace.getObject().getTexture().getWidth(), completeFace.getVector3fs()[2].z * 2048f / completeFace.getObject().getTexture().getHeight(), 1);
-                    completeFace.setTextureCoords(completeFace.getVector3fs()[2].x * 2048f / completeFace.getObject().getTexture().getWidth(), completeFace.getVector3fs()[2].z * 2048f / completeFace.getObject().getTexture().getHeight(), 2);
-                    completeFace.setTextureCoords(completeFace.getVector3fs()[2].x * 2048f / completeFace.getObject().getTexture().getWidth(), completeFace.getVector3fs()[0].z * 2048f / completeFace.getObject().getTexture().getHeight(), 3);
-                    break;
-
-                case 4:
-                case 5:
-                    completeFace.setTextureCoords(completeFace.getVector3fs()[0].x * 2048f / completeFace.getObject().getTexture().getWidth(), completeFace.getVector3fs()[0].y * 2048f / completeFace.getObject().getTexture().getWidth(), 0);
-                    completeFace.setTextureCoords(completeFace.getVector3fs()[0].x * 2048f / completeFace.getObject().getTexture().getWidth(), completeFace.getVector3fs()[2].y * 2048f / completeFace.getObject().getTexture().getWidth(), 1);
-                    completeFace.setTextureCoords(completeFace.getVector3fs()[2].x * 2048f / completeFace.getObject().getTexture().getWidth(), completeFace.getVector3fs()[2].y * 2048f / completeFace.getObject().getTexture().getWidth(), 2);
-                    completeFace.setTextureCoords(completeFace.getVector3fs()[2].x * 2048f / completeFace.getObject().getTexture().getWidth(), completeFace.getVector3fs()[0].y * 2048f / completeFace.getObject().getTexture().getWidth(), 3);
-                    break;
-            }
+        foreach(Texture texture1 in verticeArrays.Keys){
+            GodotArray arrays = new GodotArray();
+            arrays.Resize(9);
+            
+            SpatialMaterial material = new SpatialMaterial();
+            material.SetTexture(SpatialMaterial.TextureParam.Albedo, texture1);
+            
+            arrays[0] = verticeArrays[texture1].ToArray();;
+            arrays[4] = textureCoordArrays[texture1].ToArray();
+            mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
+            mesh.SurfaceSetMaterial(mesh.GetSurfaceCount() -1, material);
+            arrays.Clear();
         }
-    }*/
+
+        meshInstance.SetMesh(mesh);
+        instances.Add(meshInstance);
+
+        verticeArrays.Clear();
+        textureCoordArrays.Clear();
+        }
+    }
 
     private void JoinReversed(Dictionary<int, Face> faces, int index, int side) {
         int neighbor = 64;
@@ -202,14 +201,5 @@ public class GameMesher
             }
         }
         }
-    }
-
-    private void GetIndexes(SurfaceTool surfaceTool, int verticeIndex) {
-        surfaceTool.AddIndex(verticeIndex);
-        surfaceTool.AddIndex(verticeIndex + 2);
-        surfaceTool.AddIndex(verticeIndex + 3);
-        surfaceTool.AddIndex(verticeIndex + 2);
-        surfaceTool.AddIndex(verticeIndex);
-        surfaceTool.AddIndex(verticeIndex + 1);
     }
 }

@@ -86,7 +86,6 @@ file_logging/enable_file_logging=true
 
 [mono]
 
-debugger_agent/wait_for_debugger=true
 export/include_scripts_content=true
 project/auto_update_project=false
 
