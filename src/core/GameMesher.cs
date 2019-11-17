@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Linq;
 using System;
 using System.Collections.Generic;
@@ -8,13 +7,28 @@ public class GameMesher
 {
     private List<MeshInstance> instances;
     private GreedyMesher greedyMesher;
+    private SplatterMesher splatterMesher;
 
     public GameMesher(List<MeshInstance> instances, Registry reg){
         this.instances = instances;
+        ShaderMaterial shaderMat = new ShaderMaterial();
+        shaderMat.SetShader(GD.Load("res://assets/shaders/splatvoxel.shader") as Shader);
         greedyMesher = new GreedyMesher(reg);
+        splatterMesher = new SplatterMesher(shaderMat, reg);
     }
 
-    public void ChunkLoaded(Chunk chunk){
+    public void ChunkLoaded(Chunk chunk, bool splatter){
+        MeshInstance meshInstance = new MeshInstance();
+        if(!splatter){
+            GreedMeshing(meshInstance, chunk);
+        }else{
+            meshInstance = splatterMesher.CreateChunkMesh(chunk);
+        }
+
+        instances.Add(meshInstance);
+    }
+
+    public void GreedMeshing(MeshInstance meshInstance, Chunk chunk){
         Dictionary<Texture, List<Vector3>> verticeArrays = new Dictionary<Texture,  List<Vector3>>();
         Dictionary<Texture, List<Vector2>> textureCoordArrays = new Dictionary<Texture,  List<Vector2>>();
         Dictionary<int, Dictionary<int, Face>> sector = greedyMesher.cull(chunk);
@@ -52,8 +66,6 @@ public class GameMesher
                         List<Vector2> textureCoords = textureCoordArrays[texture];
                         List<Vector3> vector3s = verticeArrays[texture];
             
-                        //completeFace = setTextureCoords(completeFace, key);
-
                         textureCoords.Add(new Vector2(0, 0));
                         textureCoords.Add(new Vector2(texture.GetWidth()/2048f, 0));
                         textureCoords.Add(new Vector2(texture.GetWidth()/2048f, texture.GetHeight()/2048f));
@@ -146,7 +158,6 @@ public class GameMesher
 
         ArrayMesh mesh = new ArrayMesh();
 
-        MeshInstance meshInstance = new MeshInstance();
         meshInstance.Name = "chunk:" + chunk.x + "," + chunk.y + "," + chunk.z;
         meshInstance.Translate(new Vector3(chunk.x, chunk.y, chunk.z));
 
@@ -161,18 +172,15 @@ public class GameMesher
             arrays[4] = textureCoordArrays[texture1].ToArray();
             mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
             mesh.SurfaceSetMaterial(mesh.GetSurfaceCount() -1, material);
+            meshInstance.SetMesh(mesh);
             arrays.Clear();
-        }
-
-        meshInstance.SetMesh(mesh);
-        instances.Add(meshInstance);
-
-        verticeArrays.Clear();
-        textureCoordArrays.Clear();
+            verticeArrays.Clear();
+            textureCoordArrays.Clear();
         }
     }
+    }
 
-    private void JoinReversed(Dictionary<int, Face> faces, int index, int side) {
+    private static void JoinReversed(Dictionary<int, Face> faces, int index, int side) {
         int neighbor = 64;
         switch (side) {
             case 2:

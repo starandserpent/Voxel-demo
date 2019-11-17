@@ -65,7 +65,7 @@ public class WorldGenerator
 
             Chunk chunk = loadArea(xWorld, yWorld, zWorld, marker);
 
-            mesher.ChunkLoaded(chunk);
+            mesher.ChunkLoaded(chunk, true);
           //  OctreeLeaf leafNode = new OctreeLeaf(xWorld, yWorld, zWorld, layers, lolong, chunk);
         }
 
