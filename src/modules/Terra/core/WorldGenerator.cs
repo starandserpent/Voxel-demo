@@ -1,221 +1,126 @@
+using System.Linq;
 using System;
+using System.Collections.Generic;
 using Godot;
 public class WorldGenerator
 {
-
     //private readonly OffheapOctree octree;
-    private Foreman generator;
-
-    //This is recommend max static octree size because it takes 134 MB
+   //This is recommend max static octree size because it takes 134 MB
     private static readonly int MAX_OCTREE_NODE_SIZE = 256;
     private static readonly int MAX_OCTANT_LAYERS = 4;
-
-    private readonly int nodeLength;
-    private readonly int maxOctreeSize;
-
     private GameMesher mesher;
+    private List<MeshInstance> meshInstances;
+    private Octree octree;
+    private Foreman generator;
 
-    public WorldGenerator(int nodeLength, int maxOctreeSize,/* OffheapOctree octree,*/ GameMesher mesher, Foreman generator) {
+    public WorldGenerator(Octree octree, GameMesher mesher, Foreman generator) {
         this.generator = generator;
-   ///     this.octree = octree;
-        this.nodeLength = nodeLength;
-        this.maxOctreeSize = maxOctreeSize;
         this.mesher = mesher;
+        this.octree = octree;
+    }
+
+    public void SetMeshInstaces(List<MeshInstance> instances){
+        this.meshInstances = instances;
     }
 
     //Initial generation
-    public void seekSector(LoadMarker marker) {
+    public void SeekSector(LoadMarker marker) {
 
         //Round world size to nearest node length
-//        marker.calculateMarkerOctants(nodeLength);
+        octree.posX = 32;
+        octree.posY = 32;
+        octree.posZ = 32;
 
-       // int layers = CoreUtils.calculateOctreeLayers(nodeLength);
+        uint size = octree.posX * octree.posY * octree.posZ;
+        octree.layers = (uint) Utils.calculateLayers(size);
 
-        int roundRadius = (int) (2 * marker.getHardRadius()) - 1;
+        octree.nodes = new Dictionary<int, Memory<OctreeNode>>();
+        octree.nodes[0]= new OctreeNode[size];
 
-        /*if (roundRadius > ServerWorld.MAX_LOAD_DISTANCE / 16) {
-            roundRadius = ServerWorld.MAX_LOAD_DISTANCE / 16;
-        }
-            */
-        int chunkAmount = (int) Math.Pow(roundRadius, 3);
-       
+        int playerPosX = ((int)marker.pos.x/16)*16;
+        int playerPosY = ((int)marker.pos.y/16)*16;
+        int playerPosZ = ((int)marker.pos.z/16)*16;
 
-       /* if (nodeLength > ServerWorld.MAX_LOAD_DISTANCE) {
-            for (int l = 0; l < layers - MAX_OCTANT_LAYERS; l++) {
-                int octant = marker.getOctant(l);
-                octree.createNextLayer(octant);
-            }
-        }*/
-
-        GD.Print("chunkAmount:" + chunkAmount);
-
-        for (int i = 0; i < chunkAmount; i++) {
-            int xOffset = i % roundRadius;
-            int yOffset = (i / roundRadius) % roundRadius;
-            int zOffset = i / (roundRadius * roundRadius);
-
-            int xWorld = (int) ((xOffset * 16)
-                    + (marker.pos.x / 16) * 16);
-            int yWorld = (int) ((yOffset *16)
-                    + (marker.pos.y / 16) *16);
-            int zWorld = (int) ((zOffset * 16)
-                    + (marker.pos.z / 16) * 16);
-
-            long lolong = Morton3D.encode(xOffset, yOffset, zOffset);
-
-            Chunk chunk = loadArea(xWorld, yWorld, zWorld, marker);
-
-            mesher.ChunkLoaded(chunk, true);
-          //  OctreeLeaf leafNode = new OctreeLeaf(xWorld, yWorld, zWorld, layers, lolong, chunk);
-        }
-
-       // createOctree(octree.getCursorNode());
-     //   marker.sendOctree(octree);
+        CreateNode(playerPosX, playerPosY, playerPosZ, 0, 0, default(OctreeNode), marker);
     }
 
     //Procedural generation
-    /*void updateSector(float x, float z, float range, WorldLoadListener listener, LoadMarker trigger) {
-    }*/
+    void UpdateSector(float x, float z, float range, LoadMarker trigger) {}
 
-    private void createOctree(int mainNode) {
-       /* if (mainNode.layer <= octree.octreeLayers + 1) {
-            OctreeNode child = CoreUtils.createNode(mainNode, 0);
-            mainNode.setChildren(child, 0);
-            assert child != null;
-            octree.addOctant(child);
-            createOctree(child);
-            child = CoreUtils.createNode(mainNode, 1);
-            mainNode.setChildren(child, 1);
-            assert child != null;
-            octree.addOctant(child);
-            createOctree(child);
-            child = CoreUtils.createNode(mainNode, 2);
-            mainNode.setChildren(child, 2);
-            assert child != null;
-            octree.addOctant(child);
-            createOctree(child);
-            child = CoreUtils.createNode(mainNode, 3);
-            mainNode.setChildren(child, 3);
-            assert child != null;
-            octree.addOctant(child);
-            createOctree(child);
-            child = CoreUtils.createNode(mainNode, 4);
-            mainNode.setChildren(child, 4);
-            assert child != null;
-            octree.addOctant(child);
-            createOctree(child);
-            child = CoreUtils.createNode(mainNode, 5);
-            mainNode.setChildren(child, 5);
-            assert child != null;
-            octree.addOctant(child);
-            createOctree(child);
-            child = CoreUtils.createNode(mainNode, 6);
-            mainNode.setChildren(child, 6);
-            assert child != null;
-            octree.addOctant(child);
-            createOctree(child);
-            child = CoreUtils.createNode(mainNode, 7);
-            mainNode.setChildren(child, 7);
-            assert child != null;
-            octree.addOctant(child);
-            createOctree(child);
-        } else {
-            //1. Cube
-            int posX = (int) mainNode.getPosX() + DataConstants.CHUNK_SCALE;
-            int posY = (int) mainNode.getPosY() + DataConstants.CHUNK_SCALE;
-            int posZ = (int) mainNode.getPosZ() + DataConstants.CHUNK_SCALE;
-            OctreeNode child = chunkMap.get(posX, posY, posZ);
-            if (child == null) {
-                child = new OctreeLeaf(posX, posY, posZ, mainNode.layer + 1);
-            }
-            octree.addOctant(child);
-            mainNode.setChildren(child, 0);
-            //2. Cube
-            posX = (int) mainNode.getPosX();
-            posY = (int) mainNode.getPosY() + DataConstants.CHUNK_SCALE;
-            posZ = (int) mainNode.getPosZ() + DataConstants.CHUNK_SCALE;
-            child = chunkMap.get(posX, posY, posZ);
-            if (child == null) {
-                child = new OctreeLeaf(posX, posY, posZ, mainNode.layer + 1);
-            }
-            octree.addOctant(child);
-            mainNode.setChildren(child, 1);
-            //3. Cube
-            posX = (int) mainNode.getPosX() + DataConstants.CHUNK_SCALE;
-            posY = (int) mainNode.getPosY();
-            posZ = (int) mainNode.getPosZ() + DataConstants.CHUNK_SCALE;
-            child = chunkMap.get(posX, posY, posZ);
-            if (child == null) {
-                child = new OctreeLeaf(posX, posY, posZ, mainNode.layer + 1);
-            }
-            octree.addOctant(child);
-            mainNode.setChildren(child, 2);
-            //4. Cube
-            posX = (int) mainNode.getPosX();
-            posY = (int) mainNode.getPosY();
-            posZ = (int) mainNode.getPosZ() + DataConstants.CHUNK_SCALE;
-            child = chunkMap.get(posX, posY, posZ);
-            if (child == null) {
-                child = new OctreeLeaf(posX, posY, posZ, mainNode.layer + 1);
-            }
-            octree.addOctant(child);
-            mainNode.setChildren(child, 3);
-            //5. Cube
-            posX = (int) mainNode.getPosX() + DataConstants.CHUNK_SCALE;
-            posY = (int) mainNode.getPosY() + DataConstants.CHUNK_SCALE;
-            posZ = (int) mainNode.getPosZ();
-            child = chunkMap.get(posX, posY, posZ);
-            if (child == null) {
-                child = new OctreeLeaf(posX, posY, posZ, mainNode.layer + 1);
-            }
-            octree.addOctant(child);
-            mainNode.setChildren(child, 4);
-            //6. Cube
-            posX = (int) mainNode.getPosX();
-            posY = (int) mainNode.getPosY() + DataConstants.CHUNK_SCALE;
-            posZ = (int) mainNode.getPosZ();
-            child = chunkMap.get(posX, posY, posZ);
-            if (child == null) {
-                child = new OctreeLeaf(posX, posY, posZ, mainNode.layer + 1);
-            }
-            octree.addOctant(child);
-            mainNode.setChildren(child, 5);
-            //7. Cube
-            posX = (int) mainNode.getPosX() + DataConstants.CHUNK_SCALE;
-            posY = (int) mainNode.getPosY();
-            posZ = (int) mainNode.getPosZ();
-            child = chunkMap.get(posX, posY, posZ);
-            if (child == null) {
-                child = new OctreeLeaf(posX, posY, posZ, mainNode.layer + 1);
-            }
-            octree.addOctant(child);
-            mainNode.setChildren(child, 6);
-            //8. Cube
-            posX = (int) mainNode.getPosX();
-            posY = (int) mainNode.getPosY();
-            posZ = (int) mainNode.getPosZ();
-            child = chunkMap.get(posX, posY, posZ);
-            if (child == null) {
-                child = new OctreeLeaf(posX, posY, posZ, mainNode.layer + 1);
-            }
-            octree.addOctant(child);
-            mainNode.setChildren(child, 7);
-        }
-        */
-    }
+    private void CreateNode(int posX, int posY, int posZ, int layer, int type, OctreeNode parentNode, LoadMarker marker) {
+        if(layer == 0){
+            uint size = octree.posX * octree.posY * octree.posZ;
+            Chunk chunk = LoadArea(posX * 16, posY * 16, posZ * 16, marker);
+            int lolong = (int) Morton3D.encode(posX, posY, posZ);
+            OctreeNode childNode = new OctreeNode();
+            childNode.chunk = chunk;
+            childNode.locCode = lolong;
+            mesher.ChunkLoaded(chunk, false);
+            octree.nodes[0].Span[lolong] = childNode;
 
-    //Unloads chunks
-  /*  public void unloadArea(float x, float y, float z, WorldLoadListener listener, OffheapLoadMarker trigger){
-        ChunkLoader chunkLoader = new ChunkLoader(listener);
-        ChunkLArray chunk = chunkLoader.getChunk(x, y, z, trigger);
-        if(chunk != null) {
-            //genManager.remove(chunk);
-            listener.chunkUnloaded(chunk);
+            if(!octree.nodes.ContainsKey(1)){
+                CreateNode(posX, posY, posZ, layer + 1, type, childNode, marker);
+            }else{
+                parentNode.children[type] = childNode;
+            }
+        }else if(layer < octree.layers){
+            OctreeNode node = new OctreeNode();
+            int loccode = (int) Morton3D.encode(posX, posY, posZ);
+            node.locCode = loccode;
+            node.children = new Dictionary<int, OctreeNode>();
+
+            if(!octree.nodes.ContainsKey(layer)){
+                uint size = octree.posX * octree.posY * octree.posZ;
+                OctreeNode clone = parentNode;
+                node.children.Add(type, clone);
+                octree.nodes.Add(layer, new OctreeNode[size]);
+                octree.nodes[layer].Span[loccode] = node;
+                CreateNode(posX, posY, posZ, layer + 1, type, node, marker);
+            }else{
+                parentNode.children[type] = node;
+            }
+
+            for(int i = 0; i < 8; i ++){
+                if(!node.children.ContainsKey(i)){
+                    switch(i){
+                        case 0:
+                            CreateNode(posX, posY, posZ, layer - 1, 0, node, marker);
+                        break;
+                           case 1:
+                            CreateNode(posX + 1, posY, posZ, layer - 1, 1, node, marker);
+                        break;
+                           case 2:
+                            CreateNode(posX + 1, posY, posZ + 1, layer - 1, 2, node, marker);
+
+                        break;
+                           case 3:
+                            CreateNode(posX, posY, posZ + 1, layer - 1, 3, node, marker);
+
+                        break;
+                           case 4:
+                            CreateNode(posX, posY + 1, posZ, layer - 1, 4, node, marker);
+
+                        break;
+                           case 5:
+                            CreateNode(posX + 1, posY + 1, posZ, layer - 1, 5, node, marker);
+
+                        break;
+                           case 6:
+                            CreateNode(posX + 1, posY + 1, posZ + 1, layer - 1, 6, node, marker);
+
+                        break;
+                           case 7:
+                            CreateNode(posX, posY + 1, posZ + 1, layer - 1, 7, node, marker);
+                        break;
+                    }
+                }
+            }
+            }
         }
-    }*/
+
 
     //Loads chunks
-    private Chunk loadArea(float x, float y, float z, LoadMarker marker) {
+    private Chunk LoadArea(float x, float y, float z, LoadMarker marker) {
         if (x >= 0 && z >= 0) {
             Chunk chunk = generator.GetChunk(x, y, z);
             marker.sendChunk(chunk);

@@ -1,10 +1,10 @@
+using System.Collections.Generic;
 using Godot;
 using System;
 
 public struct OctreeNode
 {
-    private uint x {get; set;}
-    private uint y {get; set;}
-    private uint z {get; set;}
-    private OctreeNode[] children{get; set;}
+    public long locCode{get; set;}
+    public Dictionary<int, OctreeNode> children{get; set;}
+    public Chunk chunk{get; set;}
 }

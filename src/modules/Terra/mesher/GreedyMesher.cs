@@ -15,7 +15,7 @@ public class GreedyMesher
 
     public Dictionary<int, Dictionary<int, Face>> cull(Chunk chunk){
         for(int i = 0; i < 262144; i++){
-            int objectID = chunk.voxels[i];
+            int objectID = chunk.voxels.Span[i];
             TerraObject terraObject = registry.SelectByID(objectID);
 
             if(terraObject.texture == null || objectID == 0){
@@ -27,7 +27,7 @@ public class GreedyMesher
             int x = i % 64;
 
             //LEFT
-            if (x == 0 || chunk.voxels[i - 1] != objectID){
+            if (x == 0 || chunk.voxels.Span[i - 1] != objectID){
                 Face face = new Face();
                 Dictionary<int, Face> side1 = sectors[0];
                 face.terraObject = terraObject;
@@ -53,7 +53,7 @@ public class GreedyMesher
 
             // RIGHT
             /*&& buf.get(i + 64) != object*/
-            if (x == 63 || chunk.voxels[i + 1] != objectID) {
+            if (x == 63 || chunk.voxels.Span[i + 1] != objectID) {
                 Face face = new Face();
                 face.terraObject = terraObject;
              //   face.normals = new Vector3[4]{new Vector3(1, 0, 0), new Vector3(1, 0, 0), new Vector3(1, 0, 0), new Vector3(1, 0, 0)};
@@ -78,7 +78,7 @@ public class GreedyMesher
             }
 
             // TOP
-            if (y == 63 || chunk.voxels[i + 64] != objectID) {
+            if (y == 63 || chunk.voxels.Span[i + 64] != objectID) {
                 Face face = new Face();
                 face.terraObject = terraObject;
                 //face.normals = new Vector3[4]{new Vector3(0, 1, 0), new Vector3(0, 1, 0), new Vector3(0, 1, 0), new Vector3(0, 1, 0)};
@@ -103,7 +103,7 @@ public class GreedyMesher
             }
 
             // BOTTOM
-            if (y == 0 || y > 0 && chunk.voxels[i - 64] != objectID) {
+            if (y == 0 || y > 0 && chunk.voxels.Span[i - 64] != objectID) {
                 Face face = new Face();
                 face.terraObject = terraObject;
                // face.normals = new Vector3[4]{new Vector3(0, -1, 0), new Vector3(0, -1, 0), new Vector3(0, -1, 0), new Vector3(0, -1, 0)};
@@ -128,7 +128,7 @@ public class GreedyMesher
             }
             //&& buf.get(i + 64) != object*/ || z < 63
             // BACK
-                if (z == 63 || chunk.voxels[i + 4096] != objectID) {
+                if (z == 63 || chunk.voxels.Span[i + 4096] != objectID) {
                     Face face = new Face();
                     face.terraObject = terraObject;
                 //    face.normals = new Vector3[4]{new Vector3(0, 0, 1), new Vector3(0, 0, 1), new Vector3(0, 0, 1), new Vector3(0, 0, 1)};
@@ -153,7 +153,7 @@ public class GreedyMesher
                 }
 
             // FRONT
-            if (z == 0 || chunk.voxels[i - 4096] != objectID) {
+            if (z == 0 || chunk.voxels.Span[i - 4096] != objectID) {
                 Face face = new Face();
                 face.terraObject = terraObject;
               //  face.normals = new Vector3[4]{new Vector3(0, 0, -1), new Vector3(0, 0, -1), new Vector3(0, 0, -1), new Vector3(0, 0, -1)};
@@ -178,7 +178,6 @@ public class GreedyMesher
             }
         }
 
-        chunk.voxels.Clear();
         return sectors;
     }
 }

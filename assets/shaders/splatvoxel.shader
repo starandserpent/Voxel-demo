@@ -17,8 +17,6 @@ varying mat3 rotation_Box;
 varying vec3 min_pos_Box;
 varying vec3 max_pos_Box;
 
-
-
 void vertex() {
 	float padding = 2.1f;
 	mat4 mvp = PROJECTION_MATRIX * MODELVIEW_MATRIX;

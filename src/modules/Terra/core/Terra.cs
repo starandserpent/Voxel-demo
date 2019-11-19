@@ -1,19 +1,23 @@
 using System.Collections.Generic;
 using Godot;
-using System;
-
 public class Terra
 {
     // Declare member variables here. Examples:
-    private List<OctreeNode> octreeNodes;
+    private Octree octree;
     private Foreman foreman;
     private WorldGenerator generator;
-    public Terra(int centX, int centY, int centZ, WorldGenerator worldGenerator){
-        octreeNodes = new List<OctreeNode>();
-        this.generator = worldGenerator;
+    private Registry registry;
+    public Terra(int centX, int centY, int centZ, Registry registry, GameMesher mesher){
+        foreman = new Foreman();
+        foreman.SetMaterials(registry);
+        generator = new WorldGenerator(octree, mesher, foreman);
+        octree = new Octree();
     }
     
     public void initialWorldGeneration(LoadMarker loadMarker){
-        generator.seekSector(loadMarker);
+        generator.SeekSector(loadMarker);
+    }
+    public void SetMeshInstaces(List<MeshInstance> instances){
+        generator.SetMeshInstaces(instances);
     }
 }

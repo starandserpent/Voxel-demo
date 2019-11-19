@@ -161,7 +161,7 @@ public class GameMesher
         meshInstance.Name = "chunk:" + chunk.x + "," + chunk.y + "," + chunk.z;
         meshInstance.Translate(new Vector3(chunk.x, chunk.y, chunk.z));
 
-        foreach(Texture texture1 in verticeArrays.Keys){
+        foreach(Texture texture1 in verticeArrays.Keys.ToArray()){
             GodotArray arrays = new GodotArray();
             arrays.Resize(9);
             
@@ -172,12 +172,13 @@ public class GameMesher
             arrays[4] = textureCoordArrays[texture1].ToArray();
             mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
             mesh.SurfaceSetMaterial(mesh.GetSurfaceCount() -1, material);
-            meshInstance.SetMesh(mesh);
             arrays.Clear();
-            verticeArrays.Clear();
-            textureCoordArrays.Clear();
         }
-    }
+
+        meshInstance.SetMesh(mesh);
+        verticeArrays.Clear();
+        textureCoordArrays.Clear();
+        }
     }
 
     private static void JoinReversed(Dictionary<int, Face> faces, int index, int side) {
@@ -187,10 +188,6 @@ public class GameMesher
             case 3:
                 neighbor = 4096;
                 break;
-        }
-
-        if (faces.ContainsKey(index - neighbor)) {
-            return;
         }
 
         if(faces.ContainsKey(index - neighbor) && faces.ContainsKey(index)){

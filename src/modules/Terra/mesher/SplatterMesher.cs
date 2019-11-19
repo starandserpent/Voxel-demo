@@ -34,38 +34,38 @@ public class SplatterMesher {
             for (int i = 0; i < Constants.CHUNK_SIZE_MAX; i++)
             {
 
-             int objectID = chunk.voxels[i];
+             int objectID = chunk.voxels.Span[i];
             TerraObject terraObject = registry.SelectByID(objectID);
                 var x = i % CHUNK_SIZE;
                 var y = (i / CHUNK_SIZE) % CHUNK_SIZE;
                 var z = i / (CHUNK_SIZE * CHUNK_SIZE);
-            if (chunk.voxels[i] != 0)
+            if (chunk.voxels.Span[i] != 0)
             {            
 
             int face = 0b000000;
             //Left
-            if (x == 0 || chunk.voxels[i - 1] != objectID) {
+            if (x == 0 || chunk.voxels.Span[i - 1] != objectID) {
                 face = 0b000001;
             }
 
             //Right
-            else if (x == 63 || chunk.voxels[i + 1] != objectID) {
+            else if (x == 63 || chunk.voxels.Span[i + 1] != objectID) {
                   face = 0b000010 ;
             }
             //Top
-            else if (y == 63 || chunk.voxels[i + 64] != objectID) {
+            else if (y == 63 || chunk.voxels.Span[i + 64] != objectID) {
                   face = 0b000100 ;
             }
             //Bottom
-            else if (y == 0 || chunk.voxels[i - 64] != objectID) {
+            else if (y == 0 || chunk.voxels.Span[i - 64] != objectID) {
                   face = 0b001000;
             }
             //Back
-            else if (z == 63 || chunk.voxels[i + 4096] != objectID) {
+            else if (z == 63 || chunk.voxels.Span[i + 4096] != objectID) {
                   face = 0b010000 ;
             }
             //Front
-            else if (z == 0 || chunk.voxels[i - 4096] != objectID) {
+            else if (z == 0 || chunk.voxels.Span[i - 4096] != objectID) {
                   face = 0b100000;
             }
 
