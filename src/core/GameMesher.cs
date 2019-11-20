@@ -63,15 +63,17 @@ public class GameMesher
                             textureCoordArrays.Add(texture, new List<Vector2>());
                         }
 
+                        completeFace = SetTextureCoords(completeFace, key);
+
                         List<Vector2> textureCoords = textureCoordArrays[texture];
                         List<Vector3> vector3s = verticeArrays[texture];
             
-                        textureCoords.Add(new Vector2(0, 0));
-                        textureCoords.Add(new Vector2(texture.GetWidth()/2048f, 0));
-                        textureCoords.Add(new Vector2(texture.GetWidth()/2048f, texture.GetHeight()/2048f));
-                        textureCoords.Add(new Vector2(texture.GetWidth()/2048f, texture.GetHeight()/2048f));
-                        textureCoords.Add(new Vector2(0, texture.GetHeight()/2048f));
-                        textureCoords.Add(new Vector2(0, 0));
+                        textureCoords.Add(completeFace.UVs[0]);
+                        textureCoords.Add(completeFace.UVs[1]);
+                        textureCoords.Add(completeFace.UVs[2]);
+                        textureCoords.Add(completeFace.UVs[2]);
+                        textureCoords.Add(completeFace.UVs[3]);
+                        textureCoords.Add(completeFace.UVs[0]);
 
                         vector3s.Add(completeFace.vector3s[0]);
                         vector3s.Add(completeFace.vector3s[1]);
@@ -166,6 +168,7 @@ public class GameMesher
             arrays.Resize(9);
             
             SpatialMaterial material = new SpatialMaterial();
+            texture1.SetFlags(2);
             material.SetTexture(SpatialMaterial.TextureParam.Albedo, texture1);
             
             arrays[0] = verticeArrays[texture1].ToArray();;
@@ -195,16 +198,42 @@ public class GameMesher
 
         Face face = faces[index];
         if (face.terraObject == (nextFace.terraObject)) {
-            if (nextFace.vector3s[2] == (face.vector3s[3]) && nextFace.vector3s[1] == (face.vector3s[0])) {
-                nextFace.vector3s[1] = face.vector3s[1];
+            if (nextFace.vector3s[2] == face.vector3s[1] && nextFace.vector3s[3] == face.vector3s[0]) {
                 nextFace.vector3s[2] = face.vector3s[2];
-                faces.Remove(index);
-            } else if (nextFace.vector3s[3] == (face.vector3s[2]) && nextFace.vector3s[0] == (face.vector3s[1])) {
                 nextFace.vector3s[3] = face.vector3s[3];
-                nextFace.vector3s[0] = face.vector3s[0];
                 faces.Remove(index);
             }
         }
         }
     }
+
+        private static Face SetTextureCoords(Face completeFace, int side) {
+            completeFace.UVs = new Vector2[4];
+            switch (side) {
+                case 0:
+                case 1:
+                    completeFace.UVs[0]= new Vector2(completeFace.vector3s[0].z * 2048f / completeFace.terraObject.texture.GetWidth(), completeFace.vector3s[0].y * 2048f / completeFace.terraObject.texture.GetHeight());
+                    completeFace.UVs[1]= new Vector2(completeFace.vector3s[1].z * 2048f / completeFace.terraObject.texture.GetWidth(), completeFace.vector3s[1].y * 2048f / completeFace.terraObject.texture.GetHeight());
+                    completeFace.UVs[2]= new Vector2(completeFace.vector3s[2].z * 2048f / completeFace.terraObject.texture.GetWidth(), completeFace.vector3s[2].y * 2048f / completeFace.terraObject.texture.GetHeight());
+                    completeFace.UVs[3]= new Vector2(completeFace.vector3s[3].z * 2048f / completeFace.terraObject.texture.GetWidth(), completeFace.vector3s[3].y * 2048f / completeFace.terraObject.texture.GetHeight());
+                    return completeFace;
+
+                case 2:
+                case 3:
+                    completeFace.UVs[0]= new Vector2(completeFace.vector3s[0].x * 2048f / completeFace.terraObject.texture.GetWidth(), completeFace.vector3s[0].z * 2048f / completeFace.terraObject.texture.GetHeight());
+                    completeFace.UVs[1]= new Vector2(completeFace.vector3s[1].x * 2048f / completeFace.terraObject.texture.GetWidth(), completeFace.vector3s[1].z * 2048f / completeFace.terraObject.texture.GetHeight());
+                    completeFace.UVs[2]= new Vector2(completeFace.vector3s[2].x * 2048f / completeFace.terraObject.texture.GetWidth(), completeFace.vector3s[2].z * 2048f / completeFace.terraObject.texture.GetHeight());
+                    completeFace.UVs[3]= new Vector2(completeFace.vector3s[3].x * 2048f / completeFace.terraObject.texture.GetWidth(), completeFace.vector3s[3].z * 2048f / completeFace.terraObject.texture.GetHeight());
+                    return completeFace;
+
+                case 4:
+                case 5:
+                    completeFace.UVs[0]= new Vector2(completeFace.vector3s[0].x * 2048f / completeFace.terraObject.texture.GetWidth(), completeFace.vector3s[0].y * 2048f / completeFace.terraObject.texture.GetHeight());
+                    completeFace.UVs[1]= new Vector2(completeFace.vector3s[1].x * 2048f / completeFace.terraObject.texture.GetWidth(), completeFace.vector3s[1].y * 2048f / completeFace.terraObject.texture.GetHeight());
+                    completeFace.UVs[2]= new Vector2(completeFace.vector3s[2].x * 2048f / completeFace.terraObject.texture.GetWidth(), completeFace.vector3s[2].y * 2048f / completeFace.terraObject.texture.GetHeight());
+                    completeFace.UVs[3]= new Vector2(completeFace.vector3s[3].x * 2048f / completeFace.terraObject.texture.GetWidth(), completeFace.vector3s[3].y * 2048f / completeFace.terraObject.texture.GetHeight());
+                    return completeFace;
+            }
+            return completeFace;
+        }
 }

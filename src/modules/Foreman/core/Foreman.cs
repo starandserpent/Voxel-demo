@@ -51,7 +51,7 @@ public class Foreman
                    /* if (random.getBoolean()) {
                         blockBuffer.put(x + Math.Abs(((elevation + 1) % 64) * 64) + (z * 4096), (byte) grassMeshID);
                     }*/
-                }
+                }           
             }
         }
         return chunk;

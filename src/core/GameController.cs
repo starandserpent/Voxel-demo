@@ -27,8 +27,8 @@ public class GameController : Spatial
         world = new Terra(0, 0, 0, registry, mesher);
         world.SetMeshInstaces(instances);
 
-        GetViewport().DebugDraw = Viewport.DebugDrawEnum.Wireframe;
-            VisualServer.SetDebugGenerateWireframes(true);
+        //GetViewport().DebugDraw = Viewport.DebugDrawEnum.Wireframe;
+          //  VisualServer.SetDebugGenerateWireframes(true);
 
         ThreadingStart start = new ThreadingStart(generation); 
         AddChild(new Node(), true);

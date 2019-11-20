@@ -2,7 +2,6 @@ extends Camera
 
 const MOUSE_SENSITIVITY = 0.002
 
-
 # The camera movement speed (tweakable using the mouse wheel)
 var move_speed = 1.5
 
@@ -31,6 +30,7 @@ func _input(event):
 	# These actions do not make sense when the settings GUI is visible, hence the check
 #	if not SettingsGUI.visible:
 #		# Toggle mouse capture (only while the menu is not visible)
+	if event.is_action_pressed("toggle_mouse_capture"):
 		if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		else:
