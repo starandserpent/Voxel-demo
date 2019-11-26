@@ -30,6 +30,7 @@ public class GameMesher
 
     public void GreedMeshing(MeshInstance meshInstance, Chunk chunk){
         Dictionary<Texture, List<Vector3>> verticeArrays = new Dictionary<Texture,  List<Vector3>>();
+        Dictionary<Texture, List<Vector3>> normalsArrays = new Dictionary<Texture,  List<Vector3>>();
         Dictionary<Texture, List<Vector2>> textureCoordArrays = new Dictionary<Texture,  List<Vector2>>();
         Dictionary<int, Dictionary<int, Face>> sector = greedyMesher.cull(chunk);
         // Reset buffer to starting position
@@ -61,12 +62,14 @@ public class GameMesher
                         if(!verticeArrays.ContainsKey(texture) || !textureCoordArrays.ContainsKey(texture)){
                             verticeArrays.Add(texture, new List<Vector3>());
                             textureCoordArrays.Add(texture, new List<Vector2>());
+                            normalsArrays.Add(texture, new List<Vector3>());
                         }
 
                         completeFace = SetTextureCoords(completeFace, key);
 
                         List<Vector2> textureCoords = textureCoordArrays[texture];
                         List<Vector3> vector3s = verticeArrays[texture];
+                        List<Vector3> normals =  normalsArrays[texture];
             
                         textureCoords.Add(completeFace.UVs[0]);
                         textureCoords.Add(completeFace.UVs[1]);
@@ -81,6 +84,10 @@ public class GameMesher
                         vector3s.Add(completeFace.vector3s[2]);
                         vector3s.Add(completeFace.vector3s[3]);
                         vector3s.Add(completeFace.vector3s[0]);
+
+                        for(int i = 0; i < 6; i ++){
+                            normals.Add(completeFace.normal);
+                        }
 
                         sector[key].Remove(faceKey);
                     }
@@ -171,10 +178,11 @@ public class GameMesher
             texture1.SetFlags(2);
             material.SetTexture(SpatialMaterial.TextureParam.Albedo, texture1);
             
-            arrays[0] = verticeArrays[texture1].ToArray();;
+            arrays[0] = verticeArrays[texture1].ToArray();
+            arrays[1] = normalsArrays[texture1].ToArray();
             arrays[4] = textureCoordArrays[texture1].ToArray();
             mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
-            mesh.SurfaceSetMaterial(mesh.GetSurfaceCount() -1, material);
+            mesh.SurfaceSetMaterial(mesh.GetSurfaceCount() - 1, material);
             arrays.Clear();
         }
 

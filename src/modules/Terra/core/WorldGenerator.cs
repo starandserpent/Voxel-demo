@@ -53,18 +53,17 @@ public class WorldGenerator
             }
             
         }else if(layer < octree.layers){
+            bool newLayer = false;
             OctreeNode node = new OctreeNode();
             int loccode = (int) Morton3D.encode(posX, posY, posZ);
             node.locCode = loccode;
             node.children = new Dictionary<int, OctreeNode>();
 
           //  if(layer == 1){
-            CubeMesh mesh = new CubeMesh();
-            MeshInstance instance = new MeshInstance();
-            instance.SetMesh(mesh);
-            instance.SetScale(new Vector3(16 * (float) Math.Pow(2, layer - 1), 16 * (float) Math.Pow(2, layer - 1), 16 * (float) Math.Pow(2, layer - 1)));
+            MeshInstance instance = DebugMesh();
+            instance.SetScale(new Vector3(32 * (float) Math.Pow(2, layer - 1), 32 * (float) Math.Pow(2, layer - 1), 32 * (float) Math.Pow(2, layer - 1)));
 
-            instance.SetTranslation(new Vector3(posX * 16 *  (float) Math.Pow(2, layer) + 16 *  (float) Math.Pow(2, layer - 1), posY * 16 *  (float) Math.Pow(2, layer)  + 16 *  (float) Math.Pow(2, layer - 1) , posZ *  16 * (float) Math.Pow(2, layer)  + 16 *  (float) Math.Pow(2, layer - 1)));
+            instance.SetTranslation(new Vector3(posX * 16 *  (float) Math.Pow(2, layer), posY * 16 *  (float) Math.Pow(2, layer), posZ *  16 * (float) Math.Pow(2, layer)));
             meshInstances.Add(instance);
          //   }
 
@@ -73,7 +72,7 @@ public class WorldGenerator
                 node.children.Add(type, parentNode);
                 octree.nodes.Add(layer, new OctreeNode[size]);
                 octree.nodes[layer].Span[loccode] = node;
-                node = CreateNode(posX, posY, posZ, layer + 1, type, node, marker);
+                newLayer = true;
             }else{
                 parentNode.children.Add(type, node);
             }
@@ -82,38 +81,41 @@ public class WorldGenerator
                 if(!node.children.ContainsKey(i)){
                     switch(i){
                         case 0:
-                            node = CreateNode((2 * posX) + 1, (2 * posY) + 1, (2 * posZ) + 1, layer - 1, 0, node, marker);
+                            node = CreateNode(2 * posX, 2 * posY, 2 * posZ, layer - 1, 0, node, marker);
                         break;
 
                            case 1:
-                             node = CreateNode(2 * posX, (2 * posY) + 1, (2 * posZ) + 1, layer - 1, 1, node, marker);
+                             node = CreateNode((2 * posX) + 1, 2 * posY, 2 * posZ, layer - 1, 1, node, marker);
                         break;
 
                            case 2:
-                             node = CreateNode(2 * posX, (2 * posY) + 1, 2 * posZ, layer - 1, 2, node, marker);
+                             node = CreateNode(2 * posX, 2 * posY, (2 * posZ) + 1, layer - 1, 2, node, marker);
                         break;
 
                            case 3:
-                             node = CreateNode((2 * posX) + 1, (2 * posY) + 1, 2 * posZ, layer - 1, 3, node, marker);
+                             node = CreateNode((2 * posX) + 1, 2 * posY, (2 * posZ) + 1, layer - 1, 3, node, marker);
                         break;
 
                            case 4:
-                             node = CreateNode((2 * posX) + 1, (2 * posY) + 1, (2 * posZ) + 1, layer - 1, 4, node, marker);
+                             node = CreateNode(2 * posX, (2 * posY) + 1, 2 * posZ, layer - 1, 4, node, marker);
                         break;
 
                            case 5:
-                             node = CreateNode(2 * posX, 2 * posY, (2 * posZ) + 1, layer - 1, 5, node, marker);
+                             node = CreateNode((2 * posX) + 1, (2 * posY) + 1, 2 * posZ, layer - 1, 5, node, marker);
                         break;
 
                            case 6:
-                             node = CreateNode(2 * posX, 2 * posY, 2 * posZ, layer - 1, 6, node, marker);
+                             node = CreateNode(2 * posX, (2 * posY) + 1, (2 * posZ) + 1, layer - 1, 6, node, marker);
                         break;
 
                            case 7:
-                             node = CreateNode((2 * posX) + 1, 2 * posY, 2 * posZ, layer - 1, 7, node, marker);
+                             node = CreateNode((2 * posX) + 1, (2 * posY) + 1, (2 * posZ) + 1, layer - 1, 7, node, marker);
                         break;
                     }
                 }
+            }
+            if(newLayer){
+                node = CreateNode(posX, posY, posZ, layer + 1, type, node, marker);
             }
             }
             return parentNode;
@@ -134,7 +136,56 @@ public class WorldGenerator
             mesher.ChunkLoaded(chunk, false);
             return chunk;
       //  }
-
         return new Chunk();
     }
+
+      private static MeshInstance DebugMesh(){
+   SurfaceTool tool = new SurfaceTool();
+            tool.Begin(PrimitiveMesh.PrimitiveType.Lines);
+
+            //Front
+            tool.AddVertex(new Vector3(0, 0, 0));
+            tool.AddVertex(new Vector3(1, 0, 0));
+            tool.AddVertex(new Vector3(1, 0, 0));
+            tool.AddVertex(new Vector3(1, 1, 0));
+            tool.AddVertex(new Vector3(1, 1, 0));
+            tool.AddVertex(new Vector3(0, 1, 0));
+            tool.AddVertex(new Vector3(0, 1, 0));
+            tool.AddVertex(new Vector3(0, 0, 0));
+
+            //Back
+            tool.AddVertex(new Vector3(0, 0, 1));
+            tool.AddVertex(new Vector3(1, 0, 1));
+            tool.AddVertex(new Vector3(1, 0, 1));
+            tool.AddVertex(new Vector3(1, 1, 1));
+            tool.AddVertex(new Vector3(1, 1, 1));
+            tool.AddVertex(new Vector3(0, 1, 1));
+            tool.AddVertex(new Vector3(0, 1, 1));
+            tool.AddVertex(new Vector3(0, 0, 1));
+
+            //BOTTOM
+            tool.AddVertex(new Vector3(0, 0, 0));
+            tool.AddVertex(new Vector3(0, 0, 1));
+            tool.AddVertex(new Vector3(0, 0, 1));
+            tool.AddVertex(new Vector3(1, 0, 1));
+            tool.AddVertex(new Vector3(1, 0, 1));
+            tool.AddVertex(new Vector3(1, 0, 0));
+            tool.AddVertex(new Vector3(1, 0, 0));
+            tool.AddVertex(new Vector3(0, 0, 0));
+
+            //TOP
+            tool.AddVertex(new Vector3(0, 1, 0));
+            tool.AddVertex(new Vector3(0, 1, 1));
+            tool.AddVertex(new Vector3(0, 1, 1));
+            tool.AddVertex(new Vector3(1, 1, 1));
+            tool.AddVertex(new Vector3(1, 1, 1));
+            tool.AddVertex(new Vector3(1, 1, 0));
+            tool.AddVertex(new Vector3(1, 1, 0));
+            tool.AddVertex(new Vector3(0, 1, 0));
+
+            MeshInstance instance = new MeshInstance();
+            instance.SetMesh(tool.Commit());
+            instance.AddChild(new OmniLight());
+            return instance;
+      }
 }
