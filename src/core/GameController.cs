@@ -24,11 +24,11 @@ public class GameController : Spatial
         Foreman foreman = new Foreman();
         foreman.SetMaterials(registry);
         GameMesher mesher = new GameMesher(instances, registry);
-        world = new Terra(0, 0, 0, registry, mesher);
+        world = new Terra(64, 64, 64, registry, mesher);
         world.SetMeshInstaces(instances);
 
-        //GetViewport().DebugDraw = Viewport.DebugDrawEnum.Wireframe;
-          //  VisualServer.SetDebugGenerateWireframes(true);
+        GetViewport().DebugDraw = Viewport.DebugDrawEnum.Wireframe;
+            VisualServer.SetDebugGenerateWireframes(true);
 
         ThreadingStart start = new ThreadingStart(generation); 
         AddChild(new Node(), true);
@@ -38,11 +38,12 @@ public class GameController : Spatial
     }
 
     public void generation(){
-        LoadMarker player = new LoadMarker(0.0f, 0.0f, 0.0f, 16, 16);
+        player = new LoadMarker(0, 0, 0, 32);
+        GetParent().AddChild(player);
         world.initialWorldGeneration(player);
     }
 
-//  // Called every frame. 'delta' is the elapsed time since the previous frame.
+//  Called every frame. 'delta' is the elapsed time since the previous frame.
  public override void _Process(float delta)
   {
       if(instances.Count > 0){

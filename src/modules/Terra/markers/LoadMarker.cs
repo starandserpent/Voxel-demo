@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 
-public class LoadMarker
+public class LoadMarker : Node
 {
 
     /**
@@ -10,24 +10,17 @@ public class LoadMarker
      */
     private readonly float hardRadius;
 
-    /**
-     * The radius in which this marker will make world to not be loaded.
-     * Squared to avoid sqrt.
-     */
-    private readonly float softRadius;
-
     public readonly Vector3 pos;
 
     private List<int> playerOctants;
 
-    public LoadMarker(float x, float y, float z, float hardRadius, float softRadius) {
+    public LoadMarker(float x, float y, float z, float hardRadius) {
         pos = new Vector3();
         pos.x = x;
         pos.y = y;
         pos.z = z;
 
         this.hardRadius = hardRadius;
-        this.softRadius = softRadius;
         playerOctants = new List<int>();
     }
 
@@ -64,15 +57,11 @@ public class LoadMarker
     public float getHardRadius() {
         return hardRadius;
     }
-
-    public float getSoftRadius() {
-        return softRadius;
-    }
-
     
     public void SendPosition(float x, float y, float z){
 
     }
+    
     public void Move(float x, float y, float z){
 
     }
