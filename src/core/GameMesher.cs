@@ -187,6 +187,7 @@ public class GameMesher
         }
 
         meshInstance.SetMesh(mesh);
+        //meshInstance.CreateTrimeshCollision();
         verticeArrays.Clear();
         textureCoordArrays.Clear();
         }

@@ -50,7 +50,6 @@ public class GameController : Spatial
         MeshInstance chunk = instances[instances.Count - 1];
         instances.RemoveAt(instances.Count - 1);
         this.AddChild(chunk, true);
-        chunk.SetOwner(this);
       }
   }
 }
