@@ -20,7 +20,7 @@ public class GameMesher
         indexArrays = new Dictionary<Texture,  List<int>>();
         this.instances = instances;
         ShaderMaterial shaderMat = new ShaderMaterial();
-        shaderMat.SetShader(GD.Load("res://assets/shaders/splatvoxel.shader") as Shader);
+        shaderMat.Shader = (GD.Load("res://assets/shaders/splatvoxel.shader") as Shader);
         greedyMesher = new GreedyMesher(reg);
         splatterMesher = new SplatterMesher(shaderMat, reg);
     }
@@ -28,7 +28,7 @@ public class GameMesher
     public void ChunkLoaded(Chunk chunk, bool splatter){
         MeshInstance meshInstance = new MeshInstance();
         if(!splatter){
-            GreedMeshing(meshInstance, chunk);
+            GreedyMeshing(meshInstance, chunk);
         }else{
             meshInstance = splatterMesher.CreateChunkMesh(chunk);
         }
@@ -36,7 +36,7 @@ public class GameMesher
         instances.Add(meshInstance);
     }
 
-    public void GreedMeshing(MeshInstance meshInstance, Chunk chunk){
+    public void GreedyMeshing(MeshInstance meshInstance, Chunk chunk){
 
         Dictionary<int, Dictionary<int, Face>> sector = greedyMesher.cull(chunk);
         // Reset buffer to starting position
@@ -184,8 +184,7 @@ public class GameMesher
             arrays.Resize(9);
             
             SpatialMaterial material = new SpatialMaterial();
-            texture1.SetFlags(2);
-            material.SetTexture(SpatialMaterial.TextureParam.Albedo, texture1);
+            material.AlbedoTexture = texture1;
             
             arrays[0] = verticeArrays[texture1].ToArray();
             arrays[1] = normalsArrays[texture1].ToArray();
@@ -196,7 +195,7 @@ public class GameMesher
             arrays.Clear();
         }
 
-        meshInstance.SetMesh(mesh);
+        meshInstance.Mesh = mesh;
         indexArrays.Clear();
         meshInstance.CreateTrimeshCollision();
         verticeArrays.Clear();

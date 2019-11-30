@@ -19,9 +19,8 @@ public override void _Input(InputEvent @event)
     {
           Vector3 from = ProjectRayOrigin(eventMouseButton.Position);
         Vector3 to = from + ProjectRayNormal(eventMouseButton.Position) * RAY_LENGHT;
-             var spaceState = GetWorld().DirectSpaceState;
-            var result = spaceState.IntersectRay(from, to);
-      GD.Print("Hit Results" + result.Count);
+         ray.CastTo = to;
+      GD.Print("Hit Results" + ray.GetCollisionPoint());
     }
    }
 	public override void _Ready()
@@ -87,7 +86,7 @@ public override void _Input(InputEvent @event)
 
 	velocity += motion*move_speed;
 
-	velocity.Set(velocity.x * 0.9f, velocity.y * 0.9f, velocity.z * 0.9f);
+	velocity = new Vector3(velocity.x * 0.9f, velocity.y * 0.9f, velocity.z * 0.9f);
 
 	Translation = new Vector3(Translation.x + (velocity.x * delta), Translation.y + (velocity.y * delta), Translation.z + (velocity.z * delta));
   }
