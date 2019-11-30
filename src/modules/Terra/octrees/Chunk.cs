@@ -6,4 +6,6 @@ public struct Chunk{
     public uint z{get; set;}
 
     public Memory<byte> voxels{get; set;}
+
+    public bool isEmpty{get; set;}
 }

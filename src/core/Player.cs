@@ -6,7 +6,7 @@ private float move_speed = 1.5F;
 private Vector3 motion = new Vector3();
 private Vector3 velocity = new Vector3();
 private Vector3 initialRotation;
-private const float RAY_LENGHT = 10;
+private const float RAY_LENGHT = 100;
 private RayCast ray;
 
 public override void _Input(InputEvent @event)
@@ -15,12 +15,12 @@ public override void _Input(InputEvent @event)
         if (Input.GetMouseMode() == Input.MouseMode.Captured){
          this.SetRotation(new Vector3((float)Math.Max(Math.Min(this.GetRotation().x - eventKey.Relative.y * MOUSE_SENSITIVITY, Math.PI/2), -Math.PI/2), GetRotation().y -  eventKey.Relative.x * MOUSE_SENSITIVITY, this.GetRotation().z));
         }
-    }else  if (@event is InputEventMouseButton eventMouseButton && eventMouseButton.Pressed && eventMouseButton.ButtonIndex == 1)
-    {
-          Vector3 from = ProjectRayOrigin(eventMouseButton.Position);
-        Vector3 to = from + ProjectRayNormal(eventMouseButton.Position) * RAY_LENGHT;
+    }else  if (@event is InputEventMouseButton eventMouseButton && eventMouseButton.Pressed && eventMouseButton.ButtonIndex == 1) {
+         Vector3 from = ProjectRayOrigin(eventMouseButton.Position);
+         Vector3 to = from + ProjectRayNormal(eventMouseButton.Position) * RAY_LENGHT;
+         ray.Enabled = true;
          ray.CastTo = to;
-      GD.Print("Hit Results" + ray.GetCollisionPoint());
+         GD.Print("Hit Results" + ray.GetCollisionPoint());
     }
    }
 	public override void _Ready()

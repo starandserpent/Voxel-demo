@@ -12,6 +12,7 @@ public class GameMesher
     Dictionary<Texture, List<Vector3>> normalsArrays;
     Dictionary<Texture, List<Vector2>> textureCoordArrays;
     Dictionary<Texture, List<int>> indexArrays;
+    List<Vector3> shapeFaces;
 
     public GameMesher(List<MeshInstance> instances, Registry reg){
         verticeArrays = new Dictionary<Texture,  List<Vector3>>();
@@ -23,6 +24,7 @@ public class GameMesher
         shaderMat.Shader = (GD.Load("res://assets/shaders/splatvoxel.shader") as Shader);
         greedyMesher = new GreedyMesher(reg);
         splatterMesher = new SplatterMesher(shaderMat, reg);
+        shapeFaces = new List<Vector3>();
     }
 
     public void ChunkLoaded(Chunk chunk, bool splatter){
@@ -39,8 +41,10 @@ public class GameMesher
     public void GreedyMeshing(MeshInstance meshInstance, Chunk chunk){
 
         Dictionary<int, Dictionary<int, Face>> sector = greedyMesher.cull(chunk);
+        sector.Clear();
         // Reset buffer to starting position
 
+        if(!chunk.isEmpty){
         if (sector.Count > 0) {
             //Finishing greedy meshing
             foreach (int key in sector.Keys) {
@@ -178,12 +182,13 @@ public class GameMesher
 
         meshInstance.Name = "chunk:" + chunk.x + "," + chunk.y + "," + chunk.z;
         meshInstance.Translate(new Vector3(chunk.x, chunk.y, chunk.z));
-
+        
         foreach(Texture texture1 in verticeArrays.Keys.ToArray()){
             GodotArray arrays = new GodotArray();
             arrays.Resize(9);
             
             SpatialMaterial material = new SpatialMaterial();
+            texture1.Flags = 2;
             material.AlbedoTexture = texture1;
             
             arrays[0] = verticeArrays[texture1].ToArray();
@@ -195,11 +200,21 @@ public class GameMesher
             arrays.Clear();
         }
 
-        meshInstance.Mesh = mesh;
+        ConcavePolygonShape shape = new ConcavePolygonShape();
+        shape.SetFaces(shapeFaces.ToArray());
+        StaticBody body = new StaticBody();
+        CollisionShape colShape = new CollisionShape();
+        colShape.SetShape(shape);
+        body.AddChild(colShape);
+        
+        meshInstance.SetMesh(mesh);
+        meshInstance.AddChild(body);
+        shapeFaces.Clear();
         indexArrays.Clear();
-        meshInstance.CreateTrimeshCollision();
+        normalsArrays.Clear();
         verticeArrays.Clear();
         textureCoordArrays.Clear();
+        }
         }
     }
 
@@ -272,8 +287,15 @@ public class GameMesher
                 vertice3.Add(completeFace.vector3s[2]);
                 vertice3.Add(completeFace.vector3s[3]);
 
+                shapeFaces.Add(completeFace.vector3s[0]);
+                shapeFaces.Add(completeFace.vector3s[1]);
+                shapeFaces.Add(completeFace.vector3s[2]);
+                shapeFaces.Add(completeFace.vector3s[2]);
+                shapeFaces.Add(completeFace.vector3s[3]);
+                shapeFaces.Add(completeFace.vector3s[0]);
+
                 for(int i = 0; i < 4; i ++){
-                            normals.Add(completeFace.normal);
+                    normals.Add(completeFace.normal);
                 }
         }
 }

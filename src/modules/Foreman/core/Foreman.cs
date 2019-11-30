@@ -24,6 +24,8 @@ public class Foreman
         
         chunk.voxels = new Memory<byte>(new byte[262144]);
 
+        chunk.isEmpty = true;
+
         int posx = (int)(posX / 16);
         int posz = (int)(posZ / 16);
         int posy = (int)(posY * 4);
@@ -38,10 +40,12 @@ public class Foreman
                 for (int y = 0; y < 64; y++) {
                     if ((elevation / 64) > (posy / 64)) {
                          chunk.voxels.Span[x + (y * 64) + (z * 4096)] = (byte) dirtID;
+                         chunk.isEmpty = false;
                     } else if (elevation / 64 == (posy / 64)) {
                         if (Math.Abs((elevation % 64)) >= y) {
                             chunk.voxels.Span[x + (y * 64) + (z * 4096)] = (byte) dirtID;
                             isDifferent = true;
+                             chunk.isEmpty = false;
                         }
                     }
                 }
