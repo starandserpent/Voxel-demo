@@ -5,9 +5,9 @@ using Godot;
 using GodotArray = Godot.Collections.Array;
 public class GameMesher
 {
-    private List<MeshInstance> instances;
-    private GreedyMesher greedyMesher;
-    private SplatterMesher splatterMesher;
+    private volatile List<MeshInstance> instances;
+    private volatile GreedyMesher greedyMesher;
+    private volatile SplatterMesher splatterMesher;
 
     public GameMesher(List<MeshInstance> instances, Registry reg){        
         this.instances = instances;
@@ -204,10 +204,8 @@ public class GameMesher
         shape.SetFaces(shapeFaces.ToArray());
         StaticBody body = new StaticBody();
         CollisionShape colShape = new CollisionShape();
-        colShape.Translate(meshInstance.Translation);
         colShape.SetShape(shape);
         body.AddChild(colShape);
-        body.Translate(meshInstance.Translation);
         
         meshInstance.SetMesh(mesh);
         meshInstance.AddChild(body);

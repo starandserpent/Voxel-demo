@@ -1,8 +1,9 @@
+using System;
 using System.Collections.Generic;
 using Godot;
 public class GameController : Spatial
 {
-    private List<MeshInstance> instances;
+    private volatile List<MeshInstance> instances;
     private Terra terra;
     private PrimitiveResources resources;
     private Picker picker;
@@ -22,7 +23,7 @@ public class GameController : Spatial
         Foreman foreman = new Foreman();
         foreman.SetMaterials(registry);
         GameMesher mesher = new GameMesher(instances, registry);
-        world = new Terra(16, 16, 16, registry, mesher);
+        world = new Terra(64, 64, 64, registry, mesher);
         picker = new Picker(world, mesher);
         world.SetMeshInstaces(instances);
     }
@@ -47,6 +48,7 @@ public class GameController : Spatial
         }
         this.AddChild(chunk);
         instances.RemoveAt(instances.Count - 1);
+        GD.Print("Instance added at:" + DateTime.Now);
       }
   }
 }

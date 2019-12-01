@@ -3,7 +3,7 @@ using Godot;
 using System.Collections.Generic;
 public class GreedyMesher
 {
-    private Registry registry;
+    private volatile Registry registry;
     public GreedyMesher(Registry registry) {
         this.registry = registry;
     }
