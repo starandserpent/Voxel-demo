@@ -5,7 +5,7 @@ using ThreadingStart = System.Threading.ThreadStart;
 
 public class Player : LoadMarker {
 public static readonly float MOUSE_SENSITIVITY = 0.002F;
-private float move_speed = 0.25F;
+[Export] private float move_speed = 0.9F;
 private Vector3 motion = new Vector3();
 private Vector3 velocity = new Vector3();
 private Vector3 initialRotation;
