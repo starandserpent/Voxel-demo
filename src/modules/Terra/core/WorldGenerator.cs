@@ -135,12 +135,14 @@ public class WorldGenerator
         && marker.GetTranslation().x - marker.GetHardRadius() < x 
         && marker.GetTranslation().y - marker.GetHardRadius() < y
         && marker.GetTranslation().z - marker.GetHardRadius() < z) {*/
-        DateTime timeA = DateTime.Now;
+            DateTime timeA = DateTime.Now;
             Chunk chunk = generator.GetChunk(x, y, z);
+            DateTime timeB = DateTime.Now;
+            GD.Print("Meshing  finished in: " + timeB.Subtract(timeA).Milliseconds +" ms");
+
+            
           //  marker.sendChunk(chunk);
             mesher.MeshChunk(chunk, false);
-        DateTime timeB = DateTime.Now;
-        GD.Print("Meshing " + lol +" finished in: " + timeB.Subtract(timeA).Milliseconds +" ms");
             return chunk;
        // }
         return new Chunk();

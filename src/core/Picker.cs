@@ -14,15 +14,13 @@ public class Picker
         this.mesher = mesher;
         chunksToProccess = new List<Chunk>();
 
-        ThreadingStart start = new ThreadingStart(ProcessChunks); 
+       /* ThreadingStart start = new ThreadingStart(ProcessChunks); 
         Threading thread = new Threading(start);
-        thread.Start();
+        thread.Start();*/
     }
 
     public void Pick(Vector3 pos, Vector3 normals){
         
-        DateTime timeA = DateTime.Now;
-
         float posX = pos.x;
         float posY = pos.y;
         float posZ = pos.z;
@@ -42,23 +40,15 @@ public class Picker
         if(x + (y * 64) + (z * 4096) < chunk.voxels.Length && !chunk.voxels.Span.IsEmpty){
             chunk.voxels.Span[x + (y * 64) + (z * 64 * 64)] = 0;
             terra.ReplaceChunk((int) posX/16,(int) posY/16,(int) posZ/16,chunk);
-            chunksToProccess.Add(chunk);
+            ProcessChunks(chunk);
         }
-        
-        DateTime timeB = DateTime.Now;
-        GD.Print("Traversing octree finished in: " + timeB.Subtract(timeA).Milliseconds +" ms");
     }
 
-    private void ProcessChunks(){
-        while(Threading.CurrentThread.IsAlive){
-            if(chunksToProccess.Count > 0){
+    private void ProcessChunks(Chunk chunk){
                 DateTime timeA = DateTime.Now;
-                Chunk chunk = chunksToProccess[chunksToProccess.Count - 1];
                 mesher.MeshChunk(chunk, false);
                 DateTime timeB = DateTime.Now;
                 GD.Print("Picking meshing finished in: " + timeB.Subtract(timeA).Milliseconds +" ms");
-            }
-        }
     }
 
     public void Place(){

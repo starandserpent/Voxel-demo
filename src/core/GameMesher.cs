@@ -5,12 +5,12 @@ using Godot;
 using GodotArray = Godot.Collections.Array;
 public class GameMesher
 {
-    private volatile List<MeshInstance> instances;
+    private volatile Node parent;
     private volatile GreedyMesher greedyMesher;
     private volatile SplatterMesher splatterMesher;
 
-    public GameMesher(List<MeshInstance> instances, Registry reg){        
-        this.instances = instances;
+    public GameMesher(Node parent, Registry reg){        
+        this.parent = parent;
         ShaderMaterial shaderMat = new ShaderMaterial();
         shaderMat.Shader = (GD.Load("res://assets/shaders/splatvoxel.shader") as Shader);
         greedyMesher = new GreedyMesher(reg);
@@ -24,8 +24,6 @@ public class GameMesher
         }else{
             meshInstance = splatterMesher.CreateChunkMesh(chunk);
         }
-
-        instances.Add(meshInstance);
     }
 
     private void StartMeshing(MeshInstance meshInstance, Chunk chunk){
@@ -109,7 +107,7 @@ public class GameMesher
             }
 
             //Unusual meshes
-            Dictionary<int, Face> side = sector[6];
+            //Dictionary<int, Face> side = sector[6];
            /* for (Integer i : side.keySet()) {
                 Face face = side.get(i);
                 Integer id = face.getObject().getWorldId();
@@ -209,6 +207,12 @@ public class GameMesher
         
         meshInstance.SetMesh(mesh);
         meshInstance.AddChild(body);
+          foreach(Node node in parent.GetChildren()){
+            if(node.Name.Equals(meshInstance.Name)){
+                parent.RemoveChild(node);
+            }
+        }
+        parent.AddChild(meshInstance);
         shapeFaces.Clear();
         indexArrays.Clear();
         normalsArrays.Clear();
