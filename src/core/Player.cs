@@ -5,11 +5,11 @@ using ThreadingStart = System.Threading.ThreadStart;
 
 public class Player : LoadMarker {
 public static readonly float MOUSE_SENSITIVITY = 0.002F;
-private float move_speed = 1.5F;
+private float move_speed = 0.25F;
 private Vector3 motion = new Vector3();
 private Vector3 velocity = new Vector3();
 private Vector3 initialRotation;
-private const float RAY_LENGHT = 100;
+private const float RAY_LENGHT = 10;
 private RayCast ray;
 private GameController gameController = null;
 private Camera camera;
@@ -22,18 +22,21 @@ public override void _Input(InputEvent @event)
         }
     }else  if (@event is InputEventMouseButton eventMouseButton && eventMouseButton.Pressed && eventMouseButton.ButtonIndex == 1) {
          Vector3 from = camera.ProjectRayOrigin(eventMouseButton.Position);
-         Vector3 to = from + camera.ProjectRayNormal(eventMouseButton.Position) * RAY_LENGHT;
+         Vector3 to = camera.ProjectRayNormal(eventMouseButton.Position) * RAY_LENGHT;
+         GD.Print(to);
+         ray.SetTranslation(from);
+         ray.SetCastTo(to);
          ray.Enabled = true;
-         ray.CastTo = to;
-         picker.Pick(ray.GetCollisionPoint());
     }
    }
 	public override void _Ready()
    {
-      hardRadius = 32;
+      hardRadius = 1;
       foreach (Node child in GetParent().GetChildren()){
          if(child.Name.Equals("GameController")){
             gameController = (GameController) child;
+         }else if (child.Name.Equals("Picker")){
+            ray = (RayCast) child;
          }
       }
 
@@ -42,11 +45,8 @@ public override void _Input(InputEvent @event)
             camera = (Camera) child;
          }
       }
-   
-      ray = new RayCast();
       //GetViewport().DebugDraw = Viewport.DebugDrawEnum.Wireframe; 
       //VisualServer.SetDebugGenerateWireframes(true);
-      AddChild(ray);
       initialRotation = GetRotation();
 
       picker = gameController.GetPicker();
@@ -55,6 +55,14 @@ public override void _Input(InputEvent @event)
         Threading thread = new Threading(start);
         thread.Start();
    }
+
+    public override void _PhysicsProcess(float delta)
+    {
+      if(ray.IsColliding()){
+         picker.Pick(ray.GetCollisionPoint(), ray.GetCollisionNormal());
+         ray.Enabled = false;
+      }
+    }
 
    private void Begin(){
         gameController.InitialWorldGeneration(this);

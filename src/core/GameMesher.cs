@@ -8,23 +8,13 @@ public class GameMesher
     private List<MeshInstance> instances;
     private GreedyMesher greedyMesher;
     private SplatterMesher splatterMesher;
-    Dictionary<Texture, List<Vector3>> verticeArrays;
-    Dictionary<Texture, List<Vector3>> normalsArrays;
-    Dictionary<Texture, List<Vector2>> textureCoordArrays;
-    Dictionary<Texture, List<int>> indexArrays;
-    List<Vector3> shapeFaces;
 
-    public GameMesher(List<MeshInstance> instances, Registry reg){
-        verticeArrays = new Dictionary<Texture,  List<Vector3>>();
-        normalsArrays = new Dictionary<Texture,  List<Vector3>>();
-        textureCoordArrays = new Dictionary<Texture,  List<Vector2>>();
-        indexArrays = new Dictionary<Texture,  List<int>>();
+    public GameMesher(List<MeshInstance> instances, Registry reg){        
         this.instances = instances;
         ShaderMaterial shaderMat = new ShaderMaterial();
         shaderMat.Shader = (GD.Load("res://assets/shaders/splatvoxel.shader") as Shader);
         greedyMesher = new GreedyMesher(reg);
         splatterMesher = new SplatterMesher(shaderMat, reg);
-        shapeFaces = new List<Vector3>();
     }
 
     public void MeshChunk(Chunk chunk, bool splatter){
@@ -42,6 +32,12 @@ public class GameMesher
         if(!chunk.isEmpty){
             Dictionary<int, Dictionary<int, Face>> sector = greedyMesher.cull(chunk);
         if (sector.Count > 0) {
+
+            Dictionary<Texture, List<Vector3>> verticeArrays = new Dictionary<Texture,  List<Vector3>>();
+            Dictionary<Texture, List<Vector3>>  normalsArrays = new Dictionary<Texture,  List<Vector3>>();;
+            Dictionary<Texture, List<Vector2>> textureCoordArrays = new Dictionary<Texture,  List<Vector2>>();;
+            Dictionary<Texture, List<int>> indexArrays = new Dictionary<Texture,  List<int>>();
+            List<Vector3> shapeFaces = new List<Vector3>();
             //Finishing greedy meshing
             foreach (int key in sector.Keys) {
                 if (key != 6) {
@@ -83,7 +79,11 @@ public class GameMesher
                             indexArrays.Add(texture, indices);
 
                             completeFace = SetTextureCoords(completeFace, key);
-                            setCoords(completeFace, texture);
+
+                            verticeArrays[texture].AddRange(GetVertice(completeFace));
+                            textureCoordArrays[texture].AddRange(GetTextureCoords(completeFace));
+                            normalsArrays[texture].AddRange(GetNormals(completeFace));
+                            shapeFaces.AddRange(GetShapeFaces(completeFace));
 
                             sector[key].Remove(faceKey);
                             continue;
@@ -92,7 +92,11 @@ public class GameMesher
                         indices = indexArrays[texture];
 
                         completeFace = SetTextureCoords(completeFace, key);
-                        setCoords(completeFace, texture);
+                            
+                            verticeArrays[texture].AddRange(GetVertice(completeFace));
+                            textureCoordArrays[texture].AddRange(GetTextureCoords(completeFace));
+                            normalsArrays[texture].AddRange(GetNormals(completeFace));
+                            shapeFaces.AddRange(GetShapeFaces(completeFace));
 
                         for(int i = 0; i < 6; i ++){
                             indices.Add(indices[indices.Count - 6] + 4);
@@ -200,8 +204,10 @@ public class GameMesher
         shape.SetFaces(shapeFaces.ToArray());
         StaticBody body = new StaticBody();
         CollisionShape colShape = new CollisionShape();
+        colShape.Translate(meshInstance.Translation);
         colShape.SetShape(shape);
         body.AddChild(colShape);
+        body.Translate(meshInstance.Translation);
         
         meshInstance.SetMesh(mesh);
         meshInstance.AddChild(body);
@@ -268,31 +274,41 @@ public class GameMesher
             return completeFace;
         }
 
+        private static Vector3[] GetVertice(Face completeFace){
+            Vector3[] list = new Vector3[4];
+            for(int i = 0; i < 4; i ++){
+                list[i] = completeFace.vector3s[i];
+            }
+            return list;
+        }
 
-        private void setCoords(Face completeFace, Texture texture){
-                List<Vector3> vertice3 = verticeArrays[texture];
-                List<Vector2> textureCoords = textureCoordArrays[texture];                    vertice3 = verticeArrays[texture];
-                List<Vector3> normals = normalsArrays[texture];
-            
-                textureCoords.Add(completeFace.UVs[0]);
-                textureCoords.Add(completeFace.UVs[1]);
-                textureCoords.Add(completeFace.UVs[2]);
-                textureCoords.Add(completeFace.UVs[3]);
-
-                vertice3.Add(completeFace.vector3s[0]);
-                vertice3.Add(completeFace.vector3s[1]);
-                vertice3.Add(completeFace.vector3s[2]);
-                vertice3.Add(completeFace.vector3s[3]);
-
-                shapeFaces.Add(completeFace.vector3s[0]);
-                shapeFaces.Add(completeFace.vector3s[1]);
-                shapeFaces.Add(completeFace.vector3s[2]);
-                shapeFaces.Add(completeFace.vector3s[2]);
-                shapeFaces.Add(completeFace.vector3s[3]);
-                shapeFaces.Add(completeFace.vector3s[0]);
-
-                for(int i = 0; i < 4; i ++){
-                    normals.Add(completeFace.normal);
+        private static Vector3[] GetNormals(Face completeFace){
+            Vector3[] list = new Vector3[4];
+               for(int i = 0; i < 4; i ++){
+                    list[i] = completeFace.normal;
                 }
+            return list;
+        }
+        private static Vector2[] GetTextureCoords(Face completeFace){
+             Vector2[] list = new Vector2[4];
+
+             for(int i = 0; i < 4; i ++){
+                    list[i] = completeFace.UVs[i];
+            }
+
+             return list;
+        }
+
+         private static  Vector3[] GetShapeFaces(Face completeFace){
+                Vector3[] list = new  Vector3[6];
+                
+                list[0] = completeFace.vector3s[0];
+                list[1] = completeFace.vector3s[1];
+                list[2] = completeFace.vector3s[2];
+                list[3] = completeFace.vector3s[2];
+                list[4] = completeFace.vector3s[3];
+                list[5] = completeFace.vector3s[0];
+
+             return list;
         }
 }

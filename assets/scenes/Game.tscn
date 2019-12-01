@@ -16,6 +16,10 @@ script = ExtResource( 2 )
 current = true
 
 [node name="Sprite3D" type="Sprite3D" parent="Player/Camera"]
-transform = Transform( 30, 0, 0, 0, 30, 0, 0, 0, 1, 0, 0, 0 )
+transform = Transform( 50, 0, 0, 0, 50, 0, 0, 0, 1, 0, 0, -0.1 )
 pixel_size = 0.0001
 texture = ExtResource( 3 )
+
+[node name="Picker" type="RayCast" parent="."]
+enabled = true
+collide_with_areas = true

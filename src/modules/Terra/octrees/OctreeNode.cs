@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Godot;
 using System;
 
-public struct OctreeNode
+public class OctreeNode
 {
     public long locCode{get; set;}
     public Dictionary<int, OctreeNode> children{get; set;}

@@ -125,18 +125,18 @@ public class WorldGenerator
 
     //Loads chunks
     private Chunk LoadArea(float x, float y, float z, LoadMarker marker) {
-       /* if (x >= 0 && z >= 0
-        && marker.getHardRadius() + marker.pos.x > x 
-        && marker.getHardRadius() + marker.pos.y > y
-        && marker.getHardRadius() + marker.pos.z > z
-        && marker.pos.x - marker.getHardRadius() < x 
-        && marker.pos.y - marker.getHardRadius() < y
-        && marker.pos.z - marker.getHardRadius() < z) {*/
+        if (x >= 0 && z >= 0
+        && marker.GetHardRadius() + marker.GetTranslation().x > x 
+        && marker.GetHardRadius() + marker.GetTranslation().x > y
+        && marker.GetHardRadius() + marker.GetTranslation().x > z
+        && marker.GetTranslation().x - marker.GetHardRadius() < x 
+        && marker.GetTranslation().y - marker.GetHardRadius() < y
+        && marker.GetTranslation().z - marker.GetHardRadius() < z) {
             Chunk chunk = generator.GetChunk(x, y, z);
           //  marker.sendChunk(chunk);
             mesher.MeshChunk(chunk, false);
             return chunk;
-      //  }
+        }
         return new Chunk();
     }
 

@@ -22,7 +22,7 @@ public class GameController : Spatial
         Foreman foreman = new Foreman();
         foreman.SetMaterials(registry);
         GameMesher mesher = new GameMesher(instances, registry);
-        world = new Terra(64, 64, 64, registry, mesher);
+        world = new Terra(16, 16, 16, registry, mesher);
         picker = new Picker(world, mesher);
         world.SetMeshInstaces(instances);
     }
