@@ -3,17 +3,19 @@ using Godot;
 using System.Collections.Generic;
 public class GreedyMesher
 {
-    private Dictionary<int, Dictionary<int, Face>> sectors;
     private Registry registry;
     public GreedyMesher(Registry registry) {
-        sectors = new Dictionary<int, Dictionary<int, Face>>();
-        for (int i = 0; i < 7; i++){
-            sectors.Add(i, new Dictionary<int, Face>());
-        }
         this.registry = registry;
     }
 
     public Dictionary<int, Dictionary<int, Face>> cull(Chunk chunk){
+    
+    Dictionary<int, Dictionary<int, Face>> sectors = new Dictionary<int, Dictionary<int, Face>>();
+
+        for (int i = 0; i < 7; i++){
+            sectors.Add(i, new Dictionary<int, Face>());
+        }
+
         for(int i = 0; i < 262144; i++){
             int objectID = chunk.voxels.Span[i];
             TerraObject terraObject = registry.SelectByID(objectID);

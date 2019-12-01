@@ -1,13 +1,11 @@
 using System.Collections.Generic;
 using Godot;
-using Threading = System.Threading.Thread;
-using ThreadingStart = System.Threading.ThreadStart;
 public class GameController : Spatial
 {
     private List<MeshInstance> instances;
     private Terra terra;
     private PrimitiveResources resources;
-
+    private Picker picker;
     private Terra world;
     private LoadMarker player;
     private static readonly int MAX_WORLD_SIZE = 2097151;
@@ -25,19 +23,16 @@ public class GameController : Spatial
         foreman.SetMaterials(registry);
         GameMesher mesher = new GameMesher(instances, registry);
         world = new Terra(64, 64, 64, registry, mesher);
+        picker = new Picker(world, mesher);
         world.SetMeshInstaces(instances);
-
-        ThreadingStart start = new ThreadingStart(generation); 
-        AddChild(new Node(), true);
-
-        Threading thread = new Threading(start);
-        thread.Start();
     }
 
-    public void generation(){
-        player = new LoadMarker(0, 0, 0, 32);
-        GetParent().AddChild(player);
-        world.initialWorldGeneration(player);
+    public void InitialWorldGeneration(LoadMarker marker){
+        world.InitialWorldGeneration(marker);
+    }
+
+    public Picker GetPicker(){
+        return picker;
     }
 
 //  Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -45,8 +40,13 @@ public class GameController : Spatial
   {
       if(instances.Count > 0){
         MeshInstance chunk = instances[instances.Count - 1];
+        foreach(Node node in GetChildren()){
+            if(node.Name.Equals(chunk.Name)){
+                RemoveChild(node);
+            }
+        }
+        this.AddChild(chunk);
         instances.RemoveAt(instances.Count - 1);
-        this.AddChild(chunk, true);
       }
   }
 }

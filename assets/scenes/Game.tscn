@@ -6,15 +6,16 @@
 
 [node name="Spatial" type="Spatial"]
 
-[node name="Spatial" type="Spatial" parent="."]
+[node name="GameController" type="Spatial" parent="."]
 script = ExtResource( 1 )
 
-[node name="Camera" type="Camera" parent="."]
-transform = Transform( -1, 0, -8.74228e-008, 0, 1, 0, 8.74228e-008, 0, -1, 0, 0, -10 )
-far = 816.1
+[node name="Player" type="Spatial" parent="."]
 script = ExtResource( 2 )
 
-[node name="Sprite3D" type="Sprite3D" parent="Camera"]
-transform = Transform( 30, 0, 0, 0, 30, 0, 0, 0, 1, 0, 0, -0.1 )
+[node name="Camera" type="Camera" parent="Player"]
+current = true
+
+[node name="Sprite3D" type="Sprite3D" parent="Player/Camera"]
+transform = Transform( 30, 0, 0, 0, 30, 0, 0, 0, 1, 0, 0, 0 )
 pixel_size = 0.0001
 texture = ExtResource( 3 )

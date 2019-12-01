@@ -27,10 +27,10 @@ public class GameMesher
         shapeFaces = new List<Vector3>();
     }
 
-    public void ChunkLoaded(Chunk chunk, bool splatter){
+    public void MeshChunk(Chunk chunk, bool splatter){
         MeshInstance meshInstance = new MeshInstance();
         if(!splatter){
-            GreedyMeshing(meshInstance, chunk);
+            StartMeshing(meshInstance, chunk);
         }else{
             meshInstance = splatterMesher.CreateChunkMesh(chunk);
         }
@@ -38,13 +38,9 @@ public class GameMesher
         instances.Add(meshInstance);
     }
 
-    public void GreedyMeshing(MeshInstance meshInstance, Chunk chunk){
-
-        Dictionary<int, Dictionary<int, Face>> sector = greedyMesher.cull(chunk);
-        sector.Clear();
-        // Reset buffer to starting position
-
+    private void StartMeshing(MeshInstance meshInstance, Chunk chunk){
         if(!chunk.isEmpty){
+            Dictionary<int, Dictionary<int, Face>> sector = greedyMesher.cull(chunk);
         if (sector.Count > 0) {
             //Finishing greedy meshing
             foreach (int key in sector.Keys) {
@@ -215,6 +211,7 @@ public class GameMesher
         verticeArrays.Clear();
         textureCoordArrays.Clear();
         }
+        sector.Clear();
         }
     }
 

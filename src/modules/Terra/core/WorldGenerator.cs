@@ -26,9 +26,9 @@ public class WorldGenerator
     public void SeekSector(LoadMarker marker) {
 
         //Round world size to nearest node lenght
-        int playerPosX = ((int)marker.pos.x/16)*16;
-        int playerPosY = ((int)marker.pos.y/16)*16;
-        int playerPosZ = ((int)marker.pos.z/16)*16;
+        int playerPosX = ((int)marker.GetTranslation().x/16)*16;
+        int playerPosY = ((int)marker.GetTranslation().y/16)*16;
+        int playerPosZ = ((int)marker.GetTranslation().z/16)*16;
 
         CreateNode(0, 0, 0, 0, 0, default(OctreeNode), marker);
     }
@@ -63,7 +63,7 @@ public class WorldGenerator
           //  if(layer == 1){
             MeshInstance instance = DebugMesh();
             instance.SetScale(new Vector3(32 * (float) Math.Pow(2, layer - 1), 32 * (float) Math.Pow(2, layer - 1), 32 * (float) Math.Pow(2, layer - 1)));
-
+            instance.Name = posX * 16 *  (float) Math.Pow(2, layer) +" " + posY * 16 *  (float) Math.Pow(2, layer) +" " + posZ *  16 * (float) Math.Pow(2, layer);
             instance.SetTranslation(new Vector3(posX * 16 *  (float) Math.Pow(2, layer), posY * 16 *  (float) Math.Pow(2, layer), posZ *  16 * (float) Math.Pow(2, layer)));
             meshInstances.Add(instance);
          //   }
@@ -133,8 +133,8 @@ public class WorldGenerator
         && marker.pos.y - marker.getHardRadius() < y
         && marker.pos.z - marker.getHardRadius() < z) {*/
             Chunk chunk = generator.GetChunk(x, y, z);
-            marker.sendChunk(chunk);
-            mesher.ChunkLoaded(chunk, false);
+          //  marker.sendChunk(chunk);
+            mesher.MeshChunk(chunk, false);
             return chunk;
       //  }
         return new Chunk();

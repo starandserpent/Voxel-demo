@@ -1,6 +1,9 @@
 using System;
 using Godot;
-public class Player : Camera {
+using Threading = System.Threading.Thread;
+using ThreadingStart = System.Threading.ThreadStart;
+
+public class Player : LoadMarker {
 public static readonly float MOUSE_SENSITIVITY = 0.002F;
 private float move_speed = 1.5F;
 private Vector3 motion = new Vector3();
@@ -8,7 +11,9 @@ private Vector3 velocity = new Vector3();
 private Vector3 initialRotation;
 private const float RAY_LENGHT = 100;
 private RayCast ray;
-
+private GameController gameController = null;
+private Camera camera;
+private Picker picker;
 public override void _Input(InputEvent @event)
 {
     if (@event is InputEventMouseMotion eventKey){
@@ -16,21 +21,45 @@ public override void _Input(InputEvent @event)
          this.SetRotation(new Vector3((float)Math.Max(Math.Min(this.GetRotation().x - eventKey.Relative.y * MOUSE_SENSITIVITY, Math.PI/2), -Math.PI/2), GetRotation().y -  eventKey.Relative.x * MOUSE_SENSITIVITY, this.GetRotation().z));
         }
     }else  if (@event is InputEventMouseButton eventMouseButton && eventMouseButton.Pressed && eventMouseButton.ButtonIndex == 1) {
-         Vector3 from = ProjectRayOrigin(eventMouseButton.Position);
-         Vector3 to = from + ProjectRayNormal(eventMouseButton.Position) * RAY_LENGHT;
+         Vector3 from = camera.ProjectRayOrigin(eventMouseButton.Position);
+         Vector3 to = from + camera.ProjectRayNormal(eventMouseButton.Position) * RAY_LENGHT;
          ray.Enabled = true;
          ray.CastTo = to;
-         GD.Print("Hit Results" + ray.GetCollisionPoint());
+         picker.Pick(ray.GetCollisionPoint());
     }
    }
 	public override void _Ready()
    {
+      hardRadius = 32;
+      foreach (Node child in GetParent().GetChildren()){
+         if(child.Name.Equals("GameController")){
+            gameController = (GameController) child;
+         }
+      }
+
+      foreach (Node child in GetChildren()){
+         if(child.Name.Equals("Camera")){
+            camera = (Camera) child;
+         }
+      }
+   
       ray = new RayCast();
       //GetViewport().DebugDraw = Viewport.DebugDrawEnum.Wireframe; 
       //VisualServer.SetDebugGenerateWireframes(true);
       AddChild(ray);
       initialRotation = GetRotation();
+
+      picker = gameController.GetPicker();
+
+       ThreadingStart start = new ThreadingStart(Begin); 
+        Threading thread = new Threading(start);
+        thread.Start();
    }
+
+   private void Begin(){
+        gameController.InitialWorldGeneration(this);
+   }
+
    public override void _ExitTree()
   {
      	Input.SetMouseMode(Input.MouseMode.Visible);
@@ -51,17 +80,17 @@ public override void _Input(InputEvent @event)
      }
 
 	if (Input.IsActionPressed("walk_left")){
-		motion.x = -1;
-   }else if(Input.IsActionPressed("walk_right")){
 		motion.x = 1;
+   }else if(Input.IsActionPressed("walk_right")){
+		motion.x = -1;
    }else{
 		motion.x = 0;
    }
 
 	if (Input.IsActionPressed("walk_forward")){
-		motion.z = 1;
-   } else if (Input.IsActionPressed("walk_backward")){
 		motion.z = -1;
+   } else if (Input.IsActionPressed("walk_backward")){
+		motion.z = 1;
    }else{
 		motion.z = 0;
    }

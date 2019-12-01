@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-public struct Octree
+public class Octree
 {
     public uint layers {get; set;}
     public uint sizeX {get; set;}

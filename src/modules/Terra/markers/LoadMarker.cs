@@ -1,38 +1,26 @@
 using System.Collections.Generic;
 using Godot;
 
-public class LoadMarker : Node
+public class LoadMarker : Spatial
 {
 
     /**
      * The radius which this marker will force the world to be loaded.
      * Squared to avoid sqrt.
      */
-    private readonly float hardRadius;
-
-    public readonly Vector3 pos;
+    public float hardRadius;
 
     private List<int> playerOctants;
 
-    public LoadMarker(float x, float y, float z, float hardRadius) {
-        pos = new Vector3();
-        pos.x = x;
-        pos.y = y;
-        pos.z = z;
-
-        this.hardRadius = hardRadius;
-        playerOctants = new List<int>();
-    }
-
-    public void sendChunk(Chunk chunk){
+    public void SendChunk(Chunk chunk){
 
     }
 
-    public void sendOctree(Chunk octree){
+    public void SendOctree(Chunk octree){
 
     }
 
-    public void calculateMarkerOctants(float size) {
+    public void CalculateMarkerOctants(float size) {
         /*
         int iterations = CoreUtils.calculateOctreeLayers((int) size);
         size = size * DataConstants.CHUNK_SCALE;
@@ -45,16 +33,16 @@ public class LoadMarker : Node
         */
     }
 
-    public List<int> getPlayerOctants() {
+    public List<int> GetPlayerOctants() {
         return playerOctants;
     }
 
-    public int getOctant(int index) {
+    public int GetOctant(int index) {
        // return playerOctants.get(index);
         return 0;
     }
 
-    public float getHardRadius() {
+    public float GetHardRadius() {
         return hardRadius;
     }
     
