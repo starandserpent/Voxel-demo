@@ -34,8 +34,8 @@ public class SplatterMesher {
             for (int i = 0; i < Constants.CHUNK_SIZE_MAX; i++)
             {
 
-             int objectID = chunk.voxels.Span[i];
-            TerraObject terraObject = registry.SelectByID(objectID);
+             uint objectID = chunk.voxels.Span[i];
+            TerraObject terraObject = registry.SelectByID((int)objectID);
                 var x = i % CHUNK_SIZE;
                 var y = (i / CHUNK_SIZE) % CHUNK_SIZE;
                 var z = i / (CHUNK_SIZE * CHUNK_SIZE);
