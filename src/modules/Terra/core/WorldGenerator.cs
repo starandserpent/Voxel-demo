@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System;
 using System.Collections.Generic;
 using Godot;
@@ -8,20 +7,15 @@ public class WorldGenerator
     private static readonly int MAX_OCTREE_NODE_SIZE = 256;
     private static readonly int MAX_OCTANT_LAYERS = 4;
     private GameMesher mesher;
-    private List<MeshInstance> meshInstances;
     private Octree octree;
+    private Node parent;
     private Foreman generator;
 
-    private int lol;
-
-    public WorldGenerator(Octree octree, GameMesher mesher, Foreman generator) {
+    public WorldGenerator(Node parent, Octree octree, GameMesher mesher, Foreman generator) {
         this.generator = generator;
         this.mesher = mesher;
         this.octree = octree;
-    }
-
-    public void SetMeshInstaces(List<MeshInstance> instances){
-        this.meshInstances = instances;
+        this.parent = parent;
     }
 
     //Initial generation
@@ -67,7 +61,7 @@ public class WorldGenerator
             instance.SetScale(new Vector3(32 * (float) Math.Pow(2, layer - 1), 32 * (float) Math.Pow(2, layer - 1), 32 * (float) Math.Pow(2, layer - 1)));
             instance.Name = posX * 16 *  (float) Math.Pow(2, layer) +" " + posY * 16 *  (float) Math.Pow(2, layer) +" " + posZ *  16 * (float) Math.Pow(2, layer);
             instance.SetTranslation(new Vector3(posX * 16 *  (float) Math.Pow(2, layer), posY * 16 *  (float) Math.Pow(2, layer), posZ *  16 * (float) Math.Pow(2, layer)));
-            meshInstances.Add(instance);
+            parent.AddChild(instance);
          //   }
 
             if(!octree.nodes.ContainsKey(layer)){
@@ -127,7 +121,6 @@ public class WorldGenerator
 
     //Loads chunks
     private Chunk LoadArea(float x, float y, float z, LoadMarker marker) {
-        lol ++;
        /* if (x >= 0 && z >= 0
         && marker.GetHardRadius() + marker.GetTranslation().x > x 
         && marker.GetHardRadius() + marker.GetTranslation().x > y
@@ -135,17 +128,23 @@ public class WorldGenerator
         && marker.GetTranslation().x - marker.GetHardRadius() < x 
         && marker.GetTranslation().y - marker.GetHardRadius() < y
         && marker.GetTranslation().z - marker.GetHardRadius() < z) {*/
+
+         DateTime timeA = DateTime.Now;
             Chunk chunk = generator.GetChunk(x, y, z);
+            
 
             //  marker.sendChunk(chunk);
             mesher.MeshChunk(chunk, false);
+            
+        DateTime timeB = DateTime.Now;
+        GD.Print("Meshing finished in: " + timeB.Subtract(timeA).Milliseconds +" ms");
             return chunk;
        // }
         return new Chunk();
     }
 
       private static MeshInstance DebugMesh(){
-   SurfaceTool tool = new SurfaceTool();
+            SurfaceTool tool = new SurfaceTool();
             tool.Begin(PrimitiveMesh.PrimitiveType.Lines);
 
             //Front

@@ -7,8 +7,8 @@ public class Terra
     private Octree octree;
     private Foreman foreman;
     private WorldGenerator generator;
-    private Registry registry;
-    public Terra(uint sizeX, uint sizeY, uint sizeZ, Registry registry, GameMesher mesher){
+   private Node parent;
+    public Terra(uint sizeX, uint sizeY, uint sizeZ, Registry registry, GameMesher mesher, Node parent){
         octree = new Octree();
         octree.sizeX = sizeX;
         octree.sizeY = sizeY;
@@ -22,7 +22,7 @@ public class Terra
 
         foreman = new Foreman();
         foreman.SetMaterials(registry);
-        generator = new WorldGenerator(octree, mesher, foreman);
+        generator = new WorldGenerator(parent, octree, mesher, foreman);
     }
 
     public Chunk TraverseOctree(int posX, int posY, int posZ){
@@ -49,8 +49,5 @@ public class Terra
 
         DateTime timeB = DateTime.Now;
         GD.Print("Generation finished in: " + timeB.Subtract(timeA).Seconds +" s");
-    }
-    public void SetMeshInstaces(List<MeshInstance> instances){
-        generator.SetMeshInstaces(instances);
     }
 }

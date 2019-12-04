@@ -27,29 +27,46 @@ public class GameMesher
     }
 
     private void StartMeshing(MeshInstance meshInstance, Chunk chunk){
-        greedyMesher.cull(chunk, parent, meshInstance);
-    }
+        GD.Print(chunk.isEmpty);
+        if(!chunk.isEmpty){
+            
+        Dictionary<Texture, GodotArray> arrays = greedyMesher.cull(chunk);
 
-    private static void JoinReversed(Dictionary<int, Face> faces, int index, int side) {
-        int neighbor = 64;
-        switch (side) {
-            case 2:
-            case 3:
-                neighbor = 4096;
-                break;
+        ArrayMesh mesh = new ArrayMesh();
+
+        List<Vector3> faces = new List<Vector3>();
+
+        meshInstance.Name = "chunk:" + chunk.x + "," + chunk.y + "," + chunk.z;
+        meshInstance.Translate(new Vector3(chunk.x, chunk.y, chunk.z));
+        
+        foreach(Texture texture in arrays.Keys.ToArray()) {    
+            GodotArray array = arrays[texture];        
+            SpatialMaterial material = new SpatialMaterial();
+            texture.Flags = 2;
+            material.AlbedoTexture = texture;
+            faces.AddRange((Vector3[])array[0]);
+            
+            mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, array);
+            mesh.SurfaceSetMaterial(mesh.GetSurfaceCount() - 1, material);
+        }
+                    
+        ConcavePolygonShape shape = new ConcavePolygonShape();
+        shape.SetFaces(faces.ToArray());
+        StaticBody body = new StaticBody();
+        CollisionShape colShape = new CollisionShape();
+        colShape.SetShape(shape);
+        body.AddChild(colShape);
+        meshInstance.AddChild(body);
+        
+        meshInstance.SetMesh(mesh);
+        Node node = parent.FindNode(meshInstance.Name);
+        if(node != null){
+            parent.RemoveChild(node);
         }
 
-        if(faces.ContainsKey(index - neighbor) && faces.ContainsKey(index)){
-        Face nextFace = faces[index - neighbor];
+        parent.AddChild(meshInstance);
 
-        Face face = faces[index];
-        if (face.terraObject == (nextFace.terraObject)) {
-            if (nextFace.vector3s[2] == face.vector3s[1] && nextFace.vector3s[3] == face.vector3s[0]) {
-                nextFace.vector3s[2] = face.vector3s[2];
-                nextFace.vector3s[3] = face.vector3s[3];
-                faces.Remove(index);
-            }
-        }
+        arrays.Clear();
         }
     }
 }

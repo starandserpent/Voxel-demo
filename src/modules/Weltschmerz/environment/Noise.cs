@@ -27,7 +27,7 @@ public class Noise
             double ny = Math.Cos(t * 2 * Math.PI) * 1.0 / (2 * Math.PI);
             double nz = Math.Sin(s * 2 * Math.PI) * 1.0 / (2 * Math.PI);
             double nw = Math.Sin(t * 2 * Math.PI) * 1.0 / (2 * Math.PI);
-            return (noise.GetSimplex((float)nx, (float)ny, (float)nz, (float)nw)) * 100;
+            return Math.Max((noise.GetSimplex((float)nx, (float)ny, (float)nz, (float)nw) * 100) + 10, 1);
         }else{
             //return new Color(earth(x, y)).getRed();
             return 0.0;

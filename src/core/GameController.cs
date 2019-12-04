@@ -31,9 +31,8 @@ public class GameController : Spatial
         Foreman foreman = new Foreman();
         foreman.SetMaterials(registry);
         GameMesher mesher = new GameMesher(this, registry);
-        world = new Terra(WORLD_SIZEX, WORLD_SIZEY, WORLD_SIZEZ, registry, mesher);
+        world = new Terra(WORLD_SIZEX, WORLD_SIZEY, WORLD_SIZEZ, registry, mesher, this);
         picker = new Picker(world, mesher);
-        world.SetMeshInstaces(instances);
     }
 
     public void InitialWorldGeneration(LoadMarker marker){

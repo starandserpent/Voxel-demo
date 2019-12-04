@@ -81,7 +81,7 @@ public class SplatterMesher {
                                 counter += 1;
                             }
                         }
-                        // Console.WriteLine("Value: {0}", Convert.ToString(face, 2).PadLeft(6, '0'));
+
                         count += 1;
                         surfacetool.AddColor( new Color(1f, 1f, 1f, 1f));
                         Vector3 voxPosition = new Vector3((x) * VOX_SIZE, (y) * VOX_SIZE, (z) * VOX_SIZE);
