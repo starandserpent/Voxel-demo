@@ -37,11 +37,11 @@ public class Picker
             z--;
         }
 
-        if(x + (y * 64) + (z * 4096) < chunk.voxels.Length && !chunk.voxels.Span.IsEmpty){
-            chunk.voxels.Span[x + (y * 64) + (z * 64 * 64)] = 0;
-            terra.ReplaceChunk((int) posX/16,(int) posY/16,(int) posZ/16,chunk);
-            ProcessChunks(chunk);
-        }
+  //      if(x + (y * 64) + (z * 4096) < chunk.voxels.Length && !chunk.voxels.Span.IsEmpty){
+    //        chunk.voxels.Span[x + (y * 64) + (z * 64 * 64)] = 0;
+      //      terra.ReplaceChunk((int) posX/16,(int) posY/16,(int) posZ/16,chunk);
+        //    ProcessChunks(chunk);
+        //}
     }
 
     private void ProcessChunks(Chunk chunk){

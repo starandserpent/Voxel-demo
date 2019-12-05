@@ -15,7 +15,7 @@ public class GreedyMesher
         Stopwatch watch = new Stopwatch();  
         watch.Start();
 
-        Dictionary<Texture, SortedDictionary<ValueTuple<int, int, int>, Face>> faces = new  Dictionary<Texture, SortedDictionary <ValueTuple<int, int, int>, Face>>();
+        Dictionary<Texture, Memory<Box>> boxes = new  Dictionary<Texture, Memory<Box>>();
         long a = 16777215 << 8;
         byte b = 255;
         int count = 0;
@@ -34,119 +34,107 @@ public class GreedyMesher
                 continue;
             }
 
-            if(!faces.ContainsKey(texture)){
-                faces.Add(texture, new SortedDictionary<ValueTuple<int, int, int>, Face>());
+            if(!boxes.ContainsKey(texture)){
+                boxes.Add(texture, new Memory<Box>(new Box[4096]));
             }
         
             int z = count / 4096;
             int y = count % 64;
             int x = (count - 4096 * z)/64;
 
+            int origin = x + (z * 64);
+
             //Front
-            Face face = new Face();
-            face.side = 0;
-            face.deleteIndex = -1;
-            face.vertice = new TerraVector3[6]{new TerraVector3(x, y, z) >> 2, new TerraVector3(x + 1, y, z) >> 2, new TerraVector3(x + 1, y + lenght, z) >> 2, new TerraVector3(x + 1, y + lenght, z) >> 2, new TerraVector3(x, y + lenght, z) >> 2, new TerraVector3(x, y, z) >> 2};  
-            ValueTuple<int, int, int> origin = ValueTuple.Create(0, x, z);
-            faces[texture].Add(origin, face);
-           
+            Box box = new Box();
+            box.deleteIndex = new int[6];
+            box.vertice = new TerraVector3[6][];
+
+            box.deleteIndex[0] = -1;
+            box.vertice[0] = new TerraVector3[6]{new TerraVector3(x, y, z)/4, new TerraVector3(x + 1, y, z)/4, new TerraVector3(x + 1, y + lenght, z)/4, new TerraVector3(x + 1, y + lenght, z)/4, new TerraVector3(x, y + lenght, z)/4, new TerraVector3(x, y, z) /4};  
             if(z > 0){     
-                    ValueTuple<int, int, int> pos = ValueTuple.Create(0, x, z - 1);
-                    Face prevFace = faces[texture][pos];
-                    if(prevFace.deleteIndex > -1){
-                        prevFace = faces[texture][ValueTuple.Create(0, x, prevFace.deleteIndex)];
-                        faces[texture][pos] = prevFace;
+                    int pos =(x + (z - 1)  * 64);
+                    Box prevBox = boxes[texture].Span[pos];
+                    if(prevBox.deleteIndex[0] > -1){
+                        prevBox = boxes[texture].Span[prevBox.deleteIndex[0]];
                     }
 
-                    if(face.vertice[3].y <= prevFace.vertice[3].y){
-                        face.deleteIndex = z - 1;
-                        faces[texture][origin] = face;
+                    if(box.vertice[0][3].y <= prevBox.vertice[0][3].y){
+                        box.deleteIndex[0] = x + (z - 1) * 64;
                     }
 
-                    if (prevFace.vertice[3].y < face.vertice[3].y && prevFace.vertice[0].y >= face.vertice[0].y){
-                         face.vertice[0] = new TerraVector3(face.vertice[0].x, prevFace.vertice[3].y, face.vertice[0].z); 
-                            face.vertice[1] = new TerraVector3( face.vertice[1].x, prevFace.vertice[3].y,  face.vertice[1].z); 
-                           face.vertice[5] = new TerraVector3( face.vertice[5].x, prevFace.vertice[3].y,  face.vertice[5].z); 
-                        faces[texture][origin] = face;
+                    if (prevBox.vertice[0][3].y < box.vertice[0][3].y && prevBox.vertice[0][0].y >= box.vertice[0][0].y){
+                         box.vertice[0][0] = new TerraVector3(box.vertice[0][0].x, prevBox.vertice[0][3].y, box.vertice[0][0].z); 
+                            box.vertice[0][1] = new TerraVector3( box.vertice[0][1].x, prevBox.vertice[0][3].y,  box.vertice[0][1].z); 
+                           box.vertice[0][5] = new TerraVector3( box.vertice[0][5].x, prevBox.vertice[0][3].y,  box.vertice[0][5].z); 
                     }
             }
 
             //Back
-            face.side = 1;
-            face.deleteIndex = -1;
-            face.vertice = new TerraVector3[6]{new TerraVector3(x + 1, y, z + 1) >> 2, new TerraVector3(x, y, z + 1) >> 2,  new TerraVector3(x, y + lenght, z + 1) >> 2, new TerraVector3(x, y + lenght, z + 1) >> 2, new TerraVector3(x + 1, y + lenght, z + 1) >> 2, new TerraVector3(x + 1, y, z + 1) >> 2};
-            faces[texture].Add(ValueTuple.Create(1, x, z), face);
-
+            box.deleteIndex[1] = -1;
+            box.vertice[1] = new TerraVector3[6]{new TerraVector3(x + 1, y, z + 1)/4, new TerraVector3(x, y, z + 1) /4,  new TerraVector3(x, y + lenght, z + 1)/4, new TerraVector3(x, y + lenght, z + 1) /4, new TerraVector3(x + 1, y + lenght, z + 1) /4, new TerraVector3(x + 1, y, z + 1) /4};
             if(z > 0){      
-                    ValueTuple<int, int, int> pos = ValueTuple.Create(1, x, z - 1);
-                    Face prevFace = faces[texture][pos];
-                    if (prevFace.vertice[3].y > face.vertice[3].y && prevFace.vertice[0].y <= face.vertice[0].y){
-                         prevFace.vertice[0] = new TerraVector3(prevFace.vertice[0].x, face.vertice[3].y, prevFace.vertice[0].z); 
-                            prevFace.vertice[1] = new TerraVector3( prevFace.vertice[1].x, face.vertice[3].y,  prevFace.vertice[1].z); 
-                           prevFace.vertice[5] = new TerraVector3( prevFace.vertice[5].x, face.vertice[3].y,  prevFace.vertice[5].z); 
-                        faces[texture][pos] = prevFace;
-                        }else if(prevFace.vertice[3].y <= face.vertice[3].y){
-                            faces[texture].Remove(pos); 
+                int pos = x + ((z - 1) * 64);
+                    Box prevBox = boxes[texture].Span[pos];
+                    if (prevBox.vertice[1][3].y > box.vertice[1][3].y && prevBox.vertice[1][0].y <= box.vertice[1][0].y){
+                         prevBox.vertice[1][0] = new TerraVector3(prevBox.vertice[1][0].x, box.vertice[1][3].y, prevBox.vertice[1][0].z); 
+                            prevBox.vertice[1][1] = new TerraVector3(prevBox.vertice[1][1].x, box.vertice[1][3].y,  prevBox.vertice[1][1].z); 
+                           prevBox.vertice[1][5] = new TerraVector3(prevBox.vertice[1][5].x, box.vertice[1][3].y,  prevBox.vertice[1][5].z); 
+                        boxes[texture].Span[pos] = prevBox;
+                        }else if(prevBox.vertice[1][3].y <= box.vertice[1][3].y){
+                            prevBox.deleteIndex[1] = origin;
+                            boxes[texture].Span[pos] = prevBox; 
                         }
             }
              
             //Right
-            face.side = 2;
-            face.deleteIndex = -1;
-            face.vertice = new TerraVector3[6]{new TerraVector3(x, y, z + 1) >> 2, new TerraVector3(x, y, z) >> 2, new TerraVector3(x, y + lenght, z) >> 2, new TerraVector3(x, y + lenght, z) >> 2, new TerraVector3(x, y + lenght, z + 1) >> 2, new TerraVector3(x, y, z + 1) >> 2}; 
-            origin = ValueTuple.Create(2, x, z);
-            faces[texture].Add(origin, face);
-
+            box.deleteIndex[2] = -1;
+            box.vertice[2] = new TerraVector3[6]{new TerraVector3(x, y, z + 1) /4, new TerraVector3(x, y, z) /4, new TerraVector3(x, y + lenght, z)/4, new TerraVector3(x, y + lenght, z) /4, new TerraVector3(x, y + lenght, z + 1) /4, new TerraVector3(x, y, z + 1) /4}; 
             if(x > 0){     
-                    ValueTuple<int, int, int> pos = ValueTuple.Create(2, x - 1, z);
-                    Face prevFace = faces[texture][pos];
-                    if(prevFace.deleteIndex > -1){
-                        prevFace = faces[texture][ValueTuple.Create(2,  prevFace.deleteIndex, z)];
+                    int pos = (x - 1) + z * 64 ;
+                    Box prevBox = boxes[texture].Span[pos];
+                    if(prevBox.deleteIndex[2] > -1){
+                        prevBox = boxes[texture].Span[prevBox.deleteIndex[2]];
                     }
 
-                    if(face.vertice[3].y <= prevFace.vertice[3].y){
-                        face.deleteIndex = x - 1;  
-                      faces[texture][origin] = face;
+                    if(box.vertice[2][3].y <= prevBox.vertice[2][3].y){
+                        box.deleteIndex[2] = pos;  
                     }
 
-                    if (prevFace.vertice[3].y < face.vertice[3].y && prevFace.vertice[0].y >= face.vertice[0].y){
-                        face.vertice[0] = new TerraVector3(face.vertice[0].x, prevFace.vertice[3].y, face.vertice[0].z); 
-                        face.vertice[1] = new TerraVector3( face.vertice[1].x, prevFace.vertice[3].y,  face.vertice[1].z); 
-                        face.vertice[5] = new TerraVector3( face.vertice[5].x, prevFace.vertice[3].y,  face.vertice[5].z); 
-                        faces[texture][origin] = face;
+                    if (prevBox.vertice[2][3].y < box.vertice[2][3].y && prevBox.vertice[2][0].y >= box.vertice[2][0].y){
+                        box.vertice[2][0] = new TerraVector3(box.vertice[2][0].x, prevBox.vertice[2][3].y, box.vertice[2][0].z); 
+                        box.vertice[2][1] = new TerraVector3( box.vertice[2][1].x, prevBox.vertice[2][3].y,  box.vertice[2][1].z); 
+                        box.vertice[2][5] = new TerraVector3( box.vertice[2][5].x, prevBox.vertice[2][3].y,  box.vertice[2][5].z); 
                     }
             }
+            
            
             //Left
-            face.side = 3;
-            face.deleteIndex = -1;
-            face.vertice = new TerraVector3[6]{new TerraVector3(x + 1, y, z) >> 2, new TerraVector3(x + 1, y, z + 1) >> 2, new TerraVector3(x + 1, y + lenght, z + 1) >> 2, new TerraVector3(x + 1, y + lenght, z + 1) >> 2, new TerraVector3(x + 1, y + lenght, z) >> 2, new TerraVector3(x + 1, y, z) >> 2}; 
-            faces[texture].Add(ValueTuple.Create(3, x, z), face);
+            box.deleteIndex[3] = -1;
+            box.vertice[3] = new TerraVector3[6]{new TerraVector3(x + 1, y, z) /4, new TerraVector3(x + 1, y, z + 1)/4, new TerraVector3(x + 1, y + lenght, z + 1) /4, new TerraVector3(x + 1, y + lenght, z + 1) /4, new TerraVector3(x + 1, y + lenght, z) /4, new TerraVector3(x + 1, y, z) /4}; 
 
             if(x > 0){      
-                    ValueTuple<int, int, int> pos = ValueTuple.Create(3, x - 1, z);
-                    Face prevFace = faces[texture][pos];
-                    if (prevFace.vertice[3].y > face.vertice[3].y && prevFace.vertice[0].y <= face.vertice[0].y){
-                         prevFace.vertice[0] = new TerraVector3(prevFace.vertice[0].x, face.vertice[3].y, prevFace.vertice[0].z); 
-                            prevFace.vertice[1] = new TerraVector3( prevFace.vertice[1].x, face.vertice[3].y,  prevFace.vertice[1].z); 
-                           prevFace.vertice[5] = new TerraVector3( prevFace.vertice[5].x, face.vertice[3].y,  prevFace.vertice[5].z); 
-                           faces[texture][pos] = prevFace;
-                        }else if(prevFace.vertice[3].y <= face.vertice[3].y){
-                            faces[texture].Remove(pos); 
+                    int pos = (x - 1) + z * 64 ;
+                    Box prevBox = boxes[texture].Span[pos];
+                    if (prevBox.vertice[3][3].y > box.vertice[3][3].y && prevBox.vertice[3][0].y <= box.vertice[3][0].y){
+                         prevBox.vertice[3][0] = new TerraVector3(prevBox.vertice[3][0].x, box.vertice[3][3].y, prevBox.vertice[3][0].z); 
+                            prevBox.vertice[3][1] = new TerraVector3( prevBox.vertice[3][1].x, box.vertice[3][3].y,  prevBox.vertice[3][1].z); 
+                           prevBox.vertice[3][5] = new TerraVector3( prevBox.vertice[3][5].x, box.vertice[3][3].y,  prevBox.vertice[3][5].z); 
+                           boxes[texture].Span[pos] = prevBox;
+                        }else if(prevBox.vertice[3][3].y <= box.vertice[3][3].y){
+                            prevBox.deleteIndex[3] = origin;
+                            boxes[texture].Span[pos] = prevBox;
                         }
                 }
-    
+                
             //Top
-            face.side = 4;
-            face.deleteIndex = -1;
-            face.vertice = new TerraVector3[6]{new TerraVector3(x, y + lenght, z) >> 2, new TerraVector3(x + 1, y + lenght, z) >> 2, new TerraVector3(x + 1, y + lenght, z + 1) >> 2, new TerraVector3(x + 1, y + lenght, z + 1) >> 2, new TerraVector3(x, y + lenght, z + 1) >> 2, new TerraVector3(x, y + lenght, z) >> 2};
-            faces[texture].Add(ValueTuple.Create(4, x, z), face);
+            box.deleteIndex[4] = -1;
+            box.vertice[4] = new TerraVector3[6]{new TerraVector3(x, y + lenght, z)/4, new TerraVector3(x + 1, y + lenght, z)/4, new TerraVector3(x + 1, y + lenght, z + 1) /4, new TerraVector3(x + 1, y + lenght, z + 1) /4, new TerraVector3(x, y + lenght, z + 1) /4, new TerraVector3(x, y + lenght, z) /4};
             
-            //Bottom            
-            face.side = 5;
-            face.deleteIndex = -1;
-            face.vertice = new TerraVector3[6]{new TerraVector3(x + 1, y, z) >> 2, new TerraVector3(x, y, z) >> 2, new TerraVector3(x, y, z + 1) >> 2,  new TerraVector3(x, y, z + 1) >> 2, new TerraVector3(x + 1, y, z + 1) >> 2,new TerraVector3(x + 1, y, z) >> 2};
-            faces[texture].Add(ValueTuple.Create(5, x, z), face);
+            //Bottom        
+            box.deleteIndex[5] = -1;    
+            box.vertice[5] = new TerraVector3[6]{new TerraVector3(x + 1, y, z)/4, new TerraVector3(x, y, z) /4, new TerraVector3(x, y, z + 1) /4,  new TerraVector3(x, y, z + 1) /4, new TerraVector3(x + 1, y, z + 1)/4,new TerraVector3(x + 1, y, z) /4};
+
+            boxes[texture].Span[origin] = box;
 
             count += lenght;
         }
@@ -157,65 +145,64 @@ public class GreedyMesher
         watch.Reset();
 
         Dictionary<Texture, GodotArray> arrays =  new Dictionary<Texture, GodotArray>();
-        Texture[] textures = faces.Keys.ToArray();
+        Texture[] textures = boxes.Keys.ToArray();
 
         for(int t = 0; t < textures.Count(); t ++){
             GodotArray godotArray = new GodotArray();
             godotArray.Resize(9);
             
             Texture texture1 = textures[t];
-            ValueTuple<int, int, int>[] keys = faces[texture1].Keys.ToArray();
-            int size = keys.Count();
-            Vector3[] vertice = new Vector3[size * 6];
-            Vector3[] normals = new Vector3[size * 6];
-            Vector2[] uvs = new Vector2[size * 6];
+            Memory<Box> offheap = boxes[texture1];
+            int size = offheap.Length;
+
+            List<Vector3> vertice = new List<Vector3>();
+            List<Vector3> normals = new List<Vector3>();
+            List<Vector2> uvs = new List<Vector2>();
 
             for(int i = 0; i < size; i ++){
-                Face face = faces[texture1][keys[i]];
-                if(face.deleteIndex == -1){
-                face.uvs = SetTextureCoords(texture1, face);
-                Vector3 normal = new Vector3();
-                switch(face.side){
+                Box box = boxes[texture1].Span[i];  
+
+                for(int s = 0; s < 6; s++){
+                    if(box.deleteIndex[s] == -1){
+
+                     TerraVector2[] boxUvs = SetTextureCoords(texture1, box, s);
+                    for(int f = 0; f < 6; f++){
+                    watch.Start();
+                    vertice.Add(box.vertice[s][f].ToVector3());
+                    switch(s){
                      case 0:
-                        normal = new Vector3(0, 0, 1);
+                        normals.Add(new Vector3(0, 0, 1));
                         break;
                     case 1:
-                        normal = new Vector3(0, 0, -1);
+                        normals.Add(new Vector3(0, 0, -1));
                         break;
                     case 2:
-                        normal = new Vector3(1, 0, 0);
+                        normals.Add(new Vector3(1, 0, 0));
                         break;
                     case 3:
-                        normal = new Vector3(-1, 0, 0);
+                       normals.Add(new Vector3(-1, 0, 0));
                         break;
                     case 4:
-                        normal = new Vector3(0, 1, 0);
+                       normals.Add(new Vector3(0, 1, 0));
                         break;
                     case 5:
-                        normal = new Vector3(0, -1, 0);
+                       normals.Add(new Vector3(0, -1, 0));
                         break;
                 }
-
-                for(int f = 0; f < 6; f++){
-                    watch.Start();
-                    int index = (i * 6) + f;
-                    vertice[index] = face.vertice[f].ToVector3();
-                    normals[index] = normal;
-                    uvs[index] = face.uvs[f].ToVector2();
+                        uvs.Add(boxUvs[s].ToVector2());
+                    }
                 }
-                faces[texture1].Remove(keys[i]);
                 }
             }
-
-            godotArray[0] = vertice;
-            godotArray[1] = normals;
-            godotArray[4] = uvs;
-            faces[texture1].Clear();
+            
+            godotArray[0] = vertice.ToArray();
+            godotArray[1] = normals.ToArray();
+            godotArray[4] = uvs.ToArray();
 
             arrays.Add(texture1, godotArray);
         }
 
-        faces.Clear();
+        boxes.Clear();
 
         watch.Stop();
 
@@ -225,28 +212,40 @@ public class GreedyMesher
         return arrays;
     }
 
-        private static TerraVector2[] SetTextureCoords(Texture texture, Face face) {
+        private static TerraVector2[] SetTextureCoords(Texture texture, Box face, int side) {
             TerraVector2[] uvs = new TerraVector2[6];
             float textureWidth = 2048f / texture.GetWidth();
             float textureHeight = 2048f / texture.GetHeight();
 
-            switch (face.side) {
+            switch (side) {
                 case 2:
+                  for(int t = 0; t < 6; t++){
+                  uvs[t] = new TerraVector2(face.vertice[2][t].z *textureWidth, face.vertice[2][t].y * textureHeight);
+                }
+                break;
                 case 3:
                 for(int t = 0; t < 6; t++){
-                  uvs[t] = new TerraVector2(face.vertice[t].z *textureWidth, face.vertice[t].y * textureHeight);
+                  uvs[t] = new TerraVector2(face.vertice[3][t].z *textureWidth, face.vertice[3][t].y * textureHeight);
                 }
                 break;
                 case 0:
+                  for(int t = 0; t < 6; t++){
+                  uvs[t] = new TerraVector2(face.vertice[0][t].z *textureWidth, face.vertice[0][t].y * textureHeight);
+                }
+                break;
                 case 1:
                     for(int t = 0; t < 6; t++){
-                         uvs[t] = new TerraVector2(face.vertice[t].x * textureWidth, face.vertice[t].z * textureHeight);
+                         uvs[t] = new TerraVector2(face.vertice[1][t].x * textureWidth, face.vertice[1][t].z * textureHeight);
                     }
                 break;
                 case 4:
+                  for(int t = 0; t < 6; t++){
+                  uvs[t] = new TerraVector2(face.vertice[4][t].z *textureWidth, face.vertice[4][t].y * textureHeight);
+                }
+                break;
                 case 5:
                 for(int t = 0; t < 6; t++){
-                     uvs[t] = new TerraVector2(face.vertice[t].x * textureWidth, face.vertice[t].y * textureHeight);
+                     uvs[t] = new TerraVector2(face.vertice[5][t].x * textureWidth, face.vertice[5][t].y * textureHeight);
                 }
                 break;
             }
