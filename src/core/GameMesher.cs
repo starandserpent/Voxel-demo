@@ -1,5 +1,4 @@
 using System.Linq;
-using System;
 using System.Collections.Generic;
 using Godot;
 using GodotArray = Godot.Collections.Array;
@@ -9,13 +8,12 @@ public class GameMesher
     private volatile Node parent;
     private volatile GreedyMesher greedyMesher;
     private volatile SplatterMesher splatterMesher;
-
-    public GameMesher(Node parent, Registry reg)
+    public GameMesher(Node parent, Registry reg, bool profile)
     {
         this.parent = parent;
         ShaderMaterial shaderMat = new ShaderMaterial();
         shaderMat.Shader = (GD.Load("res://assets/shaders/splatvoxel.shader") as Shader);
-        greedyMesher = new GreedyMesher(reg);
+        greedyMesher = new GreedyMesher(reg,profile);
         splatterMesher = new SplatterMesher(shaderMat, reg);
     }
 
@@ -77,5 +75,13 @@ public class GameMesher
 
             arrays.Clear();
         }
+    }
+
+    public List<long> GetAddingMeasures(){
+        return greedyMesher.GetAddingMeasures();
+    }
+
+    public List<long> GetMeshingMeasures(){
+        return greedyMesher.GetMesherMeasures();
     }
 }

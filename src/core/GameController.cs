@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Godot;
+using Threading = System.Threading.Thread;
+using ThreadingStart = System.Threading.ThreadStart;
 
 public class GameController : Spatial
 {
@@ -9,7 +11,7 @@ public class GameController : Spatial
     private LoadMarker player;
     private static readonly int MAX_WORLD_SIZE = 2097151;
     private static readonly long WORLD_SIZE = 4000;
-    [Export] public bool Debug = false;
+    [Export] public bool Profiling = false;
     [Export] public uint WORLD_SIZEX = 32;
     [Export] public uint WORLD_SIZEY = 32;
     [Export] public uint WORLD_SIZEZ = 32;
@@ -25,14 +27,20 @@ public class GameController : Spatial
 
         Foreman foreman = new Foreman();
         foreman.SetMaterials(registry);
-        GameMesher mesher = new GameMesher(this, registry);
-        world = new Terra(WORLD_SIZEX, WORLD_SIZEY, WORLD_SIZEZ, registry, mesher, this);
+        GameMesher mesher = new GameMesher(this, registry, Profiling);
+        world = new Terra(WORLD_SIZEX, WORLD_SIZEY, WORLD_SIZEZ, registry, mesher, this, Profiling);
         picker = new Picker(world, mesher);
-        if (Debug)
+        if (Profiling)
         {
-            LoadMarker marker = new LoadMarker();
-            InitialWorldGeneration(marker);
+            ThreadingStart start = Begin;
+        Threading thread = new Threading(start);
+        thread.Start();
         }
+    }
+
+    private void Begin()
+    {
+        InitialWorldGeneration(new LoadMarker());
     }
 
     public void InitialWorldGeneration(LoadMarker marker)

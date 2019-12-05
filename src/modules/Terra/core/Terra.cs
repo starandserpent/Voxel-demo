@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System;
@@ -9,8 +10,8 @@ public class Terra
     private Octree octree;
     private Foreman foreman;
     private WorldGenerator generator;
-
-    public Terra(uint sizeX, uint sizeY, uint sizeZ, Registry registry, GameMesher mesher, Node parent)
+    private bool profiling;
+    public Terra(uint sizeX, uint sizeY, uint sizeZ, Registry registry, GameMesher mesher, Node parent, bool profiling)
     {
         octree = new Octree();
         octree.sizeX = sizeX;
@@ -25,7 +26,8 @@ public class Terra
 
         foreman = new Foreman();
         foreman.SetMaterials(registry);
-        generator = new WorldGenerator(parent, octree, mesher, foreman);
+        generator = new WorldGenerator(parent, octree, mesher, foreman, profiling);
+        this.profiling = profiling;
     }
 
     public Chunk TraverseOctree(int posX, int posY, int posZ)
@@ -50,10 +52,28 @@ public class Terra
 
     public void InitialWorldGeneration(LoadMarker loadMarker)
     {
+        if(profiling){
+        GD.Print("Profiling started at " + DateTime.Now);
         Stopwatch watch = new Stopwatch();
         watch.Start();
         generator.SeekSector(loadMarker);
+        List<long>[] measures = generator.GetMeasures();
         watch.Stop();
-        GD.Print("Generation finsihed " + watch.Elapsed.Seconds);
+        GD.Print("Profiling finished after " + watch.Elapsed.Seconds +" seconds");
+
+        GD.Print("Average filling " + measures[0].Average()+" ms");
+        GD.Print("Min filling " + measures[0].Min()+" ms");
+        GD.Print("Max filling " + measures[0].Max()+" ms");
+
+          GD.Print("Average Meshing " + measures[2].Average()+" ms");
+        GD.Print("Min Meshing " + measures[2].Min()+" ms");
+        GD.Print("Max Meshing " + measures[2].Max()+" ms");
+
+          GD.Print("Average Mesh generation  " + measures[1].Average()+" ms");
+        GD.Print("Min Mesh generation  " + measures[1].Min()+" ms");
+        GD.Print("Max Mesh generation  " + measures[1].Max()+" ms");
+        }else{
+            generator.SeekSector(loadMarker);
+        }
     }
 }

@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://src/core/GameController.cs" type="Script" id=1]
+
+[node name="Spatial" type="Spatial"]
+
+[node name="GameController" type="Spatial" parent="."]
+script = ExtResource( 1 )
+Profiling = true
+WORLD_SIZEX = 16
+WORLD_SIZEY = 16
+WORLD_SIZEZ = 16

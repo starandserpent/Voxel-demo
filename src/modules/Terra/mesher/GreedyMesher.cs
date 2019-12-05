@@ -7,11 +7,18 @@ using System.Collections.Generic;
 
 public class GreedyMesher
 {
+
+    private bool profile;
+    private List<long> addingMeasures;
+    private List<long> meshingMeasures;
     private volatile Registry registry;
 
-    public GreedyMesher(Registry registry)
+    public GreedyMesher(Registry registry, bool profile)
     {
+        this.profile = profile;
         this.registry = registry;
+        addingMeasures = new List<long>();
+        meshingMeasures = new List<long>();
     }
 
     public Dictionary<Texture, GodotArray> cull(Chunk chunk)
@@ -27,18 +34,17 @@ public class GreedyMesher
         for (int i = 0; i < chunk.voxels.Span.Length; i++)
         {
             uint bytes = chunk.voxels.Span[i];
-            watch.Start();
 
             int lenght = (int) (bytes & a) >> 8;
             int objectID = (int) (bytes & b);
 
-            Texture texture = registry.SelectByID(objectID).texture;
-
-            if (texture == null || objectID == 0)
+            if (objectID == 0)
             {
                 count += lenght;
                 continue;
             }
+
+            Texture texture = registry.SelectByID(objectID).texture;
 
             if (!boxes.ContainsKey(texture))
             {
@@ -49,7 +55,7 @@ public class GreedyMesher
             int y = count % 64;
             int x = (count - 4096 * z) / 64;
 
-            int origin = x + (z << 6);
+            int origin = x + (z * 64);
 
             //Front
             Box box = new Box();
@@ -65,7 +71,7 @@ public class GreedyMesher
             };
             if (z > 0)
             {
-                int pos = (x + (z - 1) << 6);
+                int pos = (x + (z - 1) * 64);
                 Box prevBox = boxes[texture].Span[pos];
                 if (prevBox.deleteIndex[0] > -1)
                 {
@@ -98,7 +104,7 @@ public class GreedyMesher
             };
             if (z > 0)
             {
-                int pos = x + ((z - 1) << 6);
+                int pos = x + ((z - 1) * 64);
                 Box prevBox = boxes[texture].Span[pos];
                 if (prevBox.vertice[1][3].y > box.vertice[1][3].y && prevBox.vertice[1][0].y <= box.vertice[1][0].y)
                 {
@@ -127,7 +133,7 @@ public class GreedyMesher
             };
             if (x > 0)
             {
-                int pos = (x - 1) + z << 6;
+                int pos = (x - 1) + z * 64;
                 Box prevBox = boxes[texture].Span[pos];
                 if (prevBox.deleteIndex[2] > -1)
                 {
@@ -162,7 +168,7 @@ public class GreedyMesher
 
             if (x > 0)
             {
-                int pos = (x - 1) + z << 6;
+                int pos = (x - 1) + z * 64;
                 Box prevBox = boxes[texture].Span[pos];
                 if (prevBox.vertice[3][3].y > box.vertice[3][3].y && prevBox.vertice[3][0].y <= box.vertice[3][0].y)
                 {
@@ -204,10 +210,10 @@ public class GreedyMesher
             count += lenght;
         }
 
-        GD.Print("Chunk meshed :" + watch.ElapsedMilliseconds);
-        GD.Print(watch.ElapsedTicks);
-
+        watch.Stop();
+        meshingMeasures.Add(watch.ElapsedMilliseconds);
         watch.Reset();
+        watch.Start();
 
         Dictionary<Texture, GodotArray> arrays = new Dictionary<Texture, GodotArray>();
         Texture[] textures = boxes.Keys.ToArray();
@@ -233,10 +239,9 @@ public class GreedyMesher
                 {
                     if (box.deleteIndex[s] == -1)
                     {
-                        TerraVector2[] boxUvs = SetTextureCoords(texture1, box, s);
+                        uvs.AddRange(SetTextureCoords(texture1, box, s));
                         for (int f = 0; f < 6; f++)
                         {
-                            watch.Start();
                             vertice.Add(box.vertice[s][f].ToVector3());
                             switch (s)
                             {
@@ -259,8 +264,6 @@ public class GreedyMesher
                                     normals.Add(new Vector3(0, -1, 0));
                                     break;
                             }
-
-                            uvs.Add(boxUvs[s].ToVector2());
                         }
                     }
                 }
@@ -277,15 +280,13 @@ public class GreedyMesher
 
         watch.Stop();
 
-        GD.Print("Chunk Added :" + watch.ElapsedMilliseconds);
-        GD.Print(watch.ElapsedTicks);
-
+        addingMeasures.Add(watch.ElapsedMilliseconds);
         return arrays;
     }
 
-    private static TerraVector2[] SetTextureCoords(Texture texture, Box face, int side)
+    private static Vector2[] SetTextureCoords(Texture texture, Box face, int side)
     {
-        TerraVector2[] uvs = new TerraVector2[6];
+        Vector2[] uvs = new Vector2[6];
         float textureWidth = 2048f / texture.GetWidth();
         float textureHeight = 2048f / texture.GetHeight();
 
@@ -294,7 +295,7 @@ public class GreedyMesher
             case 2:
                 for (int t = 0; t < 6; t++)
                 {
-                    uvs[t] = new TerraVector2(face.vertice[2][t].z * textureWidth,
+                    uvs[t] = new Vector2(face.vertice[2][t].z * textureWidth,
                         face.vertice[2][t].y * textureHeight);
                 }
 
@@ -302,7 +303,7 @@ public class GreedyMesher
             case 3:
                 for (int t = 0; t < 6; t++)
                 {
-                    uvs[t] = new TerraVector2(face.vertice[3][t].z * textureWidth,
+                    uvs[t] = new Vector2(face.vertice[3][t].z * textureWidth,
                         face.vertice[3][t].y * textureHeight);
                 }
 
@@ -310,7 +311,7 @@ public class GreedyMesher
             case 0:
                 for (int t = 0; t < 6; t++)
                 {
-                    uvs[t] = new TerraVector2(face.vertice[0][t].z * textureWidth,
+                    uvs[t] = new Vector2(face.vertice[0][t].z * textureWidth,
                         face.vertice[0][t].y * textureHeight);
                 }
 
@@ -318,7 +319,7 @@ public class GreedyMesher
             case 1:
                 for (int t = 0; t < 6; t++)
                 {
-                    uvs[t] = new TerraVector2(face.vertice[1][t].x * textureWidth,
+                    uvs[t] = new Vector2(face.vertice[1][t].x * textureWidth,
                         face.vertice[1][t].z * textureHeight);
                 }
 
@@ -326,7 +327,7 @@ public class GreedyMesher
             case 4:
                 for (int t = 0; t < 6; t++)
                 {
-                    uvs[t] = new TerraVector2(face.vertice[4][t].z * textureWidth,
+                    uvs[t] = new Vector2(face.vertice[4][t].z * textureWidth,
                         face.vertice[4][t].y * textureHeight);
                 }
 
@@ -334,7 +335,7 @@ public class GreedyMesher
             case 5:
                 for (int t = 0; t < 6; t++)
                 {
-                    uvs[t] = new TerraVector2(face.vertice[5][t].x * textureWidth,
+                    uvs[t] = new Vector2(face.vertice[5][t].x * textureWidth,
                         face.vertice[5][t].y * textureHeight);
                 }
 
@@ -342,5 +343,13 @@ public class GreedyMesher
         }
 
         return uvs;
+    }
+
+    public List<long> GetAddingMeasures(){
+        return addingMeasures;
+    }
+
+    public List<long> GetMesherMeasures(){
+        return meshingMeasures;
     }
 }

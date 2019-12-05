@@ -12,14 +12,17 @@ public class WorldGenerator
     private Octree octree;
     private Node parent;
     private Foreman generator;
-    private int i = 0;
-
-    public WorldGenerator(Node parent, Octree octree, GameMesher mesher, Foreman generator)
+    private bool debug;
+    private List<long>[] debugMeasures;
+    public WorldGenerator(Node parent, Octree octree, GameMesher mesher, Foreman generator, bool debug)
     {
         this.generator = generator;
         this.mesher = mesher;
         this.octree = octree;
         this.parent = parent;
+        this.debug = debug;
+        debugMeasures = new List<long>[3];
+        debugMeasures[0] = new List<long>();
     }
 
     //Initial generation
@@ -70,7 +73,7 @@ public class WorldGenerator
             node.children = new Dictionary<int, OctreeNode>();
 
             //  if(layer == 1){
-            MeshInstance instance = DebugMesh();
+           /* MeshInstance instance = DebugMesh();
             instance.SetScale(new Vector3(32 * (float) Math.Pow(2, layer - 1), 32 * (float) Math.Pow(2, layer - 1),
                 32 * (float) Math.Pow(2, layer - 1)));
             instance.Name = posX * 16 * (float) Math.Pow(2, layer) + " " + posY * 16 * (float) Math.Pow(2, layer) +
@@ -78,6 +81,7 @@ public class WorldGenerator
             instance.SetTranslation(new Vector3(posX * 16 * (float) Math.Pow(2, layer),
                 posY * 16 * (float) Math.Pow(2, layer), posZ * 16 * (float) Math.Pow(2, layer)));
             parent.AddChild(instance);
+            */
             //   }
 
             if (!octree.nodes.ContainsKey(layer))
@@ -155,18 +159,25 @@ public class WorldGenerator
          && marker.GetTranslation().x - marker.GetHardRadius() < x 
          && marker.GetTranslation().y - marker.GetHardRadius() < y
          && marker.GetTranslation().z - marker.GetHardRadius() < z) {*/
-
+        Chunk chunk;
         Stopwatch watch = new Stopwatch();
-        Chunk chunk = generator.GetChunk(x, y, z);
-        i++;
+        watch.Start();
+        chunk = generator.GetChunk(x, y, z);
         watch.Stop();
-        GD.Print("Chunk filling: " + i + " " + watch.ElapsedMilliseconds);
-
-        //  marker.sendChunk(chunk);
+        debugMeasures[0].Add(watch.ElapsedMilliseconds);
+        
         mesher.MeshChunk(chunk, false);
         return chunk;
+
+        //  marker.sendChunk(chunk);
         // }
         return new Chunk();
+    }
+
+    public List<long>[] GetMeasures(){
+        debugMeasures[1] = mesher.GetAddingMeasures();
+        debugMeasures[2] = mesher.GetMeshingMeasures();
+        return debugMeasures;
     }
 
     private static MeshInstance DebugMesh()
