@@ -27,7 +27,6 @@ public class GameMesher
     }
 
     private void StartMeshing(MeshInstance meshInstance, Chunk chunk){
-        GD.Print(chunk.isEmpty);
         if(!chunk.isEmpty){
             
         Dictionary<Texture, GodotArray> arrays = greedyMesher.cull(chunk);

@@ -1,11 +1,8 @@
-using System;
 using System.Collections.Generic;
 using Godot;
 public class GameController : Spatial
 {
     private volatile List<MeshInstance> instances;
-    private Terra terra;
-    private PrimitiveResources resources;
     private Picker picker;
     private Terra world;
     private LoadMarker player;

@@ -4,3 +4,9 @@
 /.vs/
 *.gltf
 /mono/
+/.idea/
+*.exe
+*.pck
+*.x86_64
+/data_Rituals of the Old/
+*.cfg

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System;
 using System.Collections.Generic;
 using Godot;
@@ -10,6 +11,7 @@ public class WorldGenerator
     private Octree octree;
     private Node parent;
     private Foreman generator;
+    private int i = 0;
 
     public WorldGenerator(Node parent, Octree octree, GameMesher mesher, Foreman generator) {
         this.generator = generator;
@@ -129,15 +131,14 @@ public class WorldGenerator
         && marker.GetTranslation().y - marker.GetHardRadius() < y
         && marker.GetTranslation().z - marker.GetHardRadius() < z) {*/
 
-         DateTime timeA = DateTime.Now;
+         Stopwatch watch = new Stopwatch();
             Chunk chunk = generator.GetChunk(x, y, z);
-            
+            i ++;
+            watch.Stop();
+            GD.Print("Chunk filling: " + i + " " + watch.ElapsedMilliseconds);
 
             //  marker.sendChunk(chunk);
             mesher.MeshChunk(chunk, false);
-            
-        DateTime timeB = DateTime.Now;
-        GD.Print("Meshing finished in: " + timeB.Subtract(timeA).Milliseconds +" ms");
             return chunk;
        // }
         return new Chunk();

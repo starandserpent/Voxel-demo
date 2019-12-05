@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Collections.Generic;
 using System;
 using Godot;
@@ -7,7 +8,6 @@ public class Terra
     private Octree octree;
     private Foreman foreman;
     private WorldGenerator generator;
-   private Node parent;
     public Terra(uint sizeX, uint sizeY, uint sizeZ, Registry registry, GameMesher mesher, Node parent){
         octree = new Octree();
         octree.sizeX = sizeX;
@@ -42,12 +42,10 @@ public class Terra
     }
     
     public void InitialWorldGeneration(LoadMarker loadMarker){
-
-        DateTime timeA = DateTime.Now;
-        GD.Print("Generation started at : " + timeA);
+        Stopwatch watch = new Stopwatch();
+        watch.Start();
         generator.SeekSector(loadMarker);
-
-        DateTime timeB = DateTime.Now;
-        GD.Print("Generation finished in: " + timeB.Subtract(timeA).Seconds +" s");
+        watch.Stop();
+        GD.Print("Generation finsihed " +watch.Elapsed.Seconds);
     }
 }

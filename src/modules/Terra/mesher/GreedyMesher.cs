@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Diagnostics;
 using System;
 using System.Linq;
 using Godot;
@@ -10,8 +12,10 @@ public class GreedyMesher
         this.registry = registry;
     }
 
-    public Dictionary<Texture, GodotArray> cull(Chunk chunk){    
-        Dictionary<Texture, Dictionary<Tuple<int, int>, Face>> faces = new  Dictionary<Texture, Dictionary <Tuple<int, int>, Face>>();
+    public Dictionary<Texture, GodotArray> cull(Chunk chunk){  
+        Stopwatch watch = new Stopwatch();  
+        watch.Start();
+        Dictionary<Texture, SortedDictionary<Tuple<int, int, int>, Face>> faces = new  Dictionary<Texture, SortedDictionary <Tuple<int, int, int>, Face>>();
         long a = 16777215 << 8;
         byte b = 255;
 
@@ -19,6 +23,7 @@ public class GreedyMesher
 
         for(int i = 0; i < chunk.voxels.Span.Length; i++){
             uint bytes = chunk.voxels.Span[i];
+            watch.Start();
 
             int lenght = (int)(bytes & a) >> 8;
             int objectID = (int) (bytes & b);
@@ -31,7 +36,7 @@ public class GreedyMesher
             }
 
             if(!faces.ContainsKey(texture)){
-                faces.Add(texture, new Dictionary<Tuple<int, int>, Face>());
+                faces.Add(texture, new SortedDictionary<Tuple<int, int, int>, Face>());
             }
         
             int z = count / 4096;
@@ -39,143 +44,79 @@ public class GreedyMesher
             int x = (count - 4096 * z)/64;
 
             //Front
-          /*  if(!vertice[texture].ContainsKey(0)){
-                vertice[texture].Add(0, new List<Vector3>());
-                normals[texture].Add(0, new List<Vector3>());
-                uvs[texture].Add(0, new List<Vector2>());
-
-                vertice[texture][0].AddRange(new Vector3[6]{new Vector3(x + 1, y, z + 1)/4, new Vector3(x, y, z + 1)/4,  new Vector3(x, y + lenght, z + 1)/4, new Vector3(x, y + lenght, z + 1)/4, new Vector3(x + 1, y + lenght, z + 1)/4, new Vector3(x + 1, y, z + 1)/4});  
-                SetTextureCoords(texture, uvs[texture][0], vertice[texture][0], 2);
-
-                for(int n = 0; n < 6; n ++){
-                    normals[texture][0].Add(new Vector3(0, 0, -1));
-                }  
-            }else{
-                int size = vertice[texture][0].Count;
-                    if(z > 0){
-                        if(vertice[texture][0][size - 382].y <= lenght){
-
-                            for(int r = 0; r < 6; r ++){
-                                vertice[texture][0].RemoveAt(size - 384 + r); 
-                                normals[texture][0].RemoveAt(size - 384 + r); 
-                                uvs[texture][0].RemoveAt(size - 384 + r); 
-                            }
-                        }else{
-                            vertice[texture][0][size - 384].Set(x + 1, y + lenght, z - 1); 
-                            vertice[texture][0][size - 383].Set(x, y + lenght, z - 1); 
-                           vertice[texture][0][size - 379].Set(x + 1, y + lenght, z - 1); 
-                        }
-
-                        vertice[texture][0].AddRange(new Vector3[6]{new Vector3(x + 1, y, z + 1)/4, new Vector3(x, y, z + 1)/4,  new Vector3(x, y + lenght, z + 1)/4, new Vector3(x, y + lenght, z + 1)/4, new Vector3(x + 1, y + lenght, z + 1)/4, new Vector3(x + 1, y, z + 1)/4});  
-                        SetTextureCoords(texture, uvs[texture][0], vertice[texture][0], 2);
-
-                        for(int n = 0; n < 6; n ++){
-                            normals[texture][0].Add(new Vector3(0, 0, -1));
-                        }
-                    }else{
-                        vertice[texture][0].AddRange(new Vector3[6]{new Vector3(x + 1, y, z + 1)/4, new Vector3(x, y, z + 1)/4,  new Vector3(x, y + lenght, z + 1)/4, new Vector3(x, y + lenght, z + 1)/4, new Vector3(x + 1, y + lenght, z + 1)/4, new Vector3(x + 1, y, z + 1)/4});  
-                    SetTextureCoords(texture, uvs[texture][0], vertice[texture][0], 2);
-
-                    for(int n = 0; n < 6; n ++){
-                        normals[texture][0].Add(new Vector3(0, 0, -1));
+            Face face = new Face();
+            face.side = 0;
+            face.vertice = new Vector3[6]{new Vector3(x, y, z)/4, new Vector3(x + 1, y, z)/4, new Vector3(x + 1, y + 1, z)/4, new Vector3(x + 1, y + 1, z)/4, new Vector3(x, y + 1, z)/4, new Vector3(x, y, z)/4};  
+            Tuple<int, int, int>  pos = new Tuple<int, int, int>(0, x, z);
+            faces[texture].Add(pos, face);
+            if(z > 0){     
+                if(z > 1){ 
+                    Tuple<int, int, int> prevPos = new Tuple<int, int, int>(0, x, z - 1);
+                    Face prev2Face = faces[texture][new Tuple<int, int, int>(0, x, z - 2)];            
+                    Face prevFace = faces[texture][prevPos];
+                    if(prevFace.vertice[3].y <= prev2Face.vertice[3].y){
+                        faces[texture].Remove(prevPos); 
                     }
                 }
-            }*/
 
-            //Back
-            if(faces.ContainsKey(texture)){
-                    if(z > 0){      
-                        Face prevFace = faces[texture][new Tuple<int, int>(1, x + ((z - 1) * 64))];
-                        if(prevFace.vertice[3].y <= (lenght - y)/4){
-                            faces[texture].Remove(new Tuple<int, int>(1, x + ((z - 1) * 64))); 
-                        }else if (prevFace.vertice[3].y > (lenght - y)/4 && prevFace.vertice[0].y < (lenght - y)/4){
-                         prevFace.vertice[0] = new Vector3(prevFace.vertice[0].x, (y + lenght)/4, prevFace.vertice[0].z); 
-                            prevFace.vertice[1] = new Vector3( prevFace.vertice[1].x,  (y + lenght)/4,  prevFace.vertice[1].z); 
-                           prevFace.vertice[5] = new Vector3( prevFace.vertice[5].x,  (y + lenght)/4,  prevFace.vertice[5].z); 
-                        }
-                    }
+                   /* if (prevFace.vertice[3].y > face.vertice[3].y && prevFace.vertice[0].y >= face.vertice[0].y){
+                         face.vertice[0] = new Vector3(face.vertice[0].x, prevFace.vertice[3].y, face.vertice[0].z); 
+                            face.vertice[1] = new Vector3( face.vertice[1].x, prevFace.vertice[3].y,  face.vertice[1].z); 
+                           face.vertice[5] = new Vector3( face.vertice[5].x, prevFace.vertice[3].y,  face.vertice[5].z); 
+                    }*/
             }
 
-            Face face = new Face();
+            /*//Back
+            face = new Face();
             face.side = 1;
             face.vertice = new Vector3[6]{new Vector3(x + 1, y, z + 1)/4, new Vector3(x, y, z + 1)/4,  new Vector3(x, y + lenght, z + 1)/4, new Vector3(x, y + lenght, z + 1)/4, new Vector3(x + 1, y + lenght, z + 1)/4, new Vector3(x + 1, y, z + 1)/4};
-            faces[texture].Add(new Tuple<int, int>(1, x + (z * 64)), face);
-
-            /*
-            sideID = 0;
-            pos = i;
-            for(int m = 0; m < 64 - lenght; m++){
-                if(pos < chunk.voxels.Span.Length){
-                    bytes = chunk.voxels.Span[pos];
-                    int sideLenght = (int)(bytes & a) >> 8;
-                    sideID = (int) (bytes & b);
-                    pos ++;
-                    m += sideLenght;
-                }else{
-                    break;
-                }
-            }
+            faces[texture].Add(new Tuple<int, int, int>(1, x, z), face);
+            if(z > 0){      
+                     pos = new Tuple<int, int, int>(1, x, z - 1);
+                    Face prevFace = faces[texture][pos];
+                    if (prevFace.vertice[3].y > face.vertice[3].y && prevFace.vertice[0].y <= face.vertice[0].y){
+                         prevFace.vertice[0] = new Vector3(prevFace.vertice[0].x, face.vertice[3].y, prevFace.vertice[0].z); 
+                            prevFace.vertice[1] = new Vector3( prevFace.vertice[1].x, face.vertice[3].y,  prevFace.vertice[1].z); 
+                           prevFace.vertice[5] = new Vector3( prevFace.vertice[5].x, face.vertice[3].y,  prevFace.vertice[5].z); 
+                        }else if(prevFace.vertice[3].y <= face.vertice[3].y){
+                            faces[texture].Remove(pos); 
+                        }
+                    }
+             
 
             //Right
-            if(objectID != sideID){
-                vertice[texture].AddRange(new Vector3[6]{new Vector3(x + 1, y, z)/4, new Vector3(x + 1, y, z + 1)/4, new Vector3(x + 1, y + lenght, z + 1)/4, new Vector3(x + 1, y + lenght, z + 1)/4, new Vector3(x + 1, y + lenght, z)/4, new Vector3(x + 1, y, z)/4});  
-                SetTextureCoords(texture, uvs[texture], vertice[texture], 0);
-
-                for(int n = 0; n < 6; n ++){
-                    normals[texture].Add(new Vector3(1, 0, 0));
-                }   
-            }
-
-            sideID = 0;
-            pos = i;
-            for(int m = 0; m < 64 - lenght; m++){
-                if(pos > 0){
-                    bytes = chunk.voxels.Span[pos];
-                    int sideLenght = (int)(bytes & a) >> 8;
-                    sideID = (int) (bytes & b);
-                    pos --;
-                    m += sideLenght;
-                }else{
-                    break;
-                }
-            }
+            face = new Face();
+            face.side = 2;
+            face.vertice = new Vector3[6]{new Vector3(x + 1, y, z)/4, new Vector3(x + 1, y, z + 1)/4, new Vector3(x + 1, y + lenght, z + 1)/4, new Vector3(x + 1, y + lenght, z + 1)/4, new Vector3(x + 1, y + lenght, z)/4, new Vector3(x + 1, y, z)/4};
+            faces[texture].Add(new Tuple<int, int, int>(2, x, z), face);
             
             //Left
-            if(objectID != sideID){
-                vertice[texture].AddRange(new Vector3[6]{new Vector3(x, y, z + 1)/4, new Vector3(x, y, z)/4, new Vector3(x, y + lenght, z)/4,  new Vector3(x, y + lenght, z)/4, new Vector3(x, y + lenght, z + 1)/4, new Vector3(x, y, z + 1)/4});  
-                SetTextureCoords(texture, uvs[texture], vertice[texture], 0);
+            face = new Face();
+            face.side = 3;
+            face.vertice = new Vector3[6]{new Vector3(x, y, z + 1)/4, new Vector3(x, y, z)/4, new Vector3(x, y + lenght, z)/4,  new Vector3(x, y + lenght, z)/4, new Vector3(x, y + lenght, z + 1)/4, new Vector3(x, y, z + 1)/4};
+            faces[texture].Add(new Tuple<int, int, int>(3, x, z), face);
 
-                for(int n = 0; n < 6; n ++){
-                    normals[texture].Add(new Vector3(-1, 0, 0));
-                }   
-            }
+            //Top
+            face = new Face();
+            face.side = 4;
+            face.vertice = new Vector3[6]{new Vector3(x, y + lenght, z)/4, new Vector3(x + 1, y + lenght, z)/4, new Vector3(x + 1, y + lenght, z + 1)/4, new Vector3(x + 1, y + lenght, z + 1)/4, new Vector3(x, y + lenght, z + 1)/4, new Vector3(x, y + lenght, z)/4};
+            faces[texture].Add(new Tuple<int, int, int>(4, x, z), face);
+
+            
+            //Bottom            
+            face = new Face();
+            face.side = 5;
+            face.vertice = new Vector3[6]{new Vector3(x + 1, y, z)/4, new Vector3(x, y, z)/4, new Vector3(x, y, z + 1)/4,  new Vector3(x, y, z + 1)/4, new Vector3(x + 1, y, z + 1)/4,new Vector3(x + 1, y, z)/4};
+            faces[texture].Add(new Tuple<int, int, int>(5, x, z), face);
             */
 
-        /*
-         if(!vertice[texture].ContainsKey(4)){
-                vertice[texture].Add(4, new List<Vector3>());
-                normals[texture].Add(4, new List<Vector3>());
-                uvs[texture].Add(4, new List<Vector2>());
-            }
-            //Top
-            vertice[texture][4].AddRange(new Vector3[6]{new Vector3(x, y + lenght, z)/4, new Vector3(x + 1, y + lenght, z)/4, new Vector3(x + 1, y + lenght, z + 1)/4, new Vector3(x + 1, y + lenght, z + 1)/4, new Vector3(x, y + lenght, z + 1)/4, new Vector3(x, y + lenght, z)/4});  
-            SetTextureCoords(texture, uvs[texture][4], vertice[texture][4], 1);
-
-            for(int n = 0; n < 6; n ++){
-                normals[texture][4].Add(new Vector3(0, 1, 0));
-            }*/
-
-            //Bottom
-            /*
-            vertice[texture][4].AddRange(new Vector3[6]{new Vector3(x + 1, y, z)/4, new Vector3(x, y, z)/4, new Vector3(x, y, z + 1)/4,  new Vector3(x, y, z + 1)/4, new Vector3(x + 1, y, z + 1)/4,new Vector3(x + 1, y, z)/4});  
-            SetTextureCoords(texture, uvs[texture][4], vertice[texture][4], 1);
-
-            for(int n = 0; n < 6; n ++){
-                normals[texture][4].Add(new Vector3(0, -1, 0));
-            }    */
             count += lenght;
-        
         }
+
+        GD.Print("Chunk meshed :" + watch.ElapsedMilliseconds);
+        GD.Print(watch.ElapsedTicks);
+
+        watch.Reset();
 
         Dictionary<Texture, GodotArray> arrays =  new Dictionary<Texture, GodotArray>();
 
@@ -197,12 +138,20 @@ public class GreedyMesher
                 face.uvs = SetTextureCoords(texture1, face);
                 Vector3 normal = new Vector3();
                 switch(face.side){
+                     case 0:
+                        normal = new Vector3(0, 0, -1);
+                        break;
                     case 1:
                         normal = new Vector3(0, 0, 1);
+                        break;
+
+                    case 4:
+                        normal = new Vector3(0, 1, 0);
                         break;
                 }
 
                 for(int f = 0; f < 6; f++){
+                    watch.Start();
                     vertice[(i * 6) + f] = face.vertice[f];
                     normals[(i * 6) + f] = normal;
                     uvs[(i * 6) + f] = face.uvs[f];
@@ -218,23 +167,31 @@ public class GreedyMesher
 
         faces.Clear();
 
+        watch.Stop();
+
+        GD.Print("Chunk Added :" + watch.ElapsedMilliseconds);
+        GD.Print(watch.ElapsedTicks);
+
         return arrays;
     }
 
         private static Vector2[] SetTextureCoords(Texture texture, Face face) {
             Vector2[] uvs = new Vector2[6];
             switch (face.side) {
-                case 0:
+                case 2:
+                case 3:
                 for(int t = 0; t < 6; t++){
                   uvs[t] = new Vector2(face.vertice[t].z * 2048f / texture.GetWidth(), face.vertice[t].y * 2048f / texture.GetHeight());
                 }
                 break;
+                case 0:
                 case 1:
                     for(int t = 0; t < 6; t++){
                          uvs[t] = new Vector2(face.vertice[t].x * 2048f / texture.GetWidth(), face.vertice[t].z * 2048f / texture.GetHeight());
                     }
                 break;
-                case 2:
+                case 4:
+                case 5:
                 for(int t = 0; t < 6; t++){
                      uvs[t] = new Vector2(face.vertice[t].x * 2048f / texture.GetWidth(), face.vertice[t].y * 2048f / texture.GetHeight());
                 }
