@@ -38,7 +38,8 @@ public class GameMesher
         meshInstance.Name = "chunk:" + chunk.x + "," + chunk.y + "," + chunk.z;
         meshInstance.Translate(new Vector3(chunk.x, chunk.y, chunk.z));
         
-        foreach(Texture texture in arrays.Keys.ToArray()) {    
+        for(int t = 0; t < arrays.Keys.Count; t ++){
+            Texture texture = arrays.Keys.ToArray()[t];
             GodotArray array = arrays[texture];        
             SpatialMaterial material = new SpatialMaterial();
             texture.Flags = 2;
