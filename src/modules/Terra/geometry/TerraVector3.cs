@@ -117,7 +117,7 @@ public struct TerraVector3
     public static TerraVector3 operator +(TerraVector3 a, TerraVector3 b){
         return new TerraVector3(a.x + b.x, a.y + b.y, a.z + b.z);
     }
-
+    
     public static TerraVector3 operator +(TerraVector3 a, int b){
         return new TerraVector3(a.x + b, a.y + b, a.z + b);
     }
@@ -146,7 +146,6 @@ public struct TerraVector3
         return new TerraVector3(a.x / b, a.y / b, a.z / b);
     }
 
-
     public static bool operator ==(TerraVector3 a, TerraVector3 b){
         return a.x == b.x && a.y == b.y && a.z == b.z;
     }
@@ -158,6 +157,10 @@ public struct TerraVector3
     public static TerraVector3 operator %(TerraVector3 a, TerraVector3 b){
         return new TerraVector3(a.x % b.x, a.y % b.y, a.z % b.z);
     }
+
+    public static TerraVector3 operator >>(TerraVector3 a, int b){
+        return new TerraVector3((float)((int)a.x >> b), (float)((uint)a.y >> b), (float)((uint)a.z >> b));
+    }    
 
     public static bool operator <(TerraVector3 a, TerraVector3 b){
         if (a.x == b.x) {

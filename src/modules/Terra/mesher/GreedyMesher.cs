@@ -46,7 +46,7 @@ public class GreedyMesher
             Face face = new Face();
             face.side = 0;
             face.deleteIndex = -1;
-            face.vertice = new TerraVector3[6]{new TerraVector3(x, y, z)/4, new TerraVector3(x + 1, y, z)/4, new TerraVector3(x + 1, y + lenght, z)/4, new TerraVector3(x + 1, y + lenght, z)/4, new TerraVector3(x, y + lenght, z)/4, new TerraVector3(x, y, z)/4};  
+            face.vertice = new TerraVector3[6]{new TerraVector3(x, y, z) >> 2, new TerraVector3(x + 1, y, z) >> 2, new TerraVector3(x + 1, y + lenght, z) >> 2, new TerraVector3(x + 1, y + lenght, z) >> 2, new TerraVector3(x, y + lenght, z) >> 2, new TerraVector3(x, y, z) >> 2};  
             ValueTuple<int, int, int> origin = ValueTuple.Create(0, x, z);
             faces[texture].Add(origin, face);
            
@@ -74,7 +74,7 @@ public class GreedyMesher
             //Back
             face.side = 1;
             face.deleteIndex = -1;
-            face.vertice = new TerraVector3[6]{new TerraVector3(x + 1, y, z + 1)/4, new TerraVector3(x, y, z + 1)/4,  new TerraVector3(x, y + lenght, z + 1)/4, new TerraVector3(x, y + lenght, z + 1)/4, new TerraVector3(x + 1, y + lenght, z + 1)/4, new TerraVector3(x + 1, y, z + 1)/4};
+            face.vertice = new TerraVector3[6]{new TerraVector3(x + 1, y, z + 1) >> 2, new TerraVector3(x, y, z + 1) >> 2,  new TerraVector3(x, y + lenght, z + 1) >> 2, new TerraVector3(x, y + lenght, z + 1) >> 2, new TerraVector3(x + 1, y + lenght, z + 1) >> 2, new TerraVector3(x + 1, y, z + 1) >> 2};
             faces[texture].Add(ValueTuple.Create(1, x, z), face);
 
             if(z > 0){      
@@ -93,7 +93,7 @@ public class GreedyMesher
             //Right
             face.side = 2;
             face.deleteIndex = -1;
-            face.vertice = new TerraVector3[6]{new TerraVector3(x, y, z + 1)/4, new TerraVector3(x, y, z)/4, new TerraVector3(x, y + lenght, z)/4, new TerraVector3(x, y + lenght, z)/4, new TerraVector3(x, y + lenght, z + 1)/4, new TerraVector3(x, y, z + 1)/4}; 
+            face.vertice = new TerraVector3[6]{new TerraVector3(x, y, z + 1) >> 2, new TerraVector3(x, y, z) >> 2, new TerraVector3(x, y + lenght, z) >> 2, new TerraVector3(x, y + lenght, z) >> 2, new TerraVector3(x, y + lenght, z + 1) >> 2, new TerraVector3(x, y, z + 1) >> 2}; 
             origin = ValueTuple.Create(2, x, z);
             faces[texture].Add(origin, face);
 
@@ -120,7 +120,7 @@ public class GreedyMesher
             //Left
             face.side = 3;
             face.deleteIndex = -1;
-            face.vertice = new TerraVector3[6]{new TerraVector3(x + 1, y, z)/4, new TerraVector3(x + 1, y, z + 1)/4, new TerraVector3(x + 1, y + lenght, z + 1)/4, new TerraVector3(x + 1, y + lenght, z + 1)/4, new TerraVector3(x + 1, y + lenght, z)/4, new TerraVector3(x + 1, y, z)/4}; 
+            face.vertice = new TerraVector3[6]{new TerraVector3(x + 1, y, z) >> 2, new TerraVector3(x + 1, y, z + 1) >> 2, new TerraVector3(x + 1, y + lenght, z + 1) >> 2, new TerraVector3(x + 1, y + lenght, z + 1) >> 2, new TerraVector3(x + 1, y + lenght, z) >> 2, new TerraVector3(x + 1, y, z) >> 2}; 
             faces[texture].Add(ValueTuple.Create(3, x, z), face);
 
             if(x > 0){      
@@ -139,13 +139,13 @@ public class GreedyMesher
             //Top
             face.side = 4;
             face.deleteIndex = -1;
-            face.vertice = new TerraVector3[6]{new TerraVector3(x, y + lenght, z)/4, new TerraVector3(x + 1, y + lenght, z)/4, new TerraVector3(x + 1, y + lenght, z + 1)/4, new TerraVector3(x + 1, y + lenght, z + 1)/4, new TerraVector3(x, y + lenght, z + 1)/4, new TerraVector3(x, y + lenght, z)/4};
+            face.vertice = new TerraVector3[6]{new TerraVector3(x, y + lenght, z) >> 2, new TerraVector3(x + 1, y + lenght, z) >> 2, new TerraVector3(x + 1, y + lenght, z + 1) >> 2, new TerraVector3(x + 1, y + lenght, z + 1) >> 2, new TerraVector3(x, y + lenght, z + 1) >> 2, new TerraVector3(x, y + lenght, z) >> 2};
             faces[texture].Add(ValueTuple.Create(4, x, z), face);
             
             //Bottom            
             face.side = 5;
             face.deleteIndex = -1;
-            face.vertice = new TerraVector3[6]{new TerraVector3(x + 1, y, z)/4, new TerraVector3(x, y, z)/4, new TerraVector3(x, y, z + 1)/4,  new TerraVector3(x, y, z + 1)/4, new TerraVector3(x + 1, y, z + 1)/4,new TerraVector3(x + 1, y, z)/4};
+            face.vertice = new TerraVector3[6]{new TerraVector3(x + 1, y, z) >> 2, new TerraVector3(x, y, z) >> 2, new TerraVector3(x, y, z + 1) >> 2,  new TerraVector3(x, y, z + 1) >> 2, new TerraVector3(x + 1, y, z + 1) >> 2,new TerraVector3(x + 1, y, z) >> 2};
             faces[texture].Add(ValueTuple.Create(5, x, z), face);
 
             count += lenght;

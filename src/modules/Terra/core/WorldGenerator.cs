@@ -37,7 +37,7 @@ public class WorldGenerator
     private OctreeNode CreateNode(int posX, int posY, int posZ, int layer, int type, OctreeNode parentNode, LoadMarker marker) {
         if(layer == 0){
             uint size = octree.sizeX * octree.sizeY * octree.sizeZ;
-            Chunk chunk = LoadArea(posX * 16, posY * 16, posZ * 16, marker);
+            Chunk chunk = LoadArea(posX << 4, posY << 4, posZ << 4, marker);
             int lolong = (int) Morton3D.encode(posX, posY, posZ);
             OctreeNode childNode = new OctreeNode();
             childNode.chunk = chunk;
@@ -59,10 +59,10 @@ public class WorldGenerator
             node.children = new Dictionary<int, OctreeNode>();
 
           //  if(layer == 1){
-           // MeshInstance instance = DebugMesh();
-            //instance.SetScale(new Vector3(32 * (float) Math.Pow(2, layer - 1), 32 * (float) Math.Pow(2, layer - 1), 32 * (float) Math.Pow(2, layer - 1)));
-            //instance.Name = posX * 16 *  (float) Math.Pow(2, layer) +" " + posY * 16 *  (float) Math.Pow(2, layer) +" " + posZ *  16 * (float) Math.Pow(2, layer);
-            //instance.SetTranslation(new Vector3(posX * 16 *  (float) Math.Pow(2, layer), posY * 16 *  (float) Math.Pow(2, layer), posZ *  16 * (float) Math.Pow(2, layer)));
+           //MeshInstance instance = DebugMesh();
+          //  instance.SetScale(new Vector3(32 * (float) Math.Pow(2, layer - 1), 32 * (float) Math.Pow(2, layer - 1), 32 * (float) Math.Pow(2, layer - 1)));
+          //  instance.Name = posX * 16 *  (float) Math.Pow(2, layer) +" " + posY * 16 *  (float) Math.Pow(2, layer) +" " + posZ *  16 * (float) Math.Pow(2, layer);
+          //  instance.SetTranslation(new Vector3(posX * 16 *  (float) Math.Pow(2, layer), posY * 16 *  (float) Math.Pow(2, layer), posZ *  16 * (float) Math.Pow(2, layer)));
             //parent.AddChild(instance);
          //   }
 
@@ -80,35 +80,35 @@ public class WorldGenerator
                 if(!node.children.ContainsKey(i)){
                     switch(i){
                         case 0:
-                            node = CreateNode(2 * posX, 2 * posY, 2 * posZ, layer - 1, 0, node, marker);
+                            node = CreateNode(posX << 1, posY << 1, posZ << 1, layer - 1, 0, node, marker);
                         break;
 
                            case 1:
-                             node = CreateNode((2 * posX) + 1, 2 * posY, 2 * posZ, layer - 1, 1, node, marker);
+                             node = CreateNode((posX << 1) + 1, posY << 1, posZ << 1, layer - 1, 1, node, marker);
                         break;
 
                            case 2:
-                             node = CreateNode(2 * posX, 2 * posY, (2 * posZ) + 1, layer - 1, 2, node, marker);
+                             node = CreateNode(posX << 1, posY << 1, (posZ << 1) + 1, layer - 1, 2, node, marker);
                         break;
 
                            case 3:
-                             node = CreateNode((2 * posX) + 1, 2 * posY, (2 * posZ) + 1, layer - 1, 3, node, marker);
+                             node = CreateNode((posX << 1) + 1, posY << 1, (posZ << 1) + 1, layer - 1, 3, node, marker);
                         break;
 
                            case 4:
-                             node = CreateNode(2 * posX, (2 * posY) + 1, 2 * posZ, layer - 1, 4, node, marker);
+                             node = CreateNode(posX << 1, (posY << 1) + 1, posZ << 1, layer - 1, 4, node, marker);
                         break;
 
                            case 5:
-                             node = CreateNode((2 * posX) + 1, (2 * posY) + 1, 2 * posZ, layer - 1, 5, node, marker);
+                             node = CreateNode((posX << 1) + 1, (posY << 1) + 1, posZ << 1, layer - 1, 5, node, marker);
                         break;
 
                            case 6:
-                             node = CreateNode(2 * posX, (2 * posY) + 1, (2 * posZ) + 1, layer - 1, 6, node, marker);
+                             node = CreateNode(posX << 1, (posY << 1) + 1, (posZ << 1) + 1, layer - 1, 6, node, marker);
                         break;
 
                            case 7:
-                             node = CreateNode((2 * posX) + 1, (2 * posY) + 1, (2 * posZ) + 1, layer - 1, 7, node, marker);
+                             node = CreateNode((posX << 1) + 1, (posY << 1) + 1, (posZ << 1) + 1, layer - 1, 7, node, marker);
                         break;
                     }
                 }
