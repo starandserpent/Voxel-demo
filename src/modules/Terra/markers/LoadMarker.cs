@@ -3,7 +3,6 @@ using Godot;
 
 public class LoadMarker : Spatial
 {
-
     /**
      * The radius which this marker will force the world to be loaded.
      * Squared to avoid sqrt.
@@ -12,15 +11,16 @@ public class LoadMarker : Spatial
 
     private List<int> playerOctants;
 
-    public void SendChunk(Chunk chunk){
-
+    public void SendChunk(Chunk chunk)
+    {
     }
 
-    public void SendOctree(Chunk octree){
-
+    public void SendOctree(Chunk octree)
+    {
     }
 
-    public void CalculateMarkerOctants(float size) {
+    public void CalculateMarkerOctants(float size)
+    {
         /*
         int iterations = CoreUtils.calculateOctreeLayers((int) size);
         size = size * DataConstants.CHUNK_SCALE;
@@ -33,24 +33,27 @@ public class LoadMarker : Spatial
         */
     }
 
-    public List<int> GetPlayerOctants() {
+    public List<int> GetPlayerOctants()
+    {
         return playerOctants;
     }
 
-    public int GetOctant(int index) {
-       // return playerOctants.get(index);
+    public int GetOctant(int index)
+    {
+        // return playerOctants.get(index);
         return 0;
     }
 
-    public float GetHardRadius() {
+    public float GetHardRadius()
+    {
         return hardRadius;
     }
-    
-    public void SendPosition(float x, float y, float z){
 
+    public void SendPosition(float x, float y, float z)
+    {
     }
-    
-    public void Move(float x, float y, float z){
 
+    public void Move(float x, float y, float z)
+    {
     }
 }

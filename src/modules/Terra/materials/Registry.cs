@@ -6,19 +6,21 @@ public class Registry
     private List<TerraObject> objects;
     private Dictionary<string, TerraObject> nameToObject;
 
-    public Registry(){
+    public Registry()
+    {
         objects = new List<TerraObject>();
         nameToObject = new Dictionary<string, TerraObject>();
         RegisterDefaultObjects();
     }
 
-    private void RegisterDefaultObjects(){
+    private void RegisterDefaultObjects()
+    {
         TerraObject air = new TerraObject("air", null);
         RegisterObject(air);
     }
 
-    public void RegisterObject(TerraObject terraObject){
-       
+    public void RegisterObject(TerraObject terraObject)
+    {
         objects.Add(terraObject);
         int worldID = objects.IndexOf(terraObject);
 
@@ -28,17 +30,21 @@ public class Registry
         terraObject.fullName = fullName;
         nameToObject.Add(fullName, terraObject);
 
-        GD.Print(terraObject.fullName);   
+        GD.Print(terraObject.fullName);
     }
 
-    public TerraObject SelectByName(string fullName){
+    public TerraObject SelectByName(string fullName)
+    {
         return nameToObject[fullName];
     }
-    public TerraObject SelectByID(int id){
+
+    public TerraObject SelectByID(int id)
+    {
         return objects[id];
     }
 
-    public List<TerraObject> GetAllMaterials(){
+    public List<TerraObject> GetAllMaterials()
+    {
         return objects;
     }
 }
