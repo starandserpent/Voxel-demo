@@ -1,7 +1,4 @@
-using System.Runtime.InteropServices;
-using System.Linq;
 using System.Buffers;
-using System.Drawing;
 using System.Diagnostics;
 using System;
 using Godot;
@@ -22,19 +19,15 @@ public class GreedyMesher
     private Vector3[] vertice;
     private Vector3[] normals;
     private Vector2[] uvs;
-    private int lol;
+    private int lol = 0;
 
     public GreedyMesher(Registry registry, bool profile)
     {
         this.profile = profile;
         this.registry = registry;
-        vertice = new Vector3[4096 * 64 * 2304];
-        normals = new Vector3[4096 * 64 * 2304];
-        uvs = new Vector2[4096 * 64 * 2304];
 
         memory = ArrayPool<float>.Create();
-        vertice3Memory = ArrayPool<Vector3>.Create();
-        vertice2Memory = ArrayPool<Vector2>.Create();
+
         addingMeasures = new List<long>();
         meshingMeasures = new List<long>();
     }
@@ -420,6 +413,10 @@ public class GreedyMesher
 
             float[] primitives = vertices[t];
             int index = indices[t];
+
+            Vector3[] vertice = new Vector3[index/3];
+            Vector3[] normals = new Vector3[index/3];
+            Vector2[] uvs = new Vector2[index/3];
 
             float textureWidth = 2048f / texture.GetWidth();
             float textureHeight = 2048f / texture.GetHeight();

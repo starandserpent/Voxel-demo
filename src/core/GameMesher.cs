@@ -7,16 +7,14 @@ public class GameMesher
 {
     private volatile Node parent;
     private volatile SplatterMesher splatterMesher;
-    private volatile Registry registry;
-
     private GreedyMesher mesher = null;
     public GameMesher(Node parent, Registry reg, bool profile)
     {
         this.parent = parent;
+        mesher = new GreedyMesher(reg, true);
         ShaderMaterial shaderMat = new ShaderMaterial();
         shaderMat.Shader = (GD.Load("res://assets/shaders/splatvoxel.shader") as Shader);
         splatterMesher = new SplatterMesher(shaderMat, reg);
-        this.registry = registry;
     }
 
     public void MeshChunk(Chunk chunk, bool splatter)
@@ -36,7 +34,6 @@ public class GameMesher
     {
         if (!chunk.isEmpty)
         {
-            mesher = new GreedyMesher(registry, true);
             Dictionary<Texture, GodotArray> arrays = mesher.cull(chunk);
 
             ArrayMesh mesh = new ArrayMesh();
@@ -66,7 +63,7 @@ public class GameMesher
            // body.AddChild(colShape);
          //   meshInstance.AddChild(body);
 
-            meshInstance.SetMesh(mesh);
+            meshInstance.Mesh = mesh;
             Node node = parent.FindNode(meshInstance.Name);
             if (node != null)
             {
