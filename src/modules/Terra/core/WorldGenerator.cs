@@ -73,7 +73,7 @@ public class WorldGenerator
             node.children = new Dictionary<int, OctreeNode>();
 
             //  if(layer == 1){
-        /*    MeshInstance instance = DebugMesh();
+            MeshInstance instance = DebugMesh();
             instance.Scale = new Vector3(32 * (float) Math.Pow(2, layer - 1), 32 * (float) Math.Pow(2, layer - 1),
                 32 * (float) Math.Pow(2, layer - 1));
             instance.Name = posX * 16 * (float) Math.Pow(2, layer) + " " + posY * 16 * (float) Math.Pow(2, layer) +
@@ -81,7 +81,7 @@ public class WorldGenerator
             instance.Translation = new Vector3(posX * 16 * (float) Math.Pow(2, layer),
                 posY * 16 * (float) Math.Pow(2, layer), posZ * 16 * (float) Math.Pow(2, layer));
             parent.AddChild(instance);
-            */
+            
             //   }
 
             if (!octree.nodes.ContainsKey(layer))
