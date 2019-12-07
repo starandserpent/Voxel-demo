@@ -414,9 +414,9 @@ public class GreedyMesher
 
             float[] primitives = vertices[t];
             int index = indices[t]/3;
-            Vector3* vertice = stackalloc Vector3[index];
-            Span<Vector3> normals = stackalloc Vector3[index];
-            Span<Vector2> uvs = stackalloc Vector2[index];
+            Vector3[] vertice = new Vector3[index];
+            Vector3[] normals = new Vector3[index];
+            Vector2[] uvs = new Vector2[index];
 
             float textureWidth = 2048f / texture.GetWidth();
             float textureHeight = 2048f / texture.GetHeight();
@@ -433,9 +433,9 @@ public class GreedyMesher
                 uvs[pos].Set(z * textureWidth, x * textureHeight);
                 pos ++;
             }
-            godotArray[0] = vertice as object;
-            godotArray[1] = normals.ToArray();
-            godotArray[4] = uvs.ToArray();
+            godotArray[0] = vertice;
+            godotArray[1] = normals;
+            godotArray[4] = uvs;
 
             arrays.Add(texture, godotArray);
         }
