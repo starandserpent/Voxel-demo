@@ -19,12 +19,19 @@ public class GreedyMesher
     private ArrayPool<Vector3> vertice3Memory;
     private ArrayPool<Vector2> vertice2Memory;
 
-    private int lol = 0;
+    private Vector3[] vertice;
+    private Vector3[] normals;
+    private Vector2[] uvs;
+    private int lol;
 
     public GreedyMesher(Registry registry, bool profile)
     {
         this.profile = profile;
         this.registry = registry;
+        vertice = new Vector3[4096 * 64 * 2304];
+        normals = new Vector3[4096 * 64 * 2304];
+        uvs = new Vector2[4096 * 64 * 2304];
+
         memory = ArrayPool<float>.Create();
         vertice3Memory = ArrayPool<Vector3>.Create();
         vertice2Memory = ArrayPool<Vector2>.Create();
@@ -44,7 +51,7 @@ public class GreedyMesher
 
         for (int i = 0; i < chunk.voxels.Length; i++)
         {
-            if(count >= 64*64*64){
+            if(count >=4096*64){
                 break;
             }
 
@@ -74,13 +81,13 @@ public class GreedyMesher
             float[] points = vertices[objectID - 1];
             int index = indices[objectID - 1];
             
-            float sx = x/4f;
-            float sy = y/4f;
-            float sz = z/4f;
+            float sx = x* 0.25f;
+            float sy = y* 0.25f;
+            float sz = z* 0.25f;
 
-            float ax = (x + 1)/4f;
-            float ay = (lenght + y)/4f;
-            float az = (z + 1)/4f;
+            float ax = (x + 1) * 0.25f;
+            float ay = (lenght + y)* 0.25f;
+            float az = (z + 1)* 0.25f;
 
             //Front
             for(int p = 2; p < 18; p += 3){
@@ -397,14 +404,13 @@ public class GreedyMesher
             indices[objectID - 1] = index;
             count += lenght;
         }
-
+        
         watch.Stop();
         meshingMeasures.Add(watch.ElapsedMilliseconds);
         watch.Reset();
         watch.Start();
 
         Dictionary<Texture, GodotArray> arrays = new Dictionary<Texture, GodotArray>();
-        unsafe{
         for (int t = 0; t < 2; t++)
         {
             GodotArray godotArray = new GodotArray();
@@ -413,10 +419,7 @@ public class GreedyMesher
             Texture texture = registry.SelectByID(t + 1).texture;
 
             float[] primitives = vertices[t];
-            int index = indices[t]/3;
-            Vector3[] vertice = new Vector3[index];
-            Vector3[] normals = new Vector3[index];
-            Vector2[] uvs = new Vector2[index];
+            int index = indices[t];
 
             float textureWidth = 2048f / texture.GetWidth();
             float textureHeight = 2048f / texture.GetHeight();
@@ -428,25 +431,24 @@ public class GreedyMesher
                 float y = primitives[i + 1];
                 float z = primitives[i + 2];
             
-                // vertice[pos].Set(x, y, z);
                 vertice[pos].x = x;
                 vertice[pos].y = y;
                 vertice[pos].z = z;
-                // normals[pos].Set(0, 0 ,1);
+
                 normals[pos].x = 0f;
                 normals[pos].y = 0f;
                 normals[pos].z = 1f;
-                // uvs[pos].Set(z * textureWidth, x * textureHeight);
+
                 uvs[pos].x = z * textureWidth;
                 uvs[pos].y = x * textureHeight;
                 pos ++;
             }
+
             godotArray[0] = vertice;
             godotArray[1] = normals;
             godotArray[4] = uvs;
 
             arrays.Add(texture, godotArray);
-        }
         }
 
         watch.Stop();

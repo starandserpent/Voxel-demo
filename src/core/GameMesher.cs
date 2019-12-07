@@ -6,15 +6,17 @@ using GodotArray = Godot.Collections.Array;
 public class GameMesher
 {
     private volatile Node parent;
-    private volatile GreedyMesher greedyMesher;
     private volatile SplatterMesher splatterMesher;
+    private volatile Registry registry;
+
+    private GreedyMesher mesher = null;
     public GameMesher(Node parent, Registry reg, bool profile)
     {
         this.parent = parent;
         ShaderMaterial shaderMat = new ShaderMaterial();
         shaderMat.Shader = (GD.Load("res://assets/shaders/splatvoxel.shader") as Shader);
-        greedyMesher = new GreedyMesher(reg,profile);
         splatterMesher = new SplatterMesher(shaderMat, reg);
+        this.registry = registry;
     }
 
     public void MeshChunk(Chunk chunk, bool splatter)
@@ -34,7 +36,8 @@ public class GameMesher
     {
         if (!chunk.isEmpty)
         {
-            Dictionary<Texture, GodotArray> arrays = greedyMesher.cull(chunk);
+            mesher = new GreedyMesher(registry, true);
+            Dictionary<Texture, GodotArray> arrays = mesher.cull(chunk);
 
             ArrayMesh mesh = new ArrayMesh();
 
@@ -77,10 +80,10 @@ public class GameMesher
     }
 
     public List<long> GetAddingMeasures(){
-        return greedyMesher.GetAddingMeasures();
+        return mesher.GetAddingMeasures();
     }
 
     public List<long> GetMeshingMeasures(){
-        return greedyMesher.GetMesherMeasures();
+        return mesher.GetMesherMeasures();
     }
 }

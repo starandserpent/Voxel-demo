@@ -65,11 +65,11 @@ public class Terra
         GD.Print("Min filling " + measures[0].Min()+" ms");
         GD.Print("Max filling " + measures[0].Max()+" ms");
 
-          GD.Print("Average Meshing " + measures[2].Average()+" ms");
+          GD.Print("Average meshing rle " + measures[2].Average()+" ms");
         GD.Print("Min Meshing " + measures[2].Min()+" ms");
         GD.Print("Max Meshing " + measures[2].Max()+" ms");
 
-          GD.Print("Average Mesh generation  " + measures[1].Average()+" ms");
+          GD.Print("Average adding to godot  " + measures[1].Average()+" ms");
         GD.Print("Min Mesh generation  " + measures[1].Min()+" ms");
         GD.Print("Max Mesh generation  " + measures[1].Max()+" ms");
 
