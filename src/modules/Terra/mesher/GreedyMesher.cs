@@ -13,12 +13,6 @@ public class GreedyMesher
     private List<long> meshingMeasures;
     private volatile Registry registry;
     private ArrayPool<float> memory;
-    private ArrayPool<Vector3> vertice3Memory;
-    private ArrayPool<Vector2> vertice2Memory;
-
-    private Vector3[] vertice;
-    private Vector3[] normals;
-    private Vector2[] uvs;
     private int lol = 0;
 
     public GreedyMesher(Registry registry, bool profile)
@@ -36,11 +30,12 @@ public class GreedyMesher
     {
         Stopwatch watch = new Stopwatch();
         watch.Start();
-        float[][] vertices = new float[2][];
+        float[][][] vertices = new float[2][][];
         long a = 16777215 << 8;
         byte b = 255;
         int count = 0;
-        int[] indices = new int[2];
+        int allCount = 0;
+        int[][] indicesPT = new int[2][];
 
         for (int i = 0; i < chunk.voxels.Length; i++)
         {
@@ -61,8 +56,12 @@ public class GreedyMesher
 
             if (vertices[objectID - 1] == null)
             {   
-                float[] buffer =  memory.Rent(chunk.voxels.Length * 108);
-                vertices[objectID - 1] = buffer;
+                vertices[objectID - 1] = new float[6][];
+                indicesPT[objectID - 1] = new int[6];
+                for(int s = 0; s < 6; s++){
+                    float[] buffer =  memory.Rent(chunk.voxels.Length * 6);
+                    vertices[objectID - 1][s] = buffer;
+                }                
             }
 
             int z = count / 4096;
@@ -71,8 +70,7 @@ public class GreedyMesher
 
             int origin = x + (z * 64);
 
-            float[] points = vertices[objectID - 1];
-            int index = indices[objectID - 1];
+            int[] indices = indicesPT[objectID - 1];
             
             float sx = x* 0.25f;
             float sy = y* 0.25f;
@@ -83,6 +81,8 @@ public class GreedyMesher
             float az = (z + 1)* 0.25f;
 
             //Front
+            float[] points = vertices[objectID - 1][0];
+            int index = indices[0];
             for(int p = 2; p < 18; p += 3){
                 points[index + p] = sz;
             }
@@ -109,154 +109,165 @@ public class GreedyMesher
             points[index + 15] = sx;
             points[index + 16] = sy;
 
-            index += 18;            
+            indices[0] += 18;       
 
              //Back
-             for(int p = 2; p < 18; p += 3){
-                points[index + p] = sz;
-            }
-
-            for(int p = 3; p < 12; p += 3){
-                points[index + p] = ax;
-            }
-
-            for(int p = 7; p < 16; p += 3){
-                points[index + p] = ay;
-            }
-
-            //1
-            points[index] = sx;
-            points[index + 1] = sy;
-
-            //2
-            points[index + 4] = sy;
-
-            //5
-            points[index + 12] = sx;
-
-            //6
-            points[index + 15] = sx;
-            points[index + 16] = sy;
-
-            index += 18;    
-
-
-             //Right
-        for(int p = 2; p < 18; p += 3){
-                points[index + p] = sz;
-            }
-
-            for(int p = 3; p < 12; p += 3){
-                points[index + p] = ax;
-            }
-
-            for(int p = 7; p < 16; p += 3){
-                points[index + p] = ay;
-            }
-
-            //1
-            points[index] = sx;
-            points[index + 1] = sy;
-
-            //2
-            points[index + 4] = sy;
-
-            //5
-            points[index + 12] = sx;
-
-            //6
-            points[index + 15] = sx;
-            points[index + 16] = sy;
-
-            index += 18;   
-
-            //Left 
+             index = indices[1];
+            points = vertices[objectID - 1][1];
 
             for(int p = 2; p < 18; p += 3){
-                points[index + p] = sz;
+                points[index + p] = az;
             }
 
             for(int p = 3; p < 12; p += 3){
-                points[index + p] = ax;
+                points[index + p] = sx;
             }
 
-            for(int p = 7; p < 16; p += 3){
+            for(int p = 7; p < 14; p += 3){
                 points[index + p] = ay;
             }
 
             //1
-            points[index] = sx;
+            points[index] = ax;
             points[index + 1] = sy;
+
+            //2
+            points[index + 4] = sy;
+            
+            //5
+            points[index + 12] = ax;
+
+            //6
+            points[index + 15] = ax;
+            points[index + 16] = sy;
+
+            indices[1] += 18;    
+
+             //Right
+             index = indices[2];
+             points = vertices[objectID - 1][2];
+
+            for(int p = 0; p < 18; p += 3){
+                points[index + p] = ax;
+            }
+
+            for(int p = 5; p < 12; p += 3){
+                points[index + p] = az;
+            }
+
+            for(int p = 7; p < 14; p += 3){
+                points[index + p] = ay;
+            }
+
+            //1
+            points[index + 1] = sy;
+            points[index + 2] = sz;
 
             //2
             points[index + 4] = sy;
 
             //5
-            points[index + 12] = sx;
+            points[index + 14] = sz;
 
             //6
-            points[index + 15] = sx;
             points[index + 16] = sy;
+            points[index + 17] = sz;
 
-            index += 18;    
+            indices[2] += 18;   
+
+            //Left 
+            index = indices[3];
+            points = vertices[objectID - 1][3];
+
+            for(int p = 0; p < 18; p += 3){
+                points[index + p] = sx;
+            }
+
+            for(int p = 5; p < 12; p += 3){
+                points[index + p] = sz;
+            }
+
+            for(int p = 7; p < 14; p += 3){
+                points[index + p] = ay;
+            }
+           
+            //1
+            points[index + 1] = sy;
+            points[index + 2] = az;
+            
+            //2
+            points[index + 4] = sy;
+
+            //5
+            points[index + 14] = az;
+
+            //6
+            points[index + 16] = sy;
+            points[index + 17] = az;
+
+            indices[3] += 18;    
 
              //Top
-              for(int p = 2; p < 18; p += 3){
-                points[index + p] = sz;
+             index = indices[4];
+             points = vertices[objectID - 1][4];
+            for(int p = 1; p < 18; p += 3){
+                points[index + p] = ay;
             }
 
             for(int p = 3; p < 12; p += 3){
                 points[index + p] = ax;
             }
 
-            for(int p = 7; p < 16; p += 3){
-                points[index + p] = ay;
+            for(int p = 8; p < 15; p += 3){
+                points[index + p] = az;
             }
 
             //1
             points[index] = sx;
-            points[index + 1] = sy;
+            points[index + 2] = sz;
 
             //2
-            points[index + 4] = sy;
-
+            points[index + 5] = sz;
+            
             //5
             points[index + 12] = sx;
 
             //6
             points[index + 15] = sx;
-            points[index + 16] = sy;
+            points[index + 17] = sz;
 
-            index += 18;    
+            indices[4] += 18;    
 
              //Bottom
-              for(int p = 2; p < 18; p += 3){
-                points[index + p] = sz;
+             index = indices[5];
+             points = vertices[objectID - 1][5];
+            for(int p = 1; p < 18; p += 3){
+                points[index + p] = sy;
             }
 
             for(int p = 3; p < 12; p += 3){
-                points[index + p] = ax;
+                points[index + p] = sx;
             }
 
-            for(int p = 7; p < 16; p += 3){
-                points[index + p] = ay;
+            for(int p = 8; p < 15; p += 3){
+                points[index + p] = az;
             }
 
             //1
-            points[index] = sx;
-            points[index + 1] = sy;
+            points[index] = ax;
+            points[index + 2] = sz;
 
             //2
-            points[index + 4] = sy;
-
+            points[index + 5] = sz;
+            
             //5
-            points[index + 12] = sx;
+            points[index + 12] = ax;
 
             //6
-            points[index + 15] = sx;
-            points[index + 16] = sy;
+            points[index + 15] = ax;
+            points[index + 17] = sz;
 
-            index += 18;    
+            indices[5] += 18;    
             /*
             if (z > 0)
             {
@@ -394,7 +405,7 @@ public class GreedyMesher
                 new TerraVector3(x + 1, y, z) / 4
             };
             }*/
-            indices[objectID - 1] = index;
+            allCount += 54;
             count += lenght;
         }
         
@@ -411,19 +422,19 @@ public class GreedyMesher
 
             Texture texture = registry.SelectByID(t + 1).texture;
 
-            float[] primitives = vertices[t];
-            int index = indices[t];
-
-            Vector3[] vertice = new Vector3[index/3];
-            Vector3[] normals = new Vector3[index/3];
-            Vector2[] uvs = new Vector2[index/3];
+            Vector3[] vertice = new Vector3[allCount];
+            Vector3[] normals = new Vector3[allCount];
+            Vector2[] uvs = new Vector2[allCount];
 
             float textureWidth = 2048f / texture.GetWidth();
             float textureHeight = 2048f / texture.GetHeight();
 
             int pos = 0;
-            for (int i = 0; i < index; i += 3)
-            {
+            for(int s = 0; s < 6; s++){
+                int index = indicesPT[t][s];
+                float[] primitives = vertices[t][s];
+            for (int i = 0; i < index; i += 3)    
+            { 
                 float x = primitives[i];
                 float y = primitives[i + 1];
                 float z = primitives[i + 2];
@@ -432,15 +443,53 @@ public class GreedyMesher
                 vertice[pos].y = y;
                 vertice[pos].z = z;
 
-                normals[pos].x = 0f;
+                switch(s){
+                    case 0:
+                    normals[pos].x = 0f;
                 normals[pos].y = 0f;
                 normals[pos].z = 1f;
-
-                uvs[pos].x = z * textureWidth;
-                uvs[pos].y = x * textureHeight;
+                    uvs[pos].x = x * textureWidth;
+                    uvs[pos].y = y * textureHeight;
+                    break;
+                    case 1:
+                    normals[pos].x = 0f;
+                normals[pos].y = 0f;
+                normals[pos].z = -1f;
+                    uvs[pos].x = x * textureWidth;
+                    uvs[pos].y = y * textureHeight;
+                    break;
+                     case 2:
+                     normals[pos].x = -1f;
+                normals[pos].y = 0f;
+                normals[pos].z = 0f;
+                    uvs[pos].x = z * textureWidth;
+                    uvs[pos].y = y * textureHeight;
+                    break;
+                     case 3:
+                     normals[pos].x = 1f;
+                normals[pos].y = 0f;
+                normals[pos].z = 0f;
+                    uvs[pos].x = z * textureWidth;
+                    uvs[pos].y = y * textureHeight;
+                    break;
+                     case 4:
+                     normals[pos].x = 0f;
+                normals[pos].y = 1f;
+                normals[pos].z = 0f;
+                    uvs[pos].x = x * textureWidth;
+                    uvs[pos].y = z * textureHeight;
+                    break;
+                     case 5:
+                     normals[pos].x = 0f;
+                normals[pos].y = -1f;
+                normals[pos].z = 0f;
+                    uvs[pos].x = x * textureWidth;
+                    uvs[pos].y = z * textureHeight;
+                    break;
+                }
                 pos ++;
             }
-
+        }
             godotArray[0] = vertice;
             godotArray[1] = normals;
             godotArray[4] = uvs;
@@ -455,66 +504,6 @@ public class GreedyMesher
         return arrays;
     }
 
-/*
-    private static Vector2[] SetTextureCoords(Texture texture, Box face, int side)
-    {
-        Vector2[] uvs = new Vector2[6];
-
-        switch (side)
-        {
-            case 2:
-                for (int t = 0; t < 6; t++)
-                {
-                    uvs[t] = new Vector2(face.vertice[2][t].z * textureWidth,
-                        face.vertice[2][t].y * textureHeight);
-                }
-
-                break;
-            case 3:
-                for (int t = 0; t < 6; t++)
-                {
-                    uvs[t] = new Vector2(face.vertice[3][t].z * textureWidth,
-                        face.vertice[3][t].y * textureHeight);
-                }
-
-                break;
-            case 0:
-                for (int t = 0; t < 6; t++)
-                {
-                    uvs[t] = new Vector2(face.vertice[0][t].z * textureWidth,
-                        face.vertice[0][t].y * textureHeight);
-                }
-
-                break;
-            case 1:
-                for (int t = 0; t < 6; t++)
-                {
-                    uvs[t] = new Vector2(face.vertice[1][t].x * textureWidth,
-                        face.vertice[1][t].z * textureHeight);
-                }
-
-                break;
-            case 4:
-                for (int t = 0; t < 6; t++)
-                {
-                    uvs[t] = new Vector2(face.vertice[4][t].z * textureWidth,
-                        face.vertice[4][t].y * textureHeight);
-                }
-
-                break;
-            case 5:
-                for (int t = 0; t < 6; t++)
-                {
-                    uvs[t] = new Vector2(face.vertice[5][t].x * textureWidth,
-                        face.vertice[5][t].y * textureHeight);
-                }
-
-                break;
-        }
-
-        return uvs;
-    }
-*/
     public List<long> GetAddingMeasures(){
         return addingMeasures;
     }
