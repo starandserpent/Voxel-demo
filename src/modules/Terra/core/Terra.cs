@@ -72,6 +72,8 @@ public class Terra
           GD.Print("Average Mesh generation  " + measures[1].Average()+" ms");
         GD.Print("Min Mesh generation  " + measures[1].Min()+" ms");
         GD.Print("Max Mesh generation  " + measures[1].Max()+" ms");
+
+        GD.Print("Total time taken for one chunk  " + (measures[1].Average() + measures[2].Average() + measures[3].Average() )+" ms");
         }else{
             generator.SeekSector(loadMarker);
         }
