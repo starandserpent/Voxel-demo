@@ -43,26 +43,25 @@ public class GameMesher
             meshInstance.Name = "chunk:" + chunk.x + "," + chunk.y + "," + chunk.z;
             meshInstance.Translate(new Vector3(chunk.x, chunk.y, chunk.z));
 
-            for (int t = 0; t < arrays.Keys.Count; t++)
+            foreach (Texture texture in arrays.Keys.ToArray())
             {
-                Texture texture = arrays.Keys.ToArray()[t];
                 GodotArray array = arrays[texture];
                 SpatialMaterial material = new SpatialMaterial();
                 texture.Flags = 2;
                 material.AlbedoTexture = texture;
-                faces.AddRange((Vector3[]) array[0]);
+              //  faces.AddRange((Vector3[]) array[0]);
 
                 mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, array);
                 mesh.SurfaceSetMaterial(mesh.GetSurfaceCount() - 1, material);
             }
 
             ConcavePolygonShape shape = new ConcavePolygonShape();
-            shape.SetFaces(faces.ToArray());
+           // shape.SetFaces(faces.ToArray());
             StaticBody body = new StaticBody();
             CollisionShape colShape = new CollisionShape();
             colShape.SetShape(shape);
-            body.AddChild(colShape);
-            meshInstance.AddChild(body);
+           // body.AddChild(colShape);
+         //   meshInstance.AddChild(body);
 
             meshInstance.SetMesh(mesh);
             Node node = parent.FindNode(meshInstance.Name);

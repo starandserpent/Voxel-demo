@@ -25,8 +25,6 @@ public class GameController : Spatial
         Registry registry = new Registry();
         PrimitiveResources.register(registry);
 
-        Foreman foreman = new Foreman();
-        foreman.SetMaterials(registry);
         GameMesher mesher = new GameMesher(this, registry, Profiling);
         world = new Terra(WORLD_SIZEX, WORLD_SIZEY, WORLD_SIZEZ, registry, mesher, this, Profiling);
         picker = new Picker(world, mesher);

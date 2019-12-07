@@ -8,10 +8,9 @@
 
 [node name="GameController" type="Spatial" parent="."]
 script = ExtResource( 1 )
-Debug = true
-WORLD_SIZEX = 16
-WORLD_SIZEY = 16
-WORLD_SIZEZ = 16
+WORLD_SIZEX = 1
+WORLD_SIZEY = 1
+WORLD_SIZEZ = 1
 
 [node name="Player" type="Spatial" parent="."]
 script = ExtResource( 2 )

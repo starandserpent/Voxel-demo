@@ -1,4 +1,7 @@
+using System.Runtime.InteropServices;
 using System.Linq;
+using System.Buffers;
+using System.Drawing;
 using System.Diagnostics;
 using System;
 using Godot;
@@ -12,11 +15,19 @@ public class GreedyMesher
     private List<long> addingMeasures;
     private List<long> meshingMeasures;
     private volatile Registry registry;
+    private ArrayPool<float> memory;
+    private ArrayPool<Vector3> vertice3Memory;
+    private ArrayPool<Vector2> vertice2Memory;
+
+    private int lol = 0;
 
     public GreedyMesher(Registry registry, bool profile)
     {
         this.profile = profile;
         this.registry = registry;
+        memory = ArrayPool<float>.Create();
+        vertice3Memory = ArrayPool<Vector3>.Create();
+        vertice2Memory = ArrayPool<Vector2>.Create();
         addingMeasures = new List<long>();
         meshingMeasures = new List<long>();
     }
@@ -25,15 +36,19 @@ public class GreedyMesher
     {
         Stopwatch watch = new Stopwatch();
         watch.Start();
-
-        Dictionary<Texture, Memory<Box>> boxes = new Dictionary<Texture, Memory<Box>>();
+        float[][] vertices = new float[2][];
         long a = 16777215 << 8;
         byte b = 255;
         int count = 0;
+        int[] indices = new int[2];
 
-        for (int i = 0; i < chunk.voxels.Span.Length; i++)
+        for (int i = 0; i < chunk.voxels.Length; i++)
         {
-            uint bytes = chunk.voxels.Span[i];
+            if(count >= 64*64*64){
+                break;
+            }
+
+            uint bytes = chunk.voxels[i];
 
             int lenght = (int) (bytes & a) >> 8;
             int objectID = (int) (bytes & b);
@@ -44,11 +59,10 @@ public class GreedyMesher
                 continue;
             }
 
-            Texture texture = registry.SelectByID(objectID).texture;
-
-            if (!boxes.ContainsKey(texture))
-            {
-                boxes.Add(texture, new Memory<Box>(new Box[4096]));
+            if (vertices[objectID - 1] == null)
+            {   
+                float[] buffer =  memory.Rent(chunk.voxels.Length * 108);
+                vertices[objectID - 1] = buffer;
             }
 
             int z = count / 4096;
@@ -57,18 +71,193 @@ public class GreedyMesher
 
             int origin = x + (z * 64);
 
-            //Front
-            Box box = new Box();
-            box.deleteIndex = new int[6];
-            box.vertice = new TerraVector3[6][];
+            float[] points = vertices[objectID - 1];
+            int index = indices[objectID - 1];
+            
+            float sx = x/4f;
+            float sy = y/4f;
+            float sz = z/4f;
 
-            box.deleteIndex[0] = -1;
-            box.vertice[0] = new TerraVector3[6]
-            {
-                new TerraVector3(x, y, z) / 4, new TerraVector3(x + 1, y, z) / 4,
-                new TerraVector3(x + 1, y + lenght, z) / 4, new TerraVector3(x + 1, y + lenght, z) / 4,
-                new TerraVector3(x, y + lenght, z) / 4, new TerraVector3(x, y, z) / 4
-            };
+            float ax = (x + 1)/4f;
+            float ay = (lenght + y)/4f;
+            float az = (z + 1)/4f;
+
+            //Front
+            for(int p = 2; p < 18; p += 3){
+                points[index + p] = sz;
+            }
+
+            for(int p = 3; p < 12; p += 3){
+                points[index + p] = ax;
+            }
+
+            for(int p = 7; p < 16; p += 3){
+                points[index + p] = ay;
+            }
+
+            //1
+            points[index] = sx;
+            points[index + 1] = sy;
+
+            //2
+            points[index + 4] = sy;
+
+            //5
+            points[index + 12] = sx;
+
+            //6
+            points[index + 15] = sx;
+            points[index + 16] = sy;
+
+            index += 18;            
+
+             //Back
+             for(int p = 2; p < 18; p += 3){
+                points[index + p] = sz;
+            }
+
+            for(int p = 3; p < 12; p += 3){
+                points[index + p] = ax;
+            }
+
+            for(int p = 7; p < 16; p += 3){
+                points[index + p] = ay;
+            }
+
+            //1
+            points[index] = sx;
+            points[index + 1] = sy;
+
+            //2
+            points[index + 4] = sy;
+
+            //5
+            points[index + 12] = sx;
+
+            //6
+            points[index + 15] = sx;
+            points[index + 16] = sy;
+
+            index += 18;    
+
+
+             //Right
+        for(int p = 2; p < 18; p += 3){
+                points[index + p] = sz;
+            }
+
+            for(int p = 3; p < 12; p += 3){
+                points[index + p] = ax;
+            }
+
+            for(int p = 7; p < 16; p += 3){
+                points[index + p] = ay;
+            }
+
+            //1
+            points[index] = sx;
+            points[index + 1] = sy;
+
+            //2
+            points[index + 4] = sy;
+
+            //5
+            points[index + 12] = sx;
+
+            //6
+            points[index + 15] = sx;
+            points[index + 16] = sy;
+
+            index += 18;   
+
+            //Left 
+
+            for(int p = 2; p < 18; p += 3){
+                points[index + p] = sz;
+            }
+
+            for(int p = 3; p < 12; p += 3){
+                points[index + p] = ax;
+            }
+
+            for(int p = 7; p < 16; p += 3){
+                points[index + p] = ay;
+            }
+
+            //1
+            points[index] = sx;
+            points[index + 1] = sy;
+
+            //2
+            points[index + 4] = sy;
+
+            //5
+            points[index + 12] = sx;
+
+            //6
+            points[index + 15] = sx;
+            points[index + 16] = sy;
+
+            index += 18;    
+
+             //Top
+              for(int p = 2; p < 18; p += 3){
+                points[index + p] = sz;
+            }
+
+            for(int p = 3; p < 12; p += 3){
+                points[index + p] = ax;
+            }
+
+            for(int p = 7; p < 16; p += 3){
+                points[index + p] = ay;
+            }
+
+            //1
+            points[index] = sx;
+            points[index + 1] = sy;
+
+            //2
+            points[index + 4] = sy;
+
+            //5
+            points[index + 12] = sx;
+
+            //6
+            points[index + 15] = sx;
+            points[index + 16] = sy;
+
+            index += 18;    
+
+             //Bottom
+              for(int p = 2; p < 18; p += 3){
+                points[index + p] = sz;
+            }
+
+            for(int p = 3; p < 12; p += 3){
+                points[index + p] = ax;
+            }
+
+            for(int p = 7; p < 16; p += 3){
+                points[index + p] = ay;
+            }
+
+            //1
+            points[index] = sx;
+            points[index + 1] = sy;
+
+            //2
+            points[index + 4] = sy;
+
+            //5
+            points[index + 12] = sx;
+
+            //6
+            points[index + 15] = sx;
+            points[index + 16] = sy;
+
+            index += 18;    
+            /*
             if (z > 0)
             {
                 int pos = (x + (z - 1) * 64);
@@ -204,9 +393,8 @@ public class GreedyMesher
                 new TerraVector3(x, y, z + 1) / 4, new TerraVector3(x + 1, y, z + 1) / 4,
                 new TerraVector3(x + 1, y, z) / 4
             };
-
-            boxes[texture].Span[origin] = box;
-
+            }*/
+            indices[objectID - 1] = index;
             count += lenght;
         }
 
@@ -216,79 +404,54 @@ public class GreedyMesher
         watch.Start();
 
         Dictionary<Texture, GodotArray> arrays = new Dictionary<Texture, GodotArray>();
-        Texture[] textures = boxes.Keys.ToArray();
-
-        for (int t = 0; t < textures.Count(); t++)
+        unsafe{
+        for (int t = 0; t < 2; t++)
         {
             GodotArray godotArray = new GodotArray();
             godotArray.Resize(9);
 
-            Texture texture1 = textures[t];
-            Memory<Box> offheap = boxes[texture1];
-            int size = offheap.Length;
+            Texture texture = registry.SelectByID(t + 1).texture;
 
-            List<Vector3> vertice = new List<Vector3>();
-            List<Vector3> normals = new List<Vector3>();
-            List<Vector2> uvs = new List<Vector2>();
+            float[] primitives = vertices[t];
+            int index = indices[t]/3;
+            Vector3* vertice = stackalloc Vector3[index];
+            Span<Vector3> normals = stackalloc Vector3[index];
+            Span<Vector2> uvs = stackalloc Vector2[index];
 
-            for (int i = 0; i < size; i++)
+            float textureWidth = 2048f / texture.GetWidth();
+            float textureHeight = 2048f / texture.GetHeight();
+
+            int pos = 0;
+            for (int i = 0; i < index; i += 3)
             {
-                Box box = boxes[texture1].Span[i];
-
-                for (int s = 0; s < 6; s++)
-                {
-                    if (box.deleteIndex[s] == -1)
-                    {
-                        uvs.AddRange(SetTextureCoords(texture1, box, s));
-                        for (int f = 0; f < 6; f++)
-                        {
-                            vertice.Add(box.vertice[s][f].ToVector3());
-                            switch (s)
-                            {
-                                case 0:
-                                    normals.Add(new Vector3(0, 0, 1));
-                                    break;
-                                case 1:
-                                    normals.Add(new Vector3(0, 0, -1));
-                                    break;
-                                case 2:
-                                    normals.Add(new Vector3(1, 0, 0));
-                                    break;
-                                case 3:
-                                    normals.Add(new Vector3(-1, 0, 0));
-                                    break;
-                                case 4:
-                                    normals.Add(new Vector3(0, 1, 0));
-                                    break;
-                                case 5:
-                                    normals.Add(new Vector3(0, -1, 0));
-                                    break;
-                            }
-                        }
-                    }
-                }
+                float x = primitives[i];
+                float y = primitives[i + 1];
+                float z = primitives[i + 2];
+            
+                vertice[pos].Set(x, y, z);
+                normals[pos].Set(0, 0 ,1);
+                uvs[pos].Set(z * textureWidth, x * textureHeight);
+                pos ++;
             }
-
-            godotArray[0] = vertice.ToArray();
+            godotArray[0] = vertice as object;
             godotArray[1] = normals.ToArray();
             godotArray[4] = uvs.ToArray();
 
-            arrays.Add(texture1, godotArray);
+            arrays.Add(texture, godotArray);
+        }
         }
 
-        boxes.Clear();
-
         watch.Stop();
-
+        lol++;
+        GD.Print(lol);
         addingMeasures.Add(watch.ElapsedMilliseconds);
         return arrays;
     }
 
+/*
     private static Vector2[] SetTextureCoords(Texture texture, Box face, int side)
     {
         Vector2[] uvs = new Vector2[6];
-        float textureWidth = 2048f / texture.GetWidth();
-        float textureHeight = 2048f / texture.GetHeight();
 
         switch (side)
         {
@@ -344,7 +507,7 @@ public class GreedyMesher
 
         return uvs;
     }
-
+*/
     public List<long> GetAddingMeasures(){
         return addingMeasures;
     }

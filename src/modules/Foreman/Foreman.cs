@@ -1,7 +1,4 @@
-using System.Linq;
-using System.Collections.Generic;
-using System;
-using Godot;
+using System.Buffers;
 
 public class Foreman
 {
@@ -10,7 +7,6 @@ public class Foreman
     private int grassMeshID;
     private Weltschmerz weltschmerz;
     private Registry registry;
-
     public Foreman()
     {
         weltschmerz = new Weltschmerz();
@@ -26,7 +22,7 @@ public class Foreman
     {
         Chunk chunk = new Chunk();
 
-        chunk.voxels = new Memory<uint>(new uint[4096 * 3]);
+        chunk.voxels = new uint[262144/3];
 
         chunk.x = (uint) posX;
         chunk.y = (uint) posY;
@@ -55,21 +51,21 @@ public class Foreman
                     uint bitPos = (uint) (elev - 1) << 8;
                     uint bitValue = (uint) dirtID;
 
-                    chunk.voxels.Span[lastPosition] = (bitPos | bitValue);
+                    chunk.voxels[lastPosition] = (bitPos | bitValue);
 
                     lastPosition++;
 
                     bitPos = (uint) 1 << 8;
                     bitValue = (uint) grassID;
 
-                    chunk.voxels.Span[lastPosition] = (bitPos | bitValue);
+                    chunk.voxels[lastPosition] = (bitPos | bitValue);
 
                     lastPosition++;
 
                     bitPos = (uint) (64 - elev) << 8;
                     bitValue = (uint) 0;
 
-                    chunk.voxels.Span[lastPosition] = (bitPos | bitValue);
+                    chunk.voxels[lastPosition] = (bitPos | bitValue);
 
                     lastPosition++;
 

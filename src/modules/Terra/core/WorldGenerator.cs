@@ -52,7 +52,7 @@ public class WorldGenerator
             OctreeNode childNode = new OctreeNode();
             childNode.chunk = chunk;
             childNode.locCode = lolong;
-            octree.nodes[0].Span[lolong] = childNode;
+            octree.nodes[0][lolong] = childNode;
 
             if (!octree.nodes.ContainsKey(1))
             {
@@ -73,7 +73,7 @@ public class WorldGenerator
             node.children = new Dictionary<int, OctreeNode>();
 
             //  if(layer == 1){
-           /* MeshInstance instance = DebugMesh();
+            MeshInstance instance = DebugMesh();
             instance.SetScale(new Vector3(32 * (float) Math.Pow(2, layer - 1), 32 * (float) Math.Pow(2, layer - 1),
                 32 * (float) Math.Pow(2, layer - 1)));
             instance.Name = posX * 16 * (float) Math.Pow(2, layer) + " " + posY * 16 * (float) Math.Pow(2, layer) +
@@ -81,7 +81,7 @@ public class WorldGenerator
             instance.SetTranslation(new Vector3(posX * 16 * (float) Math.Pow(2, layer),
                 posY * 16 * (float) Math.Pow(2, layer), posZ * 16 * (float) Math.Pow(2, layer)));
             parent.AddChild(instance);
-            */
+            
             //   }
 
             if (!octree.nodes.ContainsKey(layer))
@@ -89,7 +89,7 @@ public class WorldGenerator
                 uint size = octree.sizeX * octree.sizeY * octree.sizeZ;
                 node.children.Add(type, parentNode);
                 octree.nodes.Add(layer, new OctreeNode[size]);
-                octree.nodes[layer].Span[loccode] = node;
+                octree.nodes[layer][loccode] = node;
                 newLayer = true;
             }
             else
