@@ -428,9 +428,17 @@ public class GreedyMesher
                 float y = primitives[i + 1];
                 float z = primitives[i + 2];
             
-                vertice[pos].Set(x, y, z);
-                normals[pos].Set(0, 0 ,1);
-                uvs[pos].Set(z * textureWidth, x * textureHeight);
+                // vertice[pos].Set(x, y, z);
+                vertice[pos].x = x;
+                vertice[pos].y = y;
+                vertice[pos].z = z;
+                // normals[pos].Set(0, 0 ,1);
+                normals[pos].x = 0f;
+                normals[pos].y = 0f;
+                normals[pos].z = 1f;
+                // uvs[pos].Set(z * textureWidth, x * textureHeight);
+                uvs[pos].x = z * textureWidth;
+                uvs[pos].y = x * textureHeight;
                 pos ++;
             }
             godotArray[0] = vertice;
