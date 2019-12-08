@@ -124,15 +124,13 @@ public class GreedyMesher
 
             if(z > 0){     
                       int pos = index - 2302;
-                     if(vectors[pos].y < 0){
-                         pos = (int)-vectors[pos].y;
+                     if(vectors[pos].x < 0){
+                         pos = (int)-vectors[pos].x;
                      }
 
                     if(vectors[index + 2].y <= vectors[pos].y){
                      for(int s = 0; s < 6; s ++){
                         vectors[index + s].x = -pos;
-                        vectors[index + s].y = -pos;
-                        vectors[index + s].z = -pos;
                     }
                         arraySize[objectID - 1] -= 6;
                     }
@@ -189,8 +187,6 @@ public class GreedyMesher
                 {
                     for(int s = 0; s < 6; s ++){
                         vectors[index - (2299 + s)].x = -147457;
-                        vectors[index - (2299 + s)].y = -147457;
-                        vectors[index - (2299 + s)].z = -147457;
                     }
                     arraySize[objectID - 1] -= 6;
                 }
@@ -253,8 +249,6 @@ public class GreedyMesher
                 {
                     for(int s = 0; s < 6; s ++){
                         vectors[index - (31 + s)].x = -147457;
-                        vectors[index - (31 + s)].y = -147457;
-                        vectors[index - (31 + s)].z = -147457;
                     }
                     arraySize[objectID - 1] -= 6;
                 }
@@ -295,15 +289,13 @@ public class GreedyMesher
 
             if(x > 0){     
                       int pos = index - 34;
-                     if(vectors[pos].y < 0){
-                        pos = (int)-vectors[pos].y;
+                     if(vectors[pos].x < 0){
+                        pos = (int)-vectors[pos].x;
                      }
 
                     if(vectors[index + 2].y <= vectors[pos].y){
                      for(int s = 0; s < 6; s ++){
                         vectors[index + s].x = -pos;
-                        vectors[index + s].y = -pos;
-                        vectors[index + s].z = -pos;
                     }
                         arraySize[objectID - 1] -= 6;
                     }
@@ -325,8 +317,6 @@ public class GreedyMesher
                     tx = vectors[index - 36].x;
                     for(int s = 0; s < 6; s ++){
                         vectors[index - (31 + s)].x = -147457;
-                        vectors[index - (31 + s)].y = -147457;
-                        vectors[index - (31 + s)].z = -147457;
                     }
                     arraySize[objectID - 1] -= 6;
                 }
@@ -380,8 +370,6 @@ public class GreedyMesher
                     tx = vectors[index - 35].x;
                     for(int s = 0; s < 6; s ++){
                         vectors[index - (31 + s)].x = -147457;
-                        vectors[index - (31 + s)].y = -147457;
-                        vectors[index - (31 + s)].z = -147457;
                     }
                     arraySize[objectID - 1] -= 6;
                 }
