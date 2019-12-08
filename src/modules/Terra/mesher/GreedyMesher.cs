@@ -107,6 +107,28 @@ public class GreedyMesher
            vectors[index + 5].x = sx;
             vectors[index + 5].y = sy;
             vectors[index + 5].z = sz;
+
+            if(z > 0){     
+                      int pos = index - 2302;
+                     if(vectors[pos].y < 0){
+                         pos = (int)-vectors[pos].y;
+                     }
+
+                    if(vectors[index + 2].y <= vectors[pos].y){
+                     for(int s = 0; s < 6; s ++){
+                        vectors[index + s].x = -pos;
+                        vectors[index + s].y = -pos;
+                        vectors[index + s].z = -pos;
+                    }
+                        arraySize[objectID - 1] -= 6;
+                    }
+
+                    if (vectors[pos].y  < vectors[index + 2].y && vectors[pos + 2].y >= vectors[index].y){
+                        vectors[index].y = vectors[pos].y ; 
+                        vectors[index + 1].y = vectors[pos].y;
+                        vectors[index + 5].y = vectors[pos].y;
+                    }
+            }
             
             index += 6;
 
@@ -244,6 +266,28 @@ public class GreedyMesher
             vectors[index + 5].x = sx;
             vectors[index + 5].y = sy;
             vectors[index + 5].z = az;
+
+            if(x > 0){     
+                      int pos = index - 34;
+                     if(vectors[pos].y < 0){
+                        pos = (int)-vectors[pos].y;
+                     }
+
+                    if(vectors[index + 2].y <= vectors[pos].y){
+                     for(int s = 0; s < 6; s ++){
+                        vectors[index + s].x = -pos;
+                        vectors[index + s].y = -pos;
+                        vectors[index + s].z = -pos;
+                    }
+                        arraySize[objectID - 1] -= 6;
+                    }
+
+                    if (vectors[pos].y  < vectors[index + 2].y && vectors[pos + 2].y >= vectors[index].y){
+                        vectors[index].y = vectors[pos].y; 
+                        vectors[index + 1].y = vectors[pos].y;
+                        vectors[index + 5].y = vectors[pos].y;
+                    }
+            }
 
             index += 6;
 
