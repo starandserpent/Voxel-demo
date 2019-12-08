@@ -77,9 +77,23 @@ public class GreedyMesher
             Vector3[] vectors = vertices[objectID - 1];
 
             int index = indice[objectID - 1];
+
+          float tx = sx;
+              /*    if (x > 0 && vectors[index - 36].z == sz
+                && vectors[index - 35].x == sx && vectors[index - 34].x == sx
+                && vectors[index - 35].y == sy && vectors[index - 34].y == ay)
+                {
+                    tx = vectors[index - 36].x;
+                    for(int s = 0; s < 6; s ++){
+                        vectors[index - (31 + s)].x = -index;
+                        vectors[index - (31 + s)].y = -index;
+                        vectors[index - (31 + s)].z = -index;
+                    }
+                    arraySize[objectID - 1] -= 6;
+                }*/
             //Front
             //1
-            vectors[index].x = sx;
+            vectors[index].x = tx;
             vectors[index].y = sy;
             vectors[index].z = sz;
 
@@ -99,12 +113,12 @@ public class GreedyMesher
             vectors[index + 3].z = sz;
 
             //5
-           vectors[index + 4].x = sx;
+           vectors[index + 4].x = tx;
             vectors[index + 4].y = ay;
             vectors[index + 4].z = sz;
 
             //6
-           vectors[index + 5].x = sx;
+           vectors[index + 5].x = tx;
             vectors[index + 5].y = sy;
             vectors[index + 5].z = sz;
 
@@ -139,17 +153,17 @@ public class GreedyMesher
             vectors[index].z = az;
 
             //2
-            vectors[index + 1].x = sx;
+            vectors[index + 1].x = tx;
             vectors[index + 1].y = sy;
             vectors[index + 1].z = az;
 
             //3
-             vectors[index + 2].x = sx;
+             vectors[index + 2].x = tx;
             vectors[index + 2].y = ay;
             vectors[index + 2].z = az;
 
             //4
-             vectors[index + 3].x = sx;
+             vectors[index + 3].x = tx;
             vectors[index + 3].y = ay;
             vectors[index + 3].z = az;
 
@@ -185,10 +199,22 @@ public class GreedyMesher
             index += 6;
 
             //Left
+           /*  tx = sz;
+                if (z > 0 && vectors[index - 2304].x == ax && vectors[index - 2303].z == sz && vectors[index - 2302].z == sz)
+                {
+                    tx = vectors[index - 2304].z;
+                    for(int s = 0; s < 6; s ++){
+                        vectors[index - (2299 + s)].x = -147457;
+                        vectors[index - (2299 + s)].y = -147457;
+                        vectors[index - (2299 + s)].z = -147457;
+                    }
+                    arraySize[objectID - 1] -= 6;
+                }*/
+            
             //1
             vectors[index].x = ax;
             vectors[index].y = sy;
-            vectors[index].z = sz;
+            vectors[index].z = tx;
 
             //2
             vectors[index + 1].x = ax;
@@ -208,12 +234,12 @@ public class GreedyMesher
             //5
            vectors[index + 4].x = ax;
             vectors[index + 4].y = ay;
-            vectors[index + 4].z = sz;
+            vectors[index + 4].z = tx;
 
             //6
             vectors[index + 5].x = ax;
             vectors[index + 5].y = sy;
-            vectors[index + 5].z = sz;
+            vectors[index + 5].z = tx;
 
             if (x > 0)
             {
@@ -292,15 +318,38 @@ public class GreedyMesher
             index += 6;
 
             //Top
+             tx = sx;
+             float tz = sz;
+                if (x > 0 && vectors[index - 36].y == ay  && vectors[index - 35].x == sx && vectors[index - 34].x == sx)
+                {
+                    tx = vectors[index - 36].x;
+                    for(int s = 0; s < 6; s ++){
+                        vectors[index - (31 + s)].x = -147457;
+                        vectors[index - (31 + s)].y = -147457;
+                        vectors[index - (31 + s)].z = -147457;
+                    }
+                    arraySize[objectID - 1] -= 6;
+                }
+                
+                /* if(z > 0 && vectors[index - 2304].x >= 0  && vectors[index - 2304].y == ay  && vectors[index - 2302].z == sz  && vectors[index - 2300].z == sz){
+                    tz = vectors[index - 2304].z;
+                    for(int s = 0; s < 6; s ++){
+                        vectors[index - (2299 + s)].x = -147457;
+                        vectors[index - (2299 + s)].y = -147457;
+                        vectors[index - (2299 + s)].z = -147457;
+                    }
+                    arraySize[objectID - 1] -= 6;
+                }*/
+            
             //1
-            vectors[index].x = sx;
+            vectors[index].x = tx;
             vectors[index].y = ay;
-            vectors[index].z = sz;
+            vectors[index].z = tz;
 
             //2
             vectors[index + 1].x = ax;
             vectors[index + 1].y = ay;
-            vectors[index + 1].z = sz;
+            vectors[index + 1].z = tz;
 
             //3
             vectors[index + 2].x = ax;
@@ -313,34 +362,55 @@ public class GreedyMesher
             vectors[index + 3].z = az;
 
             //5
-            vectors[index + 4].x = sx;
+            vectors[index + 4].x = tx;
             vectors[index + 4].y = ay;
             vectors[index + 4].z = az;
 
             //6
-            vectors[index + 5].x = sx;
+            vectors[index + 5].x = tx;
             vectors[index + 5].y = ay;
-            vectors[index + 5].z = sz;
+            vectors[index + 5].z = tz;
 
             index += 6;
             //Bottom
+            tx = sx;
+            tz = sz;
+                if (x > 0 && vectors[index - 35].y == sy  && vectors[index - 36].x == sx  && vectors[index - 32].x == sx)
+                {
+                    tx = vectors[index - 35].x;
+                    for(int s = 0; s < 6; s ++){
+                        vectors[index - (31 + s)].x = -147457;
+                        vectors[index - (31 + s)].y = -147457;
+                        vectors[index - (31 + s)].z = -147457;
+                    }
+                    arraySize[objectID - 1] -= 6;
+                }
+        /*     if(z > 0 && vectors[index - 2304].x >= 0 && vectors[index - 2304].y == sy  && vectors[index - 2302].z == sz  && vectors[index - 2300].z == sz){
+                    tz = vectors[index - 2303].z;
+                    for(int s = 0; s < 6; s ++){
+                        vectors[index - (2299 + s)].x = -147457;
+                        vectors[index - (2299 + s)].y = -147457;
+                        vectors[index - (2299 + s)].z = -147457;
+                    }
+                    arraySize[objectID - 1] -= 6;
+                }*/
             //1
             vectors[index].x = ax;
             vectors[index].y = sy;
-            vectors[index].z = sz;
+            vectors[index].z = tz;
 
             //2
-            vectors[index + 1].x = sx;
+            vectors[index + 1].x = tx;
             vectors[index + 1].y = sy;
-            vectors[index + 1].z = sz;
+            vectors[index + 1].z = tz;
 
             //3
-            vectors[index + 2].x = sx;
+            vectors[index + 2].x = tx;
             vectors[index + 2].y = sy;
             vectors[index + 2].z = az;
 
             //4
-            vectors[index + 3].x = sx;
+            vectors[index + 3].x = tx;
             vectors[index + 3].y = sy;
             vectors[index + 3].z = az;
 
@@ -352,7 +422,7 @@ public class GreedyMesher
             //6
             vectors[index + 5].x = ax;
             vectors[index + 5].y = sy;
-            vectors[index + 5].z = sz;
+            vectors[index + 5].z = tz;
             index += 6;
 
             indice[objectID - 1] = index;
