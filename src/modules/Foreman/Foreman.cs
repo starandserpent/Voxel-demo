@@ -24,7 +24,7 @@ public class Foreman
     {
         Chunk chunk = new Chunk();
 
-        chunk.voxels =  pool.Rent(262144/3);
+        chunk.voxels =  pool.Rent(32768/3);
 
         chunk.x = (uint) posX;
         chunk.y = (uint) posY;
@@ -32,23 +32,23 @@ public class Foreman
 
         chunk.isEmpty = true;
 
-        int posx = (int) (posX * 4);
-        int posz = (int) (posZ * 4);
-        int posy = (int) (posY * 4);
+        int posx = (int) (posX * 2);
+        int posz = (int) (posZ * 2);
+        int posy = (int) (posY * 2);
 
         int lastPosition = 0;
 
         bool isDifferent = false;
 
-        for (int z = 0; z < 64; z++)
+        for (int z = 0; z < 32; z++)
         {
-            for (int x = 0; x < 64; x++)
+            for (int x = 0; x < 32; x++)
             {
                 int elevation = (int) weltschmerz.getElevation(x + posx, z + posz);
 
-                if (elevation / 64 == (posy / 64))
+                if (elevation / 32 == (posy / 32))
                 {
-                    int elev = elevation % 64;
+                    int elev = elevation % 32;
 
                     uint bitPos = (uint) (elev - 1) << 8;
                     uint bitValue = (uint) dirtID;
@@ -64,7 +64,7 @@ public class Foreman
 
                     lastPosition++;
 
-                    bitPos = (uint) (64 - elev) << 8;
+                    bitPos = (uint) (32 - elev) << 8;
                     bitValue = (uint) 0;
 
                     chunk.voxels[lastPosition] = (bitPos | bitValue);
