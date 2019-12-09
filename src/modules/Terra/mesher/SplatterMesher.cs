@@ -38,7 +38,7 @@ public class SplatterMesher
         surfacetool.SetMaterial(chunkMaterial);
         int count = 0;
 
-        for (int i = 0; i < Constants.CHUNK_SIZE3D; i++)
+        for (int i = 0; i < Constants.CHUNK_SIZE3D/chunk.materials; i++)
         {
             uint objectID = chunk.voxels[i];
             TerraObject terraObject = registry.SelectByID((int) objectID);

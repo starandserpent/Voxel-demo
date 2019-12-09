@@ -31,16 +31,16 @@ public class GreedyMesher
         if(chunk.materials > 1){
         Stopwatch watch = new Stopwatch();
         watch.Start();
-        Vector3[][] vertices = new Vector3[chunk.materials][];
+        Vector3[][] vertices = new Vector3[chunk.materials - 1][];
         long a = 16777215 << 8;
         byte b = 255;
         int count = 0;
-        int[] indice = new int[chunk.materials];
-        int[] arraySize = new int[chunk.materials];
+        int[] indice = new int[chunk.materials - 1];
+        int[] arraySize = new int[chunk.materials - 1];
 
-        for (int i = 0; i < Constants.CHUNK_SIZE3D/chunk.materials; i++)
+        for (int i = 0; i < Constants.CHUNK_SIZE3D; i++)
         {
-            if(count >=Constants.CHUNK_SIZE3D - 1){
+            if(count >=Constants.CHUNK_SIZE3D){
                 break;
             }
 
@@ -57,9 +57,8 @@ public class GreedyMesher
 
             if (vertices[objectID - 1] == null)
             {   
-                Vector3[] buffer =  memory.Rent((Constants.CHUNK_SIZE3D/chunk.materials) * 18);
+                Vector3[] buffer =  memory.Rent((Constants.CHUNK_SIZE3D/chunk.materials) * 6);
                 vertices[objectID - 1] = buffer;                                
-                indice[objectID - 1]  = 0;
             }
 
             int z = count / Constants.CHUNK_SIZE2D;
@@ -109,7 +108,7 @@ public class GreedyMesher
             vectors[index + 5].y = sy;
             vectors[index + 5].z = sz;
 
-            if(index > (36 * Constants.CHUNK_SIZE1D)){     
+            if(z > 0 && index > (36 * Constants.CHUNK_SIZE1D)){     
                       int pos = index - (36 * Constants.CHUNK_SIZE1D) + 2;
                      if(vectors[pos].x < 0){
                          pos = (int)-vectors[pos].x;
@@ -162,7 +161,7 @@ public class GreedyMesher
             vectors[index + 5].y = sy;
             vectors[index + 5].z = az;
 
-            if (index > (36 * Constants.CHUNK_SIZE1D))
+            if (z > 0 && index > (36 * Constants.CHUNK_SIZE1D))
             {
 
                 int pos = index - (36 * Constants.CHUNK_SIZE1D);
@@ -175,12 +174,11 @@ public class GreedyMesher
                 else if (vectors[pos + 2].y <= ay)
                 {
                     for(int s = 0; s < 6; s ++){
-                        vectors[index - (36 * Constants.CHUNK_SIZE1D + s)].x = -147457;
+                        vectors[index - ((36 * Constants.CHUNK_SIZE1D) - s)].x = -147457;
                     }
                     arraySize[objectID - 1] -= 6;
                 }
             }
-
 
             index += 6;
 
@@ -333,7 +331,7 @@ public class GreedyMesher
             //Bottom
             tx = sx;
             tz = sz;
-                if (x > 0 && index > 36 && vectors[index - 35].y == sy  && vectors[index - 36].x == sx  && vectors[index - 32].x == sx)
+                if (x > 0 && index < 36 && vectors[index - 35].y == sy  && vectors[index - 36].x == sx  && vectors[index - 32].x == sx)
                 {
                     tx = vectors[index - 35].x;
                     for(int s = 0; s < 6; s ++){

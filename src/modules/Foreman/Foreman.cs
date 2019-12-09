@@ -31,7 +31,7 @@ public class Foreman
 
         chunk.materials = 3;
 
-        chunk.voxels =  pool.Rent(Constants.CHUNK_SIZE3D/chunk.materials);
+        chunk.voxels =  pool.Rent(Constants.CHUNK_SIZE3D);
 
         chunk.isEmpty = true;
 
@@ -49,7 +49,7 @@ public class Foreman
             {
                 int elevation = (int) weltschmerz.getElevation(x + posx, z + posz);
 
-                if (elevation / Constants.CHUNK_SIZE1D == (posy / Constants.CHUNK_SIZE1D))
+                if (elevation / Constants.CHUNK_SIZE1D == posy / Constants.CHUNK_SIZE1D)
                 {
                     int elev = elevation % Constants.CHUNK_SIZE1D;
                     uint bitPos;
@@ -76,7 +76,7 @@ public class Foreman
 
                     isDifferent = true;
                     chunk.isEmpty = false;
-                }else if (elevation / Constants.CHUNK_SIZE1D > (posy / Constants.CHUNK_SIZE1D)){
+                }else if (elevation / Constants.CHUNK_SIZE1D > posy / Constants.CHUNK_SIZE1D){
                     uint bitPos = (uint) (Constants.CHUNK_SIZE1D) << 8;
                     uint bitValue = (uint) dirtID;
                     chunk.isEmpty = false;
@@ -84,10 +84,10 @@ public class Foreman
                     chunk.voxels[lastPosition] = (bitPos | bitValue);
 
                     lastPosition++;
-                }else if(elevation / Constants.CHUNK_SIZE1D < (posy / Constants.CHUNK_SIZE1D)){
+                }else if(elevation / Constants.CHUNK_SIZE1D < posy / Constants.CHUNK_SIZE1D){
                     uint bitPos = (uint) (Constants.CHUNK_SIZE1D) << 8;
                     uint bitValue = (uint) 0;
-                    chunk.isEmpty = false;
+                    chunk.isEmpty = true;
 
                     chunk.voxels[lastPosition] = (bitPos | bitValue);
 

@@ -64,8 +64,8 @@ public class Player : LoadMarker
             }
         }
 
-       GetViewport().DebugDraw = Viewport.DebugDrawEnum.Wireframe; 
-        VisualServer.SetDebugGenerateWireframes(true);
+     //  GetViewport().DebugDraw = Viewport.DebugDrawEnum.Wireframe; 
+       // VisualServer.SetDebugGenerateWireframes(true);
         initialRotation = GetRotation();
 
         picker = gameController.GetPicker();
