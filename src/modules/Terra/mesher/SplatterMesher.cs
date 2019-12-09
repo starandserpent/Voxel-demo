@@ -13,8 +13,8 @@ public class SplatterMesher
     };
 
     ShaderMaterial chunkMaterial;
-    float VOX_SIZE = Constants.VOX_SIZE;
-    int CHUNK_SIZE = Constants.CHUNK_SIZE;
+    float VOX_SIZE = Constants.VOXEL_SIZE;
+    int CHUNK_SIZE = Constants.CHUNK_SIZE1D;
 
     private Registry registry;
     public Color[] voxelTypes = new Color[] {new Color(0f, 0f, 0.55f, 1f), new Color(1f, 1f, 1f, 1f)};
@@ -38,7 +38,7 @@ public class SplatterMesher
         surfacetool.SetMaterial(chunkMaterial);
         int count = 0;
 
-        for (int i = 0; i < Constants.CHUNK_SIZE_MAX; i++)
+        for (int i = 0; i < Constants.CHUNK_SIZE3D; i++)
         {
             uint objectID = chunk.voxels[i];
             TerraObject terraObject = registry.SelectByID((int) objectID);

@@ -7,7 +7,6 @@ using System.Collections.Generic;
 
 public class GreedyMesher
 {
-
     private bool profile;
     private List<long> addingMeasures;
     private List<long> meshingMeasures;
@@ -28,18 +27,20 @@ public class GreedyMesher
 
     public MeshInstance cull(Chunk chunk)
     {
+         MeshInstance meshInstance = new MeshInstance();
+        if(chunk.materials > 1){
         Stopwatch watch = new Stopwatch();
         watch.Start();
-        Vector3[][] vertices = new Vector3[2][];
+        Vector3[][] vertices = new Vector3[chunk.materials][];
         long a = 16777215 << 8;
         byte b = 255;
         int count = 0;
-        int[] indice = new int[2];
-        int[] arraySize = new int[2];
+        int[] indice = new int[chunk.materials];
+        int[] arraySize = new int[chunk.materials];
 
-        for (int i = 0; i < 32768/3; i++)
+        for (int i = 0; i < Constants.CHUNK_SIZE3D/chunk.materials; i++)
         {
-            if(count >=32768){
+            if(count >=Constants.CHUNK_SIZE3D - 1){
                 break;
             }
 
@@ -56,22 +57,22 @@ public class GreedyMesher
 
             if (vertices[objectID - 1] == null)
             {   
-                Vector3[] buffer =  memory.Rent(32768 * 2);
+                Vector3[] buffer =  memory.Rent((Constants.CHUNK_SIZE3D/chunk.materials) * 18);
                 vertices[objectID - 1] = buffer;                                
                 indice[objectID - 1]  = 0;
             }
 
-            int z = count / 1024;
-            int y = count % 32;
-            int x = (count - 1024 * z) / 32;
+            int z = count / Constants.CHUNK_SIZE2D;
+            int y = count % Constants.CHUNK_SIZE1D;
+            int x = (count / Constants.CHUNK_SIZE1D)%Constants.CHUNK_SIZE1D;
             
-            float sx = x* 0.25f;
-            float sy = y* 0.25f;
-            float sz = z* 0.25f;
+            float sx = x * Constants.VOXEL_SIZE;
+            float sy = y * Constants.VOXEL_SIZE;
+            float sz = z * Constants.VOXEL_SIZE;
 
-            float ax = (x + 1) * 0.25f;
-            float ay = (lenght + y)* 0.25f;
-            float az = (z + 1)* 0.25f;
+            float ax = (x + 1) * Constants.VOXEL_SIZE;
+            float ay = (lenght + y)* Constants.VOXEL_SIZE;
+            float az = (z + 1)* Constants.VOXEL_SIZE;
 
             //Front
             Vector3[] vectors = vertices[objectID - 1];
@@ -108,8 +109,8 @@ public class GreedyMesher
             vectors[index + 5].y = sy;
             vectors[index + 5].z = sz;
 
-            if(z > 0){     
-                      int pos = index - 1150;
+            if(index > (36 * Constants.CHUNK_SIZE1D)){     
+                      int pos = index - (36 * Constants.CHUNK_SIZE1D) + 2;
                      if(vectors[pos].x < 0){
                          pos = (int)-vectors[pos].x;
                      }
@@ -161,22 +162,25 @@ public class GreedyMesher
             vectors[index + 5].y = sy;
             vectors[index + 5].z = az;
 
-            if (z > 0)
+            if (index > (36 * Constants.CHUNK_SIZE1D))
             {
-                if (vectors[index - (36 * 32) - 2].y > ay && vectors[index - (36 * 32)].y <= sy)
+
+                int pos = index - (36 * Constants.CHUNK_SIZE1D);
+                if (vectors[pos + 2].y > ay && vectors[pos].y <= sy)
                 {
-                    vectors[index - (36 * 32)].y = ay;
-                    vectors[index - 1151].y = ay;
-                    vectors[index - 1147].y = ay;
+                    vectors[pos].y = ay;
+                    vectors[pos + 1].y = ay;
+                    vectors[pos + 5].y = ay;
                 }
-                else if (vectors[index - (36 * 32) - 2].y <= ay)
+                else if (vectors[pos + 2].y <= ay)
                 {
                     for(int s = 0; s < 6; s ++){
-                        vectors[index - (1147 + s)].x = -147457;
+                        vectors[index - (36 * Constants.CHUNK_SIZE1D + s)].x = -147457;
                     }
                     arraySize[objectID - 1] -= 6;
                 }
             }
+
 
             index += 6;
 
@@ -211,7 +215,7 @@ public class GreedyMesher
             vectors[index + 5].y = sy;
             vectors[index + 5].z = sz;
 
-            if (x > 0)
+            if (x > 0 && index > 36)
             {
                 if (vectors[index - 34].y > ay && vectors[index - 36].y <= sy)
                 {
@@ -261,7 +265,7 @@ public class GreedyMesher
             vectors[index + 5].y = sy;
             vectors[index + 5].z = az;
 
-            if(x > 0){     
+            if(x > 0 && index > 36){     
                       int pos = index - 34;
                      if(vectors[pos].x < 0){
                         pos = (int)-vectors[pos].x;
@@ -286,7 +290,7 @@ public class GreedyMesher
             //Top
              float tx = sx;
              float tz = sz;
-                if (x > 0 && vectors[index - 36].y == ay  && vectors[index - 35].x == sx && vectors[index - 34].x == sx)
+                if (x > 0 && index > 36 && vectors[index - 36].y == ay  && vectors[index - 35].x == sx && vectors[index - 34].x == sx)
                 {
                     tx = vectors[index - 36].x;
                     for(int s = 0; s < 6; s ++){
@@ -329,7 +333,7 @@ public class GreedyMesher
             //Bottom
             tx = sx;
             tz = sz;
-                if (x > 0 && vectors[index - 35].y == sy  && vectors[index - 36].x == sx  && vectors[index - 32].x == sx)
+                if (x > 0 && index > 36 && vectors[index - 35].y == sy  && vectors[index - 36].x == sx  && vectors[index - 32].x == sx)
                 {
                     tx = vectors[index - 35].x;
                     for(int s = 0; s < 6; s ++){
@@ -378,15 +382,13 @@ public class GreedyMesher
         watch.Reset();
         watch.Start();
 
-        MeshInstance meshInstance = new MeshInstance();
-
         ArrayMesh mesh = new ArrayMesh();
         StaticBody body = new StaticBody();
         GodotArray godotArray = new GodotArray();
         godotArray.Resize(9);
 
 
-        for (int t = 0; t < 2; t++)
+        for (int t = 0; t < chunk.materials - 1; t++)
         {
             Texture texture = registry.SelectByID(t + 1).texture;
 
@@ -403,7 +405,7 @@ public class GreedyMesher
             for (int i = 0; i < size; i ++)    
             { 
                 Vector3 vector = primitives[i];
-                if(vector.x >= 0){
+                if(vector.x >= 0 && pos < size + arraySize[t]){
                 int s = ((i%36))/6;
                 vertice[pos] = vector;
                 switch(s) {
@@ -477,6 +479,8 @@ public class GreedyMesher
         meshInstance.Mesh = mesh;
         lol++;
         GD.Print(lol);
+        return meshInstance;
+        }
         return meshInstance;
     }
 

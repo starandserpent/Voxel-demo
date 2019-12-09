@@ -24,34 +24,38 @@ public class Foreman
     {
         Chunk chunk = new Chunk();
 
-        chunk.voxels =  pool.Rent(32768/3);
 
         chunk.x = (uint) posX;
         chunk.y = (uint) posY;
         chunk.z = (uint) posZ;
 
+        chunk.materials = 3;
+
+        chunk.voxels =  pool.Rent(Constants.CHUNK_SIZE3D/chunk.materials);
+
         chunk.isEmpty = true;
 
-        int posx = (int) (posX * 2);
-        int posz = (int) (posZ * 2);
-        int posy = (int) (posY * 2);
+        int posx = (int) (posX * 4);
+        int posz = (int) (posZ * 4);
+        int posy = (int) (posY * 4);
 
         int lastPosition = 0;
 
         bool isDifferent = false;
 
-        for (int z = 0; z < 32; z++)
+        for (int z = 0; z < Constants.CHUNK_SIZE1D; z++)
         {
-            for (int x = 0; x < 32; x++)
+            for (int x = 0; x < Constants.CHUNK_SIZE1D; x++)
             {
                 int elevation = (int) weltschmerz.getElevation(x + posx, z + posz);
 
-                if (elevation / 32 == (posy / 32))
+                if (elevation / Constants.CHUNK_SIZE1D == (posy / Constants.CHUNK_SIZE1D))
                 {
-                    int elev = elevation % 32;
-
-                    uint bitPos = (uint) (elev - 1) << 8;
-                    uint bitValue = (uint) dirtID;
+                    int elev = elevation % Constants.CHUNK_SIZE1D;
+                    uint bitPos;
+                    uint bitValue;
+                    bitPos = (uint) elev << 8;
+                    bitValue = (uint) dirtID;
 
                     chunk.voxels[lastPosition] = (bitPos | bitValue);
 
@@ -63,8 +67,7 @@ public class Foreman
                     chunk.voxels[lastPosition] = (bitPos | bitValue);
 
                     lastPosition++;
-
-                    bitPos = (uint) (32 - elev) << 8;
+                    bitPos = (uint) (Constants.CHUNK_SIZE1D - elev - 1) << 8;
                     bitValue = (uint) 0;
 
                     chunk.voxels[lastPosition] = (bitPos | bitValue);
@@ -73,8 +76,28 @@ public class Foreman
 
                     isDifferent = true;
                     chunk.isEmpty = false;
+                }else if (elevation / Constants.CHUNK_SIZE1D > (posy / Constants.CHUNK_SIZE1D)){
+                    uint bitPos = (uint) (Constants.CHUNK_SIZE1D) << 8;
+                    uint bitValue = (uint) dirtID;
+                    chunk.isEmpty = false;
+
+                    chunk.voxels[lastPosition] = (bitPos | bitValue);
+
+                    lastPosition++;
+                }else if(elevation / Constants.CHUNK_SIZE1D < (posy / Constants.CHUNK_SIZE1D)){
+                    uint bitPos = (uint) (Constants.CHUNK_SIZE1D) << 8;
+                    uint bitValue = (uint) 0;
+                    chunk.isEmpty = false;
+
+                    chunk.voxels[lastPosition] = (bitPos | bitValue);
+
+                    lastPosition++;
                 }
             }
+        }
+
+        if(!isDifferent){
+            chunk.materials = 1;
         }
 
         return chunk;
