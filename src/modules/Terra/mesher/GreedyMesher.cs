@@ -26,7 +26,7 @@ public class GreedyMesher
         meshingMeasures = new List<long>();
     }
 
-    public Dictionary<Texture, GodotArray> cull(Chunk chunk)
+    public MeshInstance cull(Chunk chunk)
     {
         Stopwatch watch = new Stopwatch();
         watch.Start();
@@ -37,9 +37,9 @@ public class GreedyMesher
         int[] indice = new int[2];
         int[] arraySize = new int[2];
 
-        for (int i = 0; i < chunk.voxels.Length; i++)
+        for (int i = 0; i < 262144/3; i++)
         {
-            if(count >=4096*64){
+            if(count >=262144){
                 break;
             }
 
@@ -56,7 +56,7 @@ public class GreedyMesher
 
             if (vertices[objectID - 1] == null)
             {   
-                Vector3[] buffer =  memory.Rent(chunk.voxels.Length * 6);
+                Vector3[] buffer =  memory.Rent(262144 * 2);
                 vertices[objectID - 1] = buffer;                                
                 indice[objectID - 1]  = 0;
             }
@@ -210,7 +210,7 @@ public class GreedyMesher
             //1
             vectors[index].x = ax;
             vectors[index].y = sy;
-            vectors[index].z = tx;
+            vectors[index].z = sz;
 
             //2
             vectors[index + 1].x = ax;
@@ -230,12 +230,12 @@ public class GreedyMesher
             //5
            vectors[index + 4].x = ax;
             vectors[index + 4].y = ay;
-            vectors[index + 4].z = tx;
+            vectors[index + 4].z = sz;
 
             //6
             vectors[index + 5].x = ax;
             vectors[index + 5].y = sy;
-            vectors[index + 5].z = tx;
+            vectors[index + 5].z = sz;
 
             if (x > 0)
             {
@@ -422,12 +422,16 @@ public class GreedyMesher
         watch.Reset();
         watch.Start();
 
-        Dictionary<Texture, GodotArray> arrays = new Dictionary<Texture, GodotArray>();
+        MeshInstance meshInstance = new MeshInstance();
+
+        ArrayMesh mesh = new ArrayMesh();
+        StaticBody body = new StaticBody();
+        GodotArray godotArray = new GodotArray();
+        godotArray.Resize(9);
+
+
         for (int t = 0; t < 2; t++)
         {
-            GodotArray godotArray = new GodotArray();
-            godotArray.Resize(9);
-
             Texture texture = registry.SelectByID(t + 1).texture;
 
             int size = indice[t];
@@ -476,7 +480,7 @@ public class GreedyMesher
                     uvs[pos].y = vector.y * textureHeight;
                     break;
                      case 4:
-                     normals[pos].x = 0f;
+                    normals[pos].x = 0f;
                 normals[pos].y = 1f;
                 normals[pos].z = 0f;
                     uvs[pos].x = vector.x * textureWidth;
@@ -494,17 +498,30 @@ public class GreedyMesher
                 }
             }
             godotArray[0] = vertice;
-            godotArray[1] = normals;
+           godotArray[1] = normals;
             godotArray[4] = uvs;
 
-            arrays.Add(texture, godotArray);
+            SpatialMaterial material = new SpatialMaterial();
+            CollisionShape colShape = new CollisionShape();
+            ConcavePolygonShape shape = new ConcavePolygonShape();
+            texture.Flags = 2;
+            material.AlbedoTexture = texture;
+
+            shape.SetFaces(vertice);
+            mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, godotArray);
+            mesh.SurfaceSetMaterial(t, material);
+            colShape.SetShape(shape);
+            body.AddChild(colShape);
         }
 
+        meshInstance.AddChild(body);
+        
         watch.Stop();
+        addingMeasures.Add(watch.ElapsedMilliseconds);
+        meshInstance.Mesh = mesh;
         lol++;
         GD.Print(lol);
-        addingMeasures.Add(watch.ElapsedMilliseconds);
-        return arrays;
+        return meshInstance;
     }
 
     public List<long> GetAddingMeasures(){

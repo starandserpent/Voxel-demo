@@ -7,8 +7,10 @@ public class Foreman
     private int grassMeshID;
     private Weltschmerz weltschmerz;
     private Registry registry;
+    private ArrayPool<uint> pool;
     public Foreman()
     {
+        pool = ArrayPool<uint>.Create();
         weltschmerz = new Weltschmerz();
     }
 
@@ -22,7 +24,7 @@ public class Foreman
     {
         Chunk chunk = new Chunk();
 
-        chunk.voxels = new uint[262144/3];
+        chunk.voxels =  pool.Rent(262144/3);
 
         chunk.x = (uint) posX;
         chunk.y = (uint) posY;

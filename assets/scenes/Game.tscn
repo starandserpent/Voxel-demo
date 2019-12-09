@@ -17,6 +17,7 @@ script = ExtResource( 2 )
 
 [node name="Camera" type="Camera" parent="Player"]
 current = true
+far = 8192.0
 
 [node name="Sprite3D" type="Sprite3D" parent="Player/Camera"]
 transform = Transform( 50, 0, 0, 0, 50, 0, 0, 0, 1, 0, 0, -0.1 )

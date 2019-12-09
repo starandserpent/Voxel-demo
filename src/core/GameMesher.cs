@@ -19,51 +19,25 @@ public class GameMesher
 
     public void MeshChunk(Chunk chunk, bool splatter)
     {
-        MeshInstance meshInstance = new MeshInstance();
         if (!splatter)
         {
-            StartMeshing(meshInstance, chunk);
+            StartMeshing(chunk);
         }
         else
         {
-            meshInstance = splatterMesher.CreateChunkMesh(chunk);
+            splatterMesher.CreateChunkMesh(chunk);
         }
     }
 
-    private void StartMeshing(MeshInstance meshInstance, Chunk chunk)
+    private void StartMeshing(Chunk chunk)
     {
         if (!chunk.isEmpty)
         {
-            Dictionary<Texture, GodotArray> arrays = mesher.cull(chunk);
-
-            ArrayMesh mesh = new ArrayMesh();
-
-            List<Vector3> faces = new List<Vector3>();
+           MeshInstance meshInstance = mesher.cull(chunk);
 
             meshInstance.Name = "chunk:" + chunk.x + "," + chunk.y + "," + chunk.z;
             meshInstance.Translate(new Vector3(chunk.x, chunk.y, chunk.z));
 
-            foreach (Texture texture in arrays.Keys.ToArray())
-            {
-                GodotArray array = arrays[texture];
-                SpatialMaterial material = new SpatialMaterial();
-                texture.Flags = 2;
-                material.AlbedoTexture = texture;
-              //  faces.AddRange((Vector3[]) array[0]);
-
-                mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, array);
-                mesh.SurfaceSetMaterial(mesh.GetSurfaceCount() - 1, material);
-            }
-
-            ConcavePolygonShape shape = new ConcavePolygonShape();
-           // shape.SetFaces(faces.ToArray());
-            StaticBody body = new StaticBody();
-            CollisionShape colShape = new CollisionShape();
-            colShape.SetShape(shape);
-           // body.AddChild(colShape);
-         //   meshInstance.AddChild(body);
-
-            meshInstance.Mesh = mesh;
             Node node = parent.FindNode(meshInstance.Name);
             if (node != null)
             {
@@ -71,8 +45,6 @@ public class GameMesher
             }
 
             parent.AddChild(meshInstance);
-
-            arrays.Clear();
         }
     }
 
