@@ -331,7 +331,7 @@ public class GreedyMesher
             //Bottom
             tx = sx;
             tz = sz;
-                if (x > 0 && index < 36 && vectors[index - 35].y == sy  && vectors[index - 36].x == sx  && vectors[index - 32].x == sx)
+                if (x > 0 && index > 36 && vectors[index - 35].y == sy  && vectors[index - 36].x == sx  && vectors[index - 32].x == sx)
                 {
                     tx = vectors[index - 35].x;
                     for(int s = 0; s < 6; s ++){
