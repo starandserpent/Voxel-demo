@@ -390,7 +390,7 @@ public class GreedyMesher
         {
             int size = indice[t];
             if(size + arraySize[t] > 0){
-                
+
             Texture texture = registry.SelectByID(t + 1).texture;
             Vector3[] vertice = new Vector3[size + arraySize[t]];
             Vector3[] normals = new Vector3[size + arraySize[t]];
@@ -466,7 +466,7 @@ public class GreedyMesher
 
             shape.SetFaces(vertice);
             mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, godotArray);
-            mesh.SurfaceSetMaterial(t, material);
+            mesh.SurfaceSetMaterial(mesh.GetSurfaceCount() - 1, material);
             colShape.SetShape(shape);
             body.AddChild(colShape);
         }
