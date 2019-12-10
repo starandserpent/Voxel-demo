@@ -47,7 +47,7 @@ public class WorldGenerator
         if (layer == 0)
         {
             uint size = octree.sizeX * octree.sizeY * octree.sizeZ;
-            Chunk chunk = LoadArea(posX << 3, posY << 3, posZ << 3, marker);
+            Chunk chunk = LoadArea(posX << Constants.CHUNK_EXPONENT, posY << Constants.CHUNK_EXPONENT, posZ << Constants.CHUNK_EXPONENT, marker);
             int lolong = (int) Morton3D.encode(posX, posY, posZ);
             OctreeNode childNode = new OctreeNode();
             childNode.chunk = chunk;

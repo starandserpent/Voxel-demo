@@ -5,8 +5,9 @@ using ThreadingStart = System.Threading.ThreadStart;
 
 public class Player : LoadMarker
 {
-    public static readonly float MOUSE_SENSITIVITY = 0.002F;
+    [Export]  public float MOUSE_SENSITIVITY = 0.002F;
     [Export] private float move_speed = 0.9F;
+    [Export] private int loadRadius;
     private Vector3 motion;
     private Vector3 velocity;
     private Vector3 initialRotation;
@@ -43,7 +44,7 @@ public class Player : LoadMarker
 
     public override void _Ready()
     {
-        hardRadius = 1;
+        hardRadius = loadRadius;
         foreach (Node child in GetParent().GetChildren())
         {
             if (child.Name.Equals("GameController"))
