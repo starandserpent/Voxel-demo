@@ -54,12 +54,14 @@ public class Foreman
                     int elev = elevation % Constants.CHUNK_SIZE1D;
                     uint bitPos;
                     uint bitValue;
+                    if(elev > 0){
                     bitPos = (uint) elev << 8;
                     bitValue = (uint) dirtID;
 
                     chunk.voxels[lastPosition] = (bitPos | bitValue);
 
                     lastPosition++;
+                    }
 
                     bitPos = (uint) 1 << 8;
                     bitValue = (uint) grassID;
@@ -87,7 +89,6 @@ public class Foreman
                 }else if(elevation / Constants.CHUNK_SIZE1D < posy / Constants.CHUNK_SIZE1D){
                     uint bitPos = (uint) (Constants.CHUNK_SIZE1D) << 8;
                     uint bitValue = (uint) 0;
-                    chunk.isEmpty = true;
 
                     chunk.voxels[lastPosition] = (bitPos | bitValue);
 
