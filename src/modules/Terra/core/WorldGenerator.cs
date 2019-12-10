@@ -29,11 +29,22 @@ public class WorldGenerator
     public void SeekSector(LoadMarker marker)
     {
         //Round world size to nearest node lenght
-        int playerPosX = ((int) marker.GetTranslation().x / 16) * 16;
-        int playerPosY = ((int) marker.GetTranslation().y / 16) * 16;
-        int playerPosZ = ((int) marker.GetTranslation().z / 16) * 16;
+        int playerPosX = (int) (((int) marker.GetTranslation().x / Constants.CHUNK_LENGHT) *  Constants.CHUNK_LENGHT);
+        int playerPosY = (int) (((int) marker.GetTranslation().y / Constants.CHUNK_LENGHT) *  Constants.CHUNK_LENGHT);
+        int playerPosZ = (int) (((int) marker.GetTranslation().z / Constants.CHUNK_LENGHT) *  Constants.CHUNK_LENGHT);
 
-        CreateNode(0, 0, 0, 0, 0, default(OctreeNode), marker);
+        Translation translation = new Translation();
+
+        
+        for(int y = 0; y < marker.hardRadius; y++){
+            for(int z = 0; z < marker.hardRadius; z++){
+                for(int x = 0; x < marker.hardRadius; x++){
+                    LoadArea(playerPosX + (x << Constants.CHUNK_EXPONENT), playerPosY + (y << Constants.CHUNK_EXPONENT), playerPosZ + (z << Constants.CHUNK_EXPONENT), marker);
+                    LoadArea(playerPosX - (x << Constants.CHUNK_EXPONENT), playerPosY - (y << Constants.CHUNK_EXPONENT), playerPosZ - (z << Constants.CHUNK_EXPONENT), marker);
+             }
+        }     
+        }
+        //CreateNode(0, 0, 0, 0, 0, default(OctreeNode), marker);
     }
 
     //Procedural generation
@@ -41,7 +52,7 @@ public class WorldGenerator
     {
     }
 
-    private OctreeNode CreateNode(int posX, int posY, int posZ, int layer, int type, OctreeNode parentNode,
+/*    private OctreeNode CreateNode(int posX, int posY, int posZ, int layer, int type, OctreeNode parentNode,
         LoadMarker marker)
     {
         if (layer == 0)
@@ -80,7 +91,7 @@ public class WorldGenerator
                             " " + posZ * 16 * (float) Math.Pow(2, layer);
             instance.Translation = new Vector3(posX * 16 * (float) Math.Pow(2, layer),
                 posY * 16 * (float) Math.Pow(2, layer), posZ * 16 * (float) Math.Pow(2, layer));
-            parent.AddChild(instance);*/
+            parent.AddChild(instance);
             
             //   }
 
@@ -146,14 +157,13 @@ public class WorldGenerator
         }
 
         return parentNode;
-    }
-
+    }*/
 
     //Loads chunks
     private Chunk LoadArea(float x, float y, float z, LoadMarker marker)
     {
-        /* if (x >= 0 && z >= 0
-         && marker.GetHardRadius() + marker.GetTranslation().x > x 
+         if (x >= 0 && z >= 0){
+        /* && marker.GetHardRadius() + marker.GetTranslation().x > x 
          && marker.GetHardRadius() + marker.GetTranslation().x > y
          && marker.GetHardRadius() + marker.GetTranslation().x > z
          && marker.GetTranslation().x - marker.GetHardRadius() < x 
@@ -170,7 +180,7 @@ public class WorldGenerator
         return chunk;
 
         //  marker.sendChunk(chunk);
-        // }
+        }
         return new Chunk();
     }
 

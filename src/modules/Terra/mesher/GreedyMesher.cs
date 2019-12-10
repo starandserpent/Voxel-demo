@@ -27,13 +27,19 @@ public class GreedyMesher
 
     public MeshInstance cull(Chunk chunk)
     {
-         MeshInstance meshInstance = new MeshInstance();
+        MeshInstance meshInstance = new MeshInstance();
+        ArrayMesh mesh = new ArrayMesh();
+        StaticBody body = new StaticBody();
+        GodotArray godotArray = new GodotArray();
+        godotArray.Resize(9);
+
+        long a = 16777215 << 8;
+        byte b = 255;
+
         if(chunk.materials > 1){
         Stopwatch watch = new Stopwatch();
         watch.Start();
         Vector3[][] vertices = new Vector3[chunk.materials - 1][];
-        long a = 16777215 << 8;
-        byte b = 255;
         int count = 0;
         int[] indice = new int[chunk.materials - 1];
         int[] arraySize = new int[chunk.materials - 1];
@@ -380,12 +386,6 @@ public class GreedyMesher
         watch.Reset();
         watch.Start();
 
-        ArrayMesh mesh = new ArrayMesh();
-        StaticBody body = new StaticBody();
-        GodotArray godotArray = new GodotArray();
-        godotArray.Resize(9);
-
-
         for (int t = 0; t < chunk.materials - 1; t++)
         {
             Texture texture = registry.SelectByID(t + 1).texture;
@@ -478,8 +478,119 @@ public class GreedyMesher
         lol++;
         GD.Print(lol);
         return meshInstance;
+        }else{
+            uint bytes = chunk.voxels[0];
+            int objectID = (int) (bytes & b);
+
+            Texture texture = registry.SelectByID(objectID).texture;
+            SpatialMaterial material = new SpatialMaterial();
+
+            float textureWidth = 2048f / texture.GetWidth();
+            float textureHeight = 2048f / texture.GetHeight();
+
+            Vector3[] vertice = new Vector3[36];
+            Vector3[] normals = new Vector3[36];
+            Vector2[] uvs = new Vector2[36];
+
+            //FRONT
+            vertice[0] = new Vector3(0, 0, 0);
+            vertice[1] = new Vector3(Constants.CHUNK_LENGHT, 0, 0);
+            vertice[2] = new Vector3(Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT, 0);
+            vertice[3] = new Vector3(Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT, 0);
+            vertice[4] = new Vector3(0, Constants.CHUNK_LENGHT,0 );
+            vertice[5] = new Vector3(0, 0, 0);
+
+            for(int i = 0; i < 6; i ++){
+                normals[i] = new Vector3(0, 0, -1);
+                uvs[i].x = vertice[i].x * textureWidth;
+                uvs[i].y = vertice[i].y * textureHeight;
+            }
+
+            //BACK
+            vertice[6] = new Vector3(Constants.CHUNK_LENGHT, 0, Constants.CHUNK_LENGHT);
+            vertice[7] = new Vector3(0, 0, Constants.CHUNK_LENGHT);
+            vertice[8] = new Vector3(0, Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT);
+            vertice[9] = new Vector3(0, Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT);
+            vertice[10] = new Vector3(Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT);
+            vertice[11] = new Vector3(Constants.CHUNK_LENGHT, 0, Constants.CHUNK_LENGHT);
+
+             for(int i = 6; i < 12; i ++){
+                normals[i] = new Vector3(0, 0, 1);
+                         uvs[i].x = vertice[i].x * textureWidth;
+                uvs[i].y = vertice[i].y * textureHeight;
+            }
+
+            //LEFT
+            vertice[12] = new Vector3(0, 0, Constants.CHUNK_LENGHT);
+            vertice[13] = new Vector3(0, 0, Constants.CHUNK_LENGHT);
+            vertice[14] = new Vector3(0, Constants.CHUNK_LENGHT, 0);
+            vertice[15] = new Vector3(0, Constants.CHUNK_LENGHT, 0);
+            vertice[16] = new Vector3(0, Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT);
+            vertice[17] = new Vector3(0, 0 , Constants.CHUNK_LENGHT);
+
+             for(int i = 12; i < 18; i ++){
+                normals[i] = new Vector3(1, 0, 0);
+                         uvs[i].x = vertice[i].x * textureWidth;
+                uvs[i].y = vertice[i].y * textureHeight;
+            }
+
+            //RIGHT
+            vertice[18] = new Vector3(Constants.CHUNK_LENGHT, 0, 0);
+            vertice[19] = new Vector3(Constants.CHUNK_LENGHT, 0, Constants.CHUNK_LENGHT);
+            vertice[20]= new Vector3(Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT);
+            vertice[21] = new Vector3(Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT);
+            vertice[22] = new Vector3(Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT, 0);
+            vertice[23] = new Vector3(Constants.CHUNK_LENGHT, 0, 0);
+
+             for(int i = 18; i < 24; i ++){
+                normals[i] = new Vector3(-1, 0, 0);
+                         uvs[i].x = vertice[i].z * textureWidth;
+                uvs[i].y = vertice[i].y * textureHeight;
+            }
+
+           // TOP
+            vertice[24] = new Vector3(0, Constants.CHUNK_LENGHT, 0);
+            vertice[25] = new Vector3(Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT, 0);
+            vertice[26] = new Vector3(Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT);
+            vertice[27] = new Vector3(Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT);
+            vertice[28] = new Vector3(0, Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT);
+            vertice[29] = new Vector3(0, Constants.CHUNK_LENGHT, 0);
+
+             for(int i = 24; i < 30; i ++){
+                normals[i] = new Vector3(0, 1, 0);
+                         uvs[i].x = vertice[i].x * textureWidth;
+                uvs[i].y = vertice[i].z * textureHeight;
+            }
+
+            //BOTTOM
+            vertice[30] = new Vector3(Constants.CHUNK_LENGHT, 0, 0);
+            vertice[31] = new Vector3(0, 0, 0);
+            vertice[32] = new Vector3(0, 0, Constants.CHUNK_LENGHT);
+            vertice[33] = new Vector3(0, 0, Constants.CHUNK_LENGHT);
+            vertice[34] = new Vector3(Constants.CHUNK_LENGHT, 0, Constants.CHUNK_LENGHT);
+            vertice[35] = new Vector3(Constants.CHUNK_LENGHT, 0, 0);
+
+             for(int i = 30; i < 36; i ++){
+                normals[i] = new Vector3(0, -1, 0);
+                         uvs[i].x = vertice[i].x * textureWidth;
+                uvs[i].y = vertice[i].z * textureHeight;
+            }
+
+            godotArray[0] = vertice;
+           godotArray[1] = normals;
+            godotArray[4] = uvs;
+            
+            texture.Flags = 2;
+            material.AlbedoTexture = texture;
+
+            mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, godotArray);
+            mesh.SurfaceSetMaterial(0, material);
+
+            meshInstance.Mesh = mesh;
+            meshInstance.CreateTrimeshCollision();
         }
         return meshInstance;
+
     }
 
     public List<long> GetAddingMeasures(){

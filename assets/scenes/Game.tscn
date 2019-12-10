@@ -13,6 +13,7 @@ WORLD_SIZEY = 16
 WORLD_SIZEZ = 16
 
 [node name="Player" type="Spatial" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 10 )
 script = ExtResource( 2 )
 
 [node name="Camera" type="Camera" parent="Player"]

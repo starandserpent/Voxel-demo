@@ -36,7 +36,7 @@ public class GameMesher
            MeshInstance meshInstance = mesher.cull(chunk);
 
             meshInstance.Name = "chunk:" + chunk.x + "," + chunk.y + "," + chunk.z;
-            meshInstance.Translate(new Vector3(chunk.x, chunk.y, chunk.z));
+            meshInstance.Translation = new Vector3(chunk.x, chunk.y, chunk.z);
 
             Node node = parent.FindNode(meshInstance.Name);
             if (node != null)

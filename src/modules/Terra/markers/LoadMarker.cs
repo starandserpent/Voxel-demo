@@ -7,7 +7,7 @@ public class LoadMarker : Spatial
      * The radius which this marker will force the world to be loaded.
      * Squared to avoid sqrt.
      */
-    public float hardRadius;
+    public int hardRadius;
 
     private List<int> playerOctants;
 
