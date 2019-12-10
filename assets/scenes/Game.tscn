@@ -8,14 +8,10 @@
 
 [node name="GameController" type="Spatial" parent="."]
 script = ExtResource( 1 )
-WORLD_SIZEX = 16
-WORLD_SIZEY = 16
-WORLD_SIZEZ = 16
 
 [node name="Player" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 10 )
 script = ExtResource( 2 )
-loadRadius = 3
 
 [node name="Camera" type="Camera" parent="Player"]
 current = true
