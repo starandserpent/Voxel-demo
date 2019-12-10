@@ -32,22 +32,27 @@ public class Terra
 
     public Chunk TraverseOctree(int posX, int posY, int posZ)
     {
-        if (posX >= 0 && posY >= 0 && posZ >= 0)
+      /*  if (posX >= 0 && posY >= 0 && posZ >= 0)
         {
             int lolong = (int) Morton3D.encode(posX, posY, posZ);
             OctreeNode node = octree.nodes[0][lolong];
             return node.chunk;
-        }
+        }*/
 
         return default(Chunk);
     }
 
     public void ReplaceChunk(int posX, int posY, int posZ, Chunk chunk)
     {
-        int lolong = (int) Morton3D.encode(posX, posY, posZ);
+        /*int lolong = (int) Morton3D.encode(posX, posY, posZ);
         OctreeNode node = octree.nodes[0][lolong];
         node.chunk = chunk;
-        octree.nodes[0][lolong] = node;
+        octree.nodes[0][lolong] = node;*/
+    }
+
+    public void UpdateGeneration(LoadMarker marker)
+    {
+        generator.UpdateSector(marker);
     }
 
     public void InitialWorldGeneration(LoadMarker loadMarker)

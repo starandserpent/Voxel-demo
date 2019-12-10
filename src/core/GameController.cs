@@ -50,4 +50,8 @@ public class GameController : Spatial
     {
         return picker;
     }
+
+    public void UpdateSector(LoadMarker marker){
+        world.UpdateGeneration(marker);
+    }
 }

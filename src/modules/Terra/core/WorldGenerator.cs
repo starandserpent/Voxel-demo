@@ -29,155 +29,128 @@ public class WorldGenerator
     public void SeekSector(LoadMarker marker)
     {
         //Round world size to nearest node lenght
-        int playerPosX = (int) (((int) marker.GetTranslation().x / Constants.CHUNK_LENGHT) *  Constants.CHUNK_LENGHT);
-        int playerPosY = (int) (((int) marker.GetTranslation().y / Constants.CHUNK_LENGHT) *  Constants.CHUNK_LENGHT);
-        int playerPosZ = (int) (((int) marker.GetTranslation().z / Constants.CHUNK_LENGHT) *  Constants.CHUNK_LENGHT);
+        int playerPosX = (int) ((marker.GetTranslation().x / Constants.CHUNK_LENGHT));
+        int playerPosY = (int) ((marker.GetTranslation().y / Constants.CHUNK_LENGHT));
+        int playerPosZ = (int) ((marker.GetTranslation().z / Constants.CHUNK_LENGHT));
 
         Translation translation = new Translation();
 
-        
         for(int y = 0; y < marker.hardRadius; y++){
             for(int z = 0; z < marker.hardRadius; z++){
                 for(int x = 0; x < marker.hardRadius; x++){
-                    LoadArea(playerPosX + (x << Constants.CHUNK_EXPONENT), playerPosY + (y << Constants.CHUNK_EXPONENT), playerPosZ + (z << Constants.CHUNK_EXPONENT), marker);
-                    LoadArea(playerPosX - (x << Constants.CHUNK_EXPONENT), playerPosY - (y << Constants.CHUNK_EXPONENT), playerPosZ - (z << Constants.CHUNK_EXPONENT), marker);
+                    LoadArea(playerPosX + x, playerPosY + y, playerPosZ + z, marker);
+                    LoadArea(playerPosX - x, playerPosY + y, playerPosZ + z, marker);
+                    LoadArea(playerPosX + x, playerPosY + y, playerPosZ - z, marker);
+                    LoadArea(playerPosX - x, playerPosY - y, playerPosZ - z, marker);
+                    LoadArea(playerPosX + x, playerPosY - y, playerPosZ - z, marker);
+                    LoadArea(playerPosX - x, playerPosY - y, playerPosZ + z, marker);
              }
         }     
         }
-        //CreateNode(0, 0, 0, 0, 0, default(OctreeNode), marker);
     }
 
     //Procedural generation
-    void UpdateSector(float x, float z, float range, LoadMarker trigger)
+    public void UpdateSector(LoadMarker marker)
     {
+        //Round world size to nearest node lenght
+        int playerPosX = (int) ((marker.GetTranslation().x / Constants.CHUNK_LENGHT));
+        int playerPosY = (int) ((marker.GetTranslation().y / Constants.CHUNK_LENGHT));
+        int playerPosZ = (int) ((marker.GetTranslation().z / Constants.CHUNK_LENGHT));
+
+        for(int y = 0; y < marker.hardRadius; y++){
+            for(int z = 0; z < marker.hardRadius; z++){
+                for(int x = 0; x < marker.hardRadius; x++){
+                    LoadArea(playerPosX + x, playerPosY + y, playerPosZ + z, marker);
+                    LoadArea(playerPosX - x, playerPosY + y, playerPosZ + z, marker);
+                    LoadArea(playerPosX + x, playerPosY + y, playerPosZ - z, marker);
+                    LoadArea(playerPosX - x, playerPosY - y, playerPosZ - z, marker);
+                    LoadArea(playerPosX + x, playerPosY - y, playerPosZ - z, marker);
+                    LoadArea(playerPosX - x, playerPosY - y, playerPosZ + z, marker);
+             }
+        }     
+        }
+    }
+    private void Connect(int posX, int posY, int posZ, int layer, OctreeNode node){
+        int parentNodePosX = (int)(posX/2);
+        int parentNodePosY = (int)(posY/2);
+        int parentNodePosZ = (int)(posZ/2);
+
+        int lolong = (int) Morton3D.encode(parentNodePosX, parentNodePosY, parentNodePosZ);
+        uint size = octree.sizeX * octree.sizeY * octree.sizeZ;
+        if(lolong < size && layer < octree.layers){
+                        MeshInstance instance = DebugMesh();
+            instance.Scale = new Vector3(16 * (float) Math.Pow(2, layer - 1), 16 * (float) Math.Pow(2, layer - 1),
+                16 * (float) Math.Pow(2, layer - 1));
+            instance.Name = posX * 8 * (float) Math.Pow(2, layer) + " " + posY * 8 * (float) Math.Pow(2, layer) +
+                            " " + posZ * 8 * (float) Math.Pow(2, layer);
+            instance.Translation = new Vector3(posX * 8 * (float) Math.Pow(2, layer),
+                posY * 8 * (float) Math.Pow(2, layer), posZ * 8 * (float) Math.Pow(2, layer));
+            parent.AddChild(instance);
+        
+            OctreeNode parentNode;
+            if(octree.nodes.ContainsKey(layer)){
+                if(octree.nodes[layer][lolong] != default(OctreeNode)){
+                  parentNode = octree.nodes[layer][lolong];
+                }else{
+                    parentNode = new OctreeNode();
+                    parentNode.locCode = lolong;
+                    parentNode.children = new Dictionary<int, OctreeNode>();
+                    octree.nodes[layer][lolong] = parentNode;
+                }
+            }else{
+                octree.nodes[layer] = new OctreeNode[size];
+                parentNode = new OctreeNode();
+                parentNode.locCode = lolong;
+                parentNode.children = new Dictionary<int, OctreeNode>();
+                octree.nodes[layer][lolong] = parentNode;
+            }
+
+        if(posX % 2 == 0 && posX % 2 == 0 && posX % 2 == 0){
+            parentNode.children[0] = node;
+        }else if(posX % 2 == 1 && posX % 2 == 0 && posX % 2 == 0){
+            parentNode.children[1] = node;
+        }else if(posX % 2 == 0 && posX % 2 == 0 && posX % 2 == 1){
+            parentNode.children[2] = node;
+        }else if(posX % 2 == 1 && posX % 2 == 0 && posX % 2 == 1){
+            parentNode.children[3] = node;
+        }else if(posX % 2 == 0 && posX % 2 == 1 && posX % 2 == 0){
+            parentNode.children[4] = node;
+        }else if(posX % 2 == 1 && posX % 2 == 1 && posX % 2 == 0){
+            parentNode.children[5] = node;
+        }else if(posX % 2 == 0 && posX % 2 == 1 && posX % 2 == 1){
+            parentNode.children[6] = node;
+        }else if(posX % 2 == 1 && posX % 2 == 1 && posX % 2 == 1){
+            parentNode.children[7] = node;           
+        }
+
+        Connect(parentNodePosX, parentNodePosY, parentNodePosZ, layer + 1, parentNode);
+        }
     }
 
-/*    private OctreeNode CreateNode(int posX, int posY, int posZ, int layer, int type, OctreeNode parentNode,
-        LoadMarker marker)
-    {
-        if (layer == 0)
-        {
-            uint size = octree.sizeX * octree.sizeY * octree.sizeZ;
-            Chunk chunk = LoadArea(posX << Constants.CHUNK_EXPONENT, posY << Constants.CHUNK_EXPONENT, posZ << Constants.CHUNK_EXPONENT, marker);
-            int lolong = (int) Morton3D.encode(posX, posY, posZ);
-            OctreeNode childNode = new OctreeNode();
-            childNode.chunk = chunk;
-            childNode.locCode = lolong;
-            octree.nodes[0][lolong] = childNode;
-
-            if (!octree.nodes.ContainsKey(1))
-            {
-                CreateNode(posX, posY, posZ, 1, type, childNode, marker);
-            }
-            else
-            {
-                parentNode.children.Add(type, childNode);
-                return parentNode;
-            }
-        }
-        else if (layer <= octree.layers)
-        {
-            bool newLayer = false;
-            OctreeNode node = new OctreeNode();
-            int loccode = (int) Morton3D.encode(posX, posY, posZ);
-            node.locCode = loccode;
-            node.children = new Dictionary<int, OctreeNode>();
-
-            /*  if(layer == 1){
-            MeshInstance instance = DebugMesh();
-            instance.Scale = new Vector3(32 * (float) Math.Pow(2, layer - 1), 32 * (float) Math.Pow(2, layer - 1),
-                32 * (float) Math.Pow(2, layer - 1));
-            instance.Name = posX * 16 * (float) Math.Pow(2, layer) + " " + posY * 16 * (float) Math.Pow(2, layer) +
-                            " " + posZ * 16 * (float) Math.Pow(2, layer);
-            instance.Translation = new Vector3(posX * 16 * (float) Math.Pow(2, layer),
-                posY * 16 * (float) Math.Pow(2, layer), posZ * 16 * (float) Math.Pow(2, layer));
-            parent.AddChild(instance);
-            
-            //   }
-
-            if (!octree.nodes.ContainsKey(layer))
-            {
-                uint size = octree.sizeX * octree.sizeY * octree.sizeZ;
-                node.children.Add(type, parentNode);
-                octree.nodes.Add(layer, new OctreeNode[size]);
-                octree.nodes[layer][loccode] = node;
-                newLayer = true;
-            }
-            else
-            {
-                parentNode.children.Add(type, node);
-            }
-
-            for (int i = 0; i < 8; i++)
-            {
-                if (!node.children.ContainsKey(i))
-                {
-                    switch (i)
-                    {
-                        case 0:
-                            node = CreateNode(posX << 1, posY << 1, posZ << 1, layer - 1, 0, node, marker);
-                            break;
-
-                        case 1:
-                            node = CreateNode((posX << 1) + 1, posY << 1, posZ << 1, layer - 1, 1, node, marker);
-                            break;
-
-                        case 2:
-                            node = CreateNode(posX << 1, posY << 1, (posZ << 1) + 1, layer - 1, 2, node, marker);
-                            break;
-
-                        case 3:
-                            node = CreateNode((posX << 1) + 1, posY << 1, (posZ << 1) + 1, layer - 1, 3, node, marker);
-                            break;
-
-                        case 4:
-                            node = CreateNode(posX << 1, (posY << 1) + 1, posZ << 1, layer - 1, 4, node, marker);
-                            break;
-
-                        case 5:
-                            node = CreateNode((posX << 1) + 1, (posY << 1) + 1, posZ << 1, layer - 1, 5, node, marker);
-                            break;
-
-                        case 6:
-                            node = CreateNode(posX << 1, (posY << 1) + 1, (posZ << 1) + 1, layer - 1, 6, node, marker);
-                            break;
-
-                        case 7:
-                            node = CreateNode((posX << 1) + 1, (posY << 1) + 1, (posZ << 1) + 1, layer - 1, 7, node,
-                                marker);
-                            break;
-                    }
-                }
-            }
-
-            if (newLayer)
-            {
-                node = CreateNode(posX, posY, posZ, layer + 1, type, node, marker);
-            }
-        }
-
-        return parentNode;
-    }*/
-
     //Loads chunks
-    private Chunk LoadArea(float x, float y, float z, LoadMarker marker)
+    private Chunk LoadArea(int x, int y, int z, LoadMarker marker)
     {
-         if (x >= 0 && z >= 0){
-        /* && marker.GetHardRadius() + marker.GetTranslation().x > x 
-         && marker.GetHardRadius() + marker.GetTranslation().x > y
-         && marker.GetHardRadius() + marker.GetTranslation().x > z
-         && marker.GetTranslation().x - marker.GetHardRadius() < x 
-         && marker.GetTranslation().y - marker.GetHardRadius() < y
-         && marker.GetTranslation().z - marker.GetHardRadius() < z) {*/
-        Chunk chunk;
+         if (x >= 0 && z >= 0 && y >= 0){
+        int lolong = (int) Morton3D.encode(x, y, z);
+        uint size = octree.sizeX * octree.sizeY * octree.sizeZ;
+
+        if(lolong < size  && octree.nodes[0][lolong] == default(OctreeNode)){
         Stopwatch watch = new Stopwatch();
         watch.Start();
-        chunk = generator.GetChunk(x, y, z);
+            
+        OctreeNode childNode = new OctreeNode();
+        childNode.locCode = lolong;
+        octree.nodes[0][lolong] = childNode;
+
+        Chunk chunk = generator.GetChunk(x << Constants.CHUNK_EXPONENT, y << Constants.CHUNK_EXPONENT, z << Constants.CHUNK_EXPONENT);
+        childNode.chunk = chunk;
         watch.Stop();
         debugMeasures[0].Add(watch.ElapsedMilliseconds);
         
         mesher.MeshChunk(chunk, false);
+        Connect(x, y, z, 1, childNode);
         return chunk;
+        }
 
         //  marker.sendChunk(chunk);
         }

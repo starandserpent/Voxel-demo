@@ -55,12 +55,12 @@ public class Foreman
                     uint bitPos;
                     uint bitValue;
                     if(elev > 0){
-                    bitPos = (uint) elev << 8;
-                    bitValue = (uint) dirtID;
+                        bitPos = (uint) elev << 8;
+                        bitValue = (uint) dirtID;
 
-                    chunk.voxels[lastPosition] = (bitPos | bitValue);
+                        chunk.voxels[lastPosition] = (bitPos | bitValue);
 
-                    lastPosition++;
+                        lastPosition++;
                     }
 
                     bitPos = (uint) 1 << 8;

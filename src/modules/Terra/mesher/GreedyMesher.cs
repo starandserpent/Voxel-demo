@@ -388,9 +388,10 @@ public class GreedyMesher
 
         for (int t = 0; t < chunk.materials - 1; t++)
         {
-            Texture texture = registry.SelectByID(t + 1).texture;
-
             int size = indice[t];
+            if(size + arraySize[t] > 0){
+                
+            Texture texture = registry.SelectByID(t + 1).texture;
             Vector3[] vertice = new Vector3[size + arraySize[t]];
             Vector3[] normals = new Vector3[size + arraySize[t]];
             Vector2[] uvs = new Vector2[size + arraySize[t]];
@@ -468,6 +469,7 @@ public class GreedyMesher
             mesh.SurfaceSetMaterial(t, material);
             colShape.SetShape(shape);
             body.AddChild(colShape);
+        }
         }
 
         meshInstance.AddChild(body);

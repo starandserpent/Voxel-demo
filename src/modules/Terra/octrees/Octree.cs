@@ -5,5 +5,6 @@ public class Octree
     public uint sizeX { get; set; }
     public uint sizeY { get; set; }
     public uint sizeZ { get; set; }
+    public OctreeNode currentNode { get; set; }
     public Dictionary<int, OctreeNode[]> nodes { get; set; }
 }

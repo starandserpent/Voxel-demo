@@ -97,6 +97,7 @@ public class Player : LoadMarker
 
     public override void _Process(float delta)
     {
+        gameController.UpdateSector(this);
         if (Input.IsActionPressed("toggle_mouse_capture"))
         {
             Input.SetMouseMode(Input.GetMouseMode() == Input.MouseMode.Captured
