@@ -36,15 +36,10 @@ public class WorldGenerator : Node
 
         Translation translation = new Translation();
 
-        for(int y = 0; y < marker.loadRadiusY/2; y++){
-            for(int z = 0; z < marker.loadRadiusZ/2; z++){
-                for(int x = 0; x < marker.loadRadiusX/2; x++){
+        for(int y = marker.loadRadiusX/2; y >= -marker.loadRadiusY/2; y--){
+            for(int z = marker.loadRadiusX/2; z >= -marker.loadRadiusZ/2; z--){
+                for(int x = marker.loadRadiusX/2; x >= -marker.loadRadiusX/2; x--){
                     LoadArea(playerPosX + x, playerPosY + y, playerPosZ + z, marker);
-                    LoadArea(playerPosX - x, playerPosY + y, playerPosZ + z, marker);
-                    LoadArea(playerPosX + x, playerPosY + y, playerPosZ - z, marker);
-                    LoadArea(playerPosX - x, playerPosY - y, playerPosZ - z, marker);
-                    LoadArea(playerPosX + x, playerPosY - y, playerPosZ - z, marker);
-                    LoadArea(playerPosX - x, playerPosY - y, playerPosZ + z, marker);
              }
         }     
         }
