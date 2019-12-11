@@ -7,10 +7,8 @@ public class Foreman
     private int grassMeshID;
     private Weltschmerz weltschmerz;
     private Registry registry;
-    private ArrayPool<uint> pool;
     public Foreman()
     {
-        pool = ArrayPool<uint>.Create();
         weltschmerz = new Weltschmerz();
     }
 
@@ -29,9 +27,9 @@ public class Foreman
         chunk.y = (uint) posY;
         chunk.z = (uint) posZ;
 
-        chunk.materials = 3;
+        chunk.materials = 1;
 
-        chunk.voxels =  pool.Rent(Constants.CHUNK_SIZE3D);
+        chunk.voxels =  new uint[Constants.CHUNK_SIZE3D];
 
         chunk.isEmpty = true;
 
@@ -54,14 +52,12 @@ public class Foreman
                     int elev = elevation % Constants.CHUNK_SIZE1D;
                     uint bitPos;
                     uint bitValue;
-                    if(elev > 0){
                         bitPos = (uint) elev << 8;
                         bitValue = (uint) dirtID;
 
                         chunk.voxels[lastPosition] = (bitPos | bitValue);
 
                         lastPosition++;
-                    }
 
                     bitPos = (uint) 1 << 8;
                     bitValue = (uint) grassID;
@@ -97,8 +93,8 @@ public class Foreman
             }
         }
 
-        if(!isDifferent){
-            chunk.materials = 1;
+        if(isDifferent){
+            chunk.materials = 3;
         }
 
         return chunk;

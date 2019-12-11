@@ -14,6 +14,8 @@ public class WorldGenerator
     private Foreman generator;
     private bool debug;
     private List<long>[] debugMeasures;
+
+    private int lol;
     public WorldGenerator(Node parent, Octree octree, GameMesher mesher, Foreman generator, bool debug)
     {
         this.generator = generator;
@@ -147,13 +149,16 @@ public class WorldGenerator
         watch.Stop();
         debugMeasures[0].Add(watch.ElapsedMilliseconds);
         
-        mesher.MeshChunk(chunk, false);
+
+       mesher.MeshChunk(chunk, false);
         Connect(x, y, z, 1, childNode);
+        lol++;
+        GD.Print(lol);
         return chunk;
         }
 
         //  marker.sendChunk(chunk);
-        }
+         }
         return new Chunk();
     }
 

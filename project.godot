@@ -97,4 +97,5 @@ project/auto_update_project=false
 
 [rendering]
 
+threads/thread_model=0
 environment/default_environment="res://default_env.tres"

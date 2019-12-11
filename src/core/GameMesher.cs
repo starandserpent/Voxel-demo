@@ -7,11 +7,11 @@ public class GameMesher
 {
     private volatile Node parent;
     private volatile SplatterMesher splatterMesher;
-    private GreedyMesher mesher = null;
+    private NaiveGreedyMesher mesher = null;
     public GameMesher(Node parent, Registry reg, bool profile)
     {
         this.parent = parent;
-        mesher = new GreedyMesher(reg, true);
+        mesher = new NaiveGreedyMesher(reg, true);
         ShaderMaterial shaderMat = new ShaderMaterial();
         shaderMat.Shader = (GD.Load("res://assets/shaders/splatvoxel.shader") as Shader);
         splatterMesher = new SplatterMesher(shaderMat, reg);
@@ -37,12 +37,6 @@ public class GameMesher
 
             meshInstance.Name = "chunk:" + chunk.x + "," + chunk.y + "," + chunk.z;
             meshInstance.Translation = new Vector3(chunk.x, chunk.y, chunk.z);
-
-            Node node = parent.FindNode(meshInstance.Name);
-            if (node != null)
-            {
-                parent.RemoveChild(node);
-            }
 
             parent.AddChild(meshInstance);
         }
