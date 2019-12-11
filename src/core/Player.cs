@@ -17,6 +17,10 @@ public class Player : LoadMarker
     private Camera camera;
     private Picker picker;
     private Threading thread;
+    private CanvasLayer GUI;
+    private Label fps;
+    private Label memory;
+    private Label objects;
 
     public override void _Input(InputEvent @event)
     {
@@ -66,6 +70,25 @@ public class Player : LoadMarker
             }
         }
 
+          foreach (Node child in camera.GetChildren())
+        {
+            if (child.Name.Equals("GUI"))
+            {
+                GUI = (CanvasLayer) child;
+            }
+        }
+
+        foreach (Node child in GUI.GetChildren())
+        {
+            if(child.Name.Equals("FPS")){
+                fps = (Label) child;
+            }else if(child.Name.Equals("Memory")){
+                memory = (Label) child;
+            }else if(child.Name.Equals("Objects")){
+                objects = (Label) child;
+            }
+        }
+
      //  GetViewport().DebugDraw = Viewport.DebugDrawEnum.Wireframe; 
        // VisualServer.SetDebugGenerateWireframes(true);
         initialRotation = GetRotation();
@@ -110,7 +133,10 @@ public class Player : LoadMarker
 
     public override void _Process(float delta)
     {
-        
+        objects.SetText("Objects: " + Performance.GetMonitor(Performance.Monitor.ObjectCount));
+        fps.SetText("FPS: " + Performance.GetMonitor(Performance.Monitor.TimeFps));
+        memory.SetText("Memory: " + Performance.GetMonitor(Performance.Monitor.MemoryStatic)/(1024*1024) + " MB");
+
         if (Input.IsActionPressed("toggle_mouse_capture"))
         {
             Input.SetMouseMode(Input.GetMouseMode() == Input.MouseMode.Captured
