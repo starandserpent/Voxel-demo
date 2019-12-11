@@ -1,5 +1,3 @@
-using System.Buffers;
-
 public class Foreman
 {
     private int dirtID;
@@ -7,9 +5,9 @@ public class Foreman
     private int grassMeshID;
     private Weltschmerz weltschmerz;
     private Registry registry;
-    public Foreman()
+    public Foreman(Weltschmerz weltschmerz)
     {
-        weltschmerz = new Weltschmerz();
+        this.weltschmerz = weltschmerz;
     }
 
     public void SetMaterials(Registry registry)

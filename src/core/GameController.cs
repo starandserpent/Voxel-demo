@@ -10,6 +10,9 @@ public class GameController : Spatial
     private Terra world;
     private LoadMarker player;
     [Export] public bool Profiling = false;
+    [Export] public int AVERAGE_TERRAIN_HIGHT = 130;
+    [Export] public int SEED = 19083;
+    [Export] public int TERRAIN_GENERATION_MULTIPLIER = 10;
     [Export] public uint WORLD_SIZEX = 32;
     [Export] public uint WORLD_SIZEY = 32;
     [Export] public uint WORLD_SIZEZ = 32;
@@ -24,7 +27,9 @@ public class GameController : Spatial
         PrimitiveResources.register(registry);
 
         GameMesher mesher = new GameMesher(this, registry, Profiling);
-        world = new Terra(WORLD_SIZEX, WORLD_SIZEY, WORLD_SIZEZ, registry, mesher, this, Profiling);
+        Weltschmerz weltschmerz = new Weltschmerz(SEED, TERRAIN_GENERATION_MULTIPLIER, AVERAGE_TERRAIN_HIGHT);
+        Foreman foreman = new Foreman(weltschmerz);
+        world = new Terra(WORLD_SIZEX, WORLD_SIZEY, WORLD_SIZEZ, registry, mesher, this, foreman, Profiling);
         picker = new Picker(world, mesher);
         if (Profiling)
         {

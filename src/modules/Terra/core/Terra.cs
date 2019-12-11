@@ -11,7 +11,7 @@ public class Terra
     private Foreman foreman;
     private volatile WorldGenerator generator;
     private bool profiling;
-    public Terra(uint sizeX, uint sizeY, uint sizeZ, Registry registry, GameMesher mesher, Node parent, bool profiling)
+    public Terra(uint sizeX, uint sizeY, uint sizeZ, Registry registry, GameMesher mesher, Node parent, Foreman foreman, bool profiling)
     {
         octree = new Octree();
         octree.sizeX = sizeX;
@@ -24,7 +24,8 @@ public class Terra
         octree.nodes = new Dictionary<int, OctreeNode[]>();
         octree.nodes[0] = new OctreeNode[size];
 
-        foreman = new Foreman();
+
+        this.foreman = foreman;
         foreman.SetMaterials(registry);
         generator = new WorldGenerator(parent, octree, mesher, foreman, profiling);
         this.profiling = profiling;

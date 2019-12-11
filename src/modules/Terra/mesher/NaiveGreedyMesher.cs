@@ -522,7 +522,7 @@ public class NaiveGreedyMesher
 
             //LEFT
             vertice[12] = new Vector3(0, 0, Constants.CHUNK_LENGHT);
-            vertice[13] = new Vector3(0, 0, Constants.CHUNK_LENGHT);
+            vertice[13] = new Vector3(0, 0, 0);
             vertice[14] = new Vector3(0, Constants.CHUNK_LENGHT, 0);
             vertice[15] = new Vector3(0, Constants.CHUNK_LENGHT, 0);
             vertice[16] = new Vector3(0, Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT);

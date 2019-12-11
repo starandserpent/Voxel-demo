@@ -5,9 +5,9 @@ public class Weltschmerz
 {
     private Noise noise;
 
-    public Weltschmerz()
+    public Weltschmerz(int seed, int terrainMP, int avgTerrain)
     {
-        noise = new Noise(1234, null);
+        noise = new Noise(seed, terrainMP, avgTerrain, null);
     }
 
     public double getElevation(int posX, int posY)
