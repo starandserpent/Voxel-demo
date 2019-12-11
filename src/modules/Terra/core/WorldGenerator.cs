@@ -9,9 +9,9 @@ public class WorldGenerator : Node
     private static readonly int MAX_OCTREE_NODE_SIZE = 256;
     private static readonly int MAX_OCTANT_LAYERS = 4;
     private volatile GameMesher mesher;
-    private Octree octree;
-    private Node parent;
-    private Foreman generator;
+    private volatile Octree octree;
+    private volatile Node parent;
+    private volatile Foreman generator;
     private bool debug;
     private List<long>[] debugMeasures;
     
@@ -27,7 +27,7 @@ public class WorldGenerator : Node
     }
 
     //Initial generation
-    public void SeekSector(LoadMarker marker)
+    public void GenerateTerrain(LoadMarker marker)
     {
         //Round world size to nearest node lenght
         int playerPosX = (int) ((marker.GetTranslation().x / Constants.CHUNK_LENGHT));
@@ -36,9 +36,9 @@ public class WorldGenerator : Node
 
         Translation translation = new Translation();
 
-        for(int y = 0; y < marker.hardRadius; y++){
-            for(int z = 0; z < marker.hardRadius; z++){
-                for(int x = 0; x < marker.hardRadius; x++){
+        for(int y = 0; y < marker.loadRadiusY/2; y++){
+            for(int z = 0; z < marker.loadRadiusZ/2; z++){
+                for(int x = 0; x < marker.loadRadiusX/2; x++){
                     LoadArea(playerPosX + x, playerPosY + y, playerPosZ + z, marker);
                     LoadArea(playerPosX - x, playerPosY + y, playerPosZ + z, marker);
                     LoadArea(playerPosX + x, playerPosY + y, playerPosZ - z, marker);
@@ -50,27 +50,6 @@ public class WorldGenerator : Node
         }
     }
 
-    //Procedural generation
-    public void UpdateSector(LoadMarker marker)
-    {
-        //Round world size to nearest node lenght
-        int playerPosX = (int) ((marker.GetTranslation().x / Constants.CHUNK_LENGHT));
-        int playerPosY = (int) ((marker.GetTranslation().y / Constants.CHUNK_LENGHT));
-        int playerPosZ = (int) ((marker.GetTranslation().z / Constants.CHUNK_LENGHT));
-
-        for(int y = 0; y < marker.hardRadius; y++){
-            for(int z = 0; z < marker.hardRadius; z++){
-                for(int x = 0; x < marker.hardRadius; x++){
-                    LoadArea(playerPosX + x, playerPosY + y, playerPosZ + z, marker);
-                    LoadArea(playerPosX - x, playerPosY + y, playerPosZ + z, marker);
-                    LoadArea(playerPosX + x, playerPosY + y, playerPosZ - z, marker);
-                    LoadArea(playerPosX - x, playerPosY - y, playerPosZ - z, marker);
-                    LoadArea(playerPosX + x, playerPosY - y, playerPosZ - z, marker);
-                    LoadArea(playerPosX - x, playerPosY - y, playerPosZ + z, marker);
-             }
-        }     
-        }
-    }
     private void Connect(int posX, int posY, int posZ, int layer, OctreeNode node){
         int parentNodePosX = (int)(posX/2);
         int parentNodePosY = (int)(posY/2);

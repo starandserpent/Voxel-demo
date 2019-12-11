@@ -9,8 +9,6 @@ public class GameController : Spatial
     private Picker picker;
     private Terra world;
     private LoadMarker player;
-    private static readonly int MAX_WORLD_SIZE = 2097151;
-    private static readonly long WORLD_SIZE = 4000;
     [Export] public bool Profiling = false;
     [Export] public uint WORLD_SIZEX = 32;
     [Export] public uint WORLD_SIZEY = 32;
@@ -38,20 +36,16 @@ public class GameController : Spatial
 
     private void Begin()
     {
-        InitialWorldGeneration(new LoadMarker());
+        Generate(new LoadMarker());
     }
 
-    public void InitialWorldGeneration(LoadMarker marker)
+    public void Generate(LoadMarker marker)
     {
-        world.InitialWorldGeneration(marker);
+        world.Generate(marker);
     }
 
     public Picker GetPicker()
     {
         return picker;
-    }
-
-    public void UpdateSector(LoadMarker marker){
-        world.UpdateGeneration(marker);
     }
 }

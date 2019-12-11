@@ -7,9 +7,9 @@ using Godot;
 public class Terra
 {
     // Declare member variables here. Examples:
-    private Octree octree;
+    private volatile Octree octree;
     private Foreman foreman;
-    private WorldGenerator generator;
+    private volatile WorldGenerator generator;
     private bool profiling;
     public Terra(uint sizeX, uint sizeY, uint sizeZ, Registry registry, GameMesher mesher, Node parent, bool profiling)
     {
@@ -50,18 +50,13 @@ public class Terra
         octree.nodes[0][lolong] = node;*/
     }
 
-    public void UpdateGeneration(LoadMarker marker)
-    {
-        generator.UpdateSector(marker);
-    }
-
-    public void InitialWorldGeneration(LoadMarker loadMarker)
+    public void Generate(LoadMarker loadMarker)
     {
         if(profiling){
         GD.Print("Profiling started at " + DateTime.Now);
         Stopwatch watch = new Stopwatch();
         watch.Start();
-        generator.SeekSector(loadMarker);
+        generator.GenerateTerrain(loadMarker);
         List<long>[] measures = generator.GetMeasures();
         watch.Stop();
         GD.Print("Profiling finished after " + watch.Elapsed.Seconds +" seconds");
@@ -80,7 +75,7 @@ public class Terra
 
         GD.Print("Total time taken for one chunk  " + (measures[0].Average() + measures[1].Average() + measures[2].Average() )+" ms");
         }else{
-            generator.SeekSector(loadMarker);
+            generator.GenerateTerrain(loadMarker);
         }
     }
 }

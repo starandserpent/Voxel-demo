@@ -7,10 +7,9 @@ public class LoadMarker : Spatial
      * The radius which this marker will force the world to be loaded.
      * Squared to avoid sqrt.
      */
-    public int hardRadius;
-
-    private List<int> playerOctants;
-
+    public int loadRadiusX{get; protected set;}
+    public int loadRadiusY{get; protected set;}
+    public int loadRadiusZ{get; protected set;}
     public void SendChunk(Chunk chunk)
     {
     }
@@ -31,29 +30,5 @@ public class LoadMarker : Spatial
             size = size / 2;
         }
         */
-    }
-
-    public List<int> GetPlayerOctants()
-    {
-        return playerOctants;
-    }
-
-    public int GetOctant(int index)
-    {
-        // return playerOctants.get(index);
-        return 0;
-    }
-
-    public float GetHardRadius()
-    {
-        return hardRadius;
-    }
-
-    public void SendPosition(float x, float y, float z)
-    {
-    }
-
-    public void Move(float x, float y, float z)
-    {
     }
 }

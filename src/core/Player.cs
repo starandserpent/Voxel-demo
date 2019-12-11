@@ -7,7 +7,10 @@ public class Player : LoadMarker
 {
     [Export]  public float MOUSE_SENSITIVITY = 0.002F;
     [Export] public float move_speed = 0.9F;
-    [Export] public int loadRadius = 12;
+    [Export] public int LOAD_RADIUS_X = 4;
+    [Export] public int LOAD_RADIUS_Y = 4;
+    [Export] public int LOAD_RADIUS_Z = 4;
+
     private Vector3 motion;
     private Vector3 velocity;
     private Vector3 initialRotation;
@@ -16,7 +19,8 @@ public class Player : LoadMarker
     private GameController gameController;
     private Camera camera;
     private Picker picker;
-    private Threading thread;
+    private Threading generation;
+    private ThreadingStart threading;
     private CanvasLayer GUI;
     private Label fps;
     private Label memory;
@@ -49,7 +53,10 @@ public class Player : LoadMarker
 
     public override void _Ready()
     {
-        hardRadius = loadRadius;
+        loadRadiusX = LOAD_RADIUS_X;
+        loadRadiusY = LOAD_RADIUS_Y;
+        loadRadiusZ = LOAD_RADIUS_Z;
+
         foreach (Node child in GetParent().GetChildren())
         {
             if (child.Name.Equals("GameController"))
@@ -95,13 +102,9 @@ public class Player : LoadMarker
 
         picker = gameController.GetPicker();
 
-        ThreadingStart start = Begin;
-        thread = new Threading(start);
-       thread.Start();
-
-        start = Update;
-        Threading update = new Threading(start);
-       update.Start();
+        threading = Begin;
+        generation = new Threading(threading);
+       generation.Start();
     }
 
     public override void _PhysicsProcess(float delta)
@@ -115,15 +118,7 @@ public class Player : LoadMarker
 
     private void Begin()
     {
-        gameController.InitialWorldGeneration(this);
-    }
-
-    private void Update(){
-        while(true){
-            if(!thread.IsAlive){
-                gameController.UpdateSector(this);
-            }
-        }
+        gameController.Generate(this);
     }
 
     public override void _ExitTree()
@@ -136,6 +131,11 @@ public class Player : LoadMarker
         objects.SetText("Objects: " + Performance.GetMonitor(Performance.Monitor.ObjectCount));
         fps.SetText("FPS: " + Performance.GetMonitor(Performance.Monitor.TimeFps));
         memory.SetText("Memory: " + Performance.GetMonitor(Performance.Monitor.MemoryStatic)/(1024*1024) + " MB");
+
+        if(!generation.IsAlive){
+            generation = new Threading(threading);
+            generation.Start();
+        }
 
         if (Input.IsActionPressed("toggle_mouse_capture"))
         {
