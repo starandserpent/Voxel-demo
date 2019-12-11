@@ -1,17 +1,15 @@
-using System.Linq;
 using System.Collections.Generic;
 using Godot;
-using GodotArray = Godot.Collections.Array;
 
-public class GameMesher
+public class GameMesher : Node
 {
     private volatile Node parent;
     private volatile SplatterMesher splatterMesher;
-    private NaiveGreedyMesher mesher = null;
+    private volatile NaiveGreedyMesher mesher = null;
     public GameMesher(Node parent, Registry reg, bool profile)
     {
         this.parent = parent;
-        mesher = new NaiveGreedyMesher(reg, true);
+        mesher = new NaiveGreedyMesher(reg);
         ShaderMaterial shaderMat = new ShaderMaterial();
         shaderMat.Shader = (GD.Load("res://assets/shaders/splatvoxel.shader") as Shader);
         splatterMesher = new SplatterMesher(shaderMat, reg);
@@ -38,7 +36,7 @@ public class GameMesher
             meshInstance.Name = "chunk:" + chunk.x + "," + chunk.y + "," + chunk.z;
             meshInstance.Translation = new Vector3(chunk.x, chunk.y, chunk.z);
 
-            parent.AddChild(meshInstance);
+            parent.CallDeferred("add_child", meshInstance);
         }
     }
 

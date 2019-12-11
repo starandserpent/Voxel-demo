@@ -1,19 +1,17 @@
 using System.Buffers;
 using System.Diagnostics;
 using Godot;
-using GodotArray = Godot.Collections.Array;
+using Godot.Collections;
 using System.Collections.Generic;
 
 public class NaiveGreedyMesher
 {
-    private bool profile;
     private volatile List<long> addingMeasures;
     private volatile List<long> meshingMeasures;
     private volatile Registry registry;
 
-    public NaiveGreedyMesher(Registry registry, bool profile)
+    public NaiveGreedyMesher(Registry registry)
     {
-        this.profile = profile;
         this.registry = registry;
         addingMeasures = new List<long>();
         meshingMeasures = new List<long>();
@@ -22,7 +20,7 @@ public class NaiveGreedyMesher
     public MeshInstance cull(Chunk chunk)
     {
         MeshInstance meshInstance = new MeshInstance();
-        GodotArray godotArray = new GodotArray();
+        Godot.Collections.Array godotArray = new Godot.Collections.Array();
         godotArray.Resize(9);
         ArrayMesh mesh = new ArrayMesh();
         StaticBody body = new StaticBody();
@@ -386,6 +384,7 @@ public class NaiveGreedyMesher
             if(size + arraySize[t] > 0){
 
             Texture texture = registry.SelectByID(t + 1).texture;
+            int[] indices = new int[(size + arraySize[t])];
             Vector3[] vertice = new Vector3[size + arraySize[t]];
             Vector3[] normals = new Vector3[size + arraySize[t]];
             Vector2[] uvs = new Vector2[size + arraySize[t]];
@@ -400,7 +399,12 @@ public class NaiveGreedyMesher
                 Vector3 vector = primitives[i];
                 if(vector.x >= 0 && pos < size + arraySize[t]){
                 int s = ((i%36))/6;
-                vertice[pos] = vector;
+                vertice[pos].x = vector.x;
+                vertice[pos].y = vector.y;
+                vertice[pos].z = vector.z;
+
+                    indices[pos] = pos;
+
                 switch(s) {
                     case 0:
                     normals[pos].x = 0f;
@@ -451,24 +455,27 @@ public class NaiveGreedyMesher
             godotArray[0] = vertice;
            godotArray[1] = normals;
             godotArray[4] = uvs;
+            godotArray[8] = indices;
 
-            SpatialMaterial material = new SpatialMaterial();
-            CollisionShape colShape = new CollisionShape();
-            ConcavePolygonShape shape = new ConcavePolygonShape();
+           SpatialMaterial material = new SpatialMaterial();
             texture.Flags = 2;
-            material.AlbedoTexture = texture;
+         material.AlbedoTexture = texture;
 
-            shape.SetFaces(vertice);
-            ArrayPool<Vector3>.Shared.Return(primitives);
-            mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, godotArray);
-            mesh.SurfaceSetMaterial(mesh.GetSurfaceCount() - 1, material);
-            colShape.SetShape(shape);
-            body.AddChild(colShape);
-        }
-        }
-
-        meshInstance.AddChild(body);
+          ConcavePolygonShape shape = new ConcavePolygonShape();
+           shape.SetFaces(vertice);
+         ArrayPool<Vector3>.Shared.Return(primitives);
         
+          mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, godotArray);
+           mesh.SurfaceSetMaterial(mesh.GetSurfaceCount() - 1, material);
+                   CollisionShape colShape = new CollisionShape();
+           colShape.SetShape(shape);
+                 body.AddChild(colShape);
+        }
+        }
+
+
+        meshInstance.CallDeferred("add_child", body);
+   
         watch.Stop();
         addingMeasures.Add(watch.ElapsedMilliseconds);
         meshInstance.Mesh = mesh;
@@ -580,8 +587,15 @@ public class NaiveGreedyMesher
             mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, godotArray);
             mesh.SurfaceSetMaterial(0, material);
 
+            ConcavePolygonShape shape = new ConcavePolygonShape();
+           shape.SetFaces(vertice);
+                 CollisionShape colShape = new CollisionShape();
+           colShape.SetShape(shape);
+                 body.AddChild(colShape);
+
             meshInstance.Mesh = mesh;
-            meshInstance.CreateTrimeshCollision();
+
+            meshInstance.AddChild(body);
         }
         return meshInstance;
     }

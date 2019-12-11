@@ -3,7 +3,7 @@ using Godot;
 
 public class Registry
 {
-    private List<TerraObject> objects;
+    private volatile List<TerraObject> objects;
     private Dictionary<string, TerraObject> nameToObject;
 
     public Registry()

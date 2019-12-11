@@ -3,12 +3,12 @@ using System;
 using System.Collections.Generic;
 using Godot;
 
-public class WorldGenerator
+public class WorldGenerator : Node
 {
     //This is recommend max static octree size because it takes 134 MB
     private static readonly int MAX_OCTREE_NODE_SIZE = 256;
     private static readonly int MAX_OCTANT_LAYERS = 4;
-    private GameMesher mesher;
+    private volatile GameMesher mesher;
     private Octree octree;
     private Node parent;
     private Foreman generator;
@@ -80,14 +80,14 @@ public class WorldGenerator
         int lolong = (int) Morton3D.encode(parentNodePosX, parentNodePosY, parentNodePosZ);
         uint size = octree.sizeX * octree.sizeY * octree.sizeZ;
         if(lolong < size && layer < octree.layers){
-                        MeshInstance instance = DebugMesh();
+                /*        MeshInstance instance = DebugMesh();
             instance.Scale = new Vector3(16 * (float) Math.Pow(2, layer - 1), 16 * (float) Math.Pow(2, layer - 1),
                 16 * (float) Math.Pow(2, layer - 1));
             instance.Name = posX * 8 * (float) Math.Pow(2, layer) + " " + posY * 8 * (float) Math.Pow(2, layer) +
                             " " + posZ * 8 * (float) Math.Pow(2, layer);
             instance.Translation = new Vector3(posX * 8 * (float) Math.Pow(2, layer),
                 posY * 8 * (float) Math.Pow(2, layer), posZ * 8 * (float) Math.Pow(2, layer));
-            parent.AddChild(instance);
+            parent.CallDeferred("add_child", instance);*/
         
             OctreeNode parentNode;
             if(octree.nodes.ContainsKey(layer)){
@@ -150,7 +150,7 @@ public class WorldGenerator
         debugMeasures[0].Add(watch.ElapsedMilliseconds);
         
 
-       mesher.MeshChunk(chunk, false);
+        mesher.MeshChunk(chunk, false);
         Connect(x, y, z, 1, childNode);
         lol++;
         GD.Print(lol);
