@@ -1,26 +1,20 @@
 using System.Buffers;
 using System.Diagnostics;
-using System;
 using Godot;
 using GodotArray = Godot.Collections.Array;
 using System.Collections.Generic;
 
-public class GreedyMesher
+public class NaiveGreedyMesher
 {
     private bool profile;
-    private List<long> addingMeasures;
-    private List<long> meshingMeasures;
+    private volatile List<long> addingMeasures;
+    private volatile List<long> meshingMeasures;
     private volatile Registry registry;
-    private ArrayPool<Vector3> memory;
-    private int lol = 0;
 
-    public GreedyMesher(Registry registry, bool profile)
+    public NaiveGreedyMesher(Registry registry, bool profile)
     {
         this.profile = profile;
         this.registry = registry;
-
-        memory = ArrayPool<Vector3>.Create();
-
         addingMeasures = new List<long>();
         meshingMeasures = new List<long>();
     }
@@ -28,10 +22,10 @@ public class GreedyMesher
     public MeshInstance cull(Chunk chunk)
     {
         MeshInstance meshInstance = new MeshInstance();
-        ArrayMesh mesh = new ArrayMesh();
-        StaticBody body = new StaticBody();
         GodotArray godotArray = new GodotArray();
         godotArray.Resize(9);
+        ArrayMesh mesh = new ArrayMesh();
+        StaticBody body = new StaticBody();
 
         long a = 16777215 << 8;
         byte b = 255;
@@ -63,7 +57,7 @@ public class GreedyMesher
 
             if (vertices[objectID - 1] == null)
             {   
-                Vector3[] buffer =  memory.Rent((Constants.CHUNK_SIZE3D/chunk.materials) * 6);
+                Vector3[] buffer =  ArrayPool<Vector3>.Shared.Rent((Constants.CHUNK_SIZE3D/chunk.materials) * 6);
                 vertices[objectID - 1] = buffer;                                
             }
 
@@ -465,6 +459,7 @@ public class GreedyMesher
             material.AlbedoTexture = texture;
 
             shape.SetFaces(vertice);
+            ArrayPool<Vector3>.Shared.Return(primitives);
             mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, godotArray);
             mesh.SurfaceSetMaterial(mesh.GetSurfaceCount() - 1, material);
             colShape.SetShape(shape);
@@ -477,9 +472,6 @@ public class GreedyMesher
         watch.Stop();
         addingMeasures.Add(watch.ElapsedMilliseconds);
         meshInstance.Mesh = mesh;
-        lol++;
-        GD.Print(lol);
-        return meshInstance;
         }else{
             uint bytes = chunk.voxels[0];
             int objectID = (int) (bytes & b);
@@ -592,7 +584,6 @@ public class GreedyMesher
             meshInstance.CreateTrimeshCollision();
         }
         return meshInstance;
-
     }
 
     public List<long> GetAddingMeasures(){

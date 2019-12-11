@@ -16,6 +16,7 @@ public class Player : LoadMarker
     private GameController gameController;
     private Camera camera;
     private Picker picker;
+    private Threading thread;
 
     public override void _Input(InputEvent @event)
     {
@@ -72,8 +73,12 @@ public class Player : LoadMarker
         picker = gameController.GetPicker();
 
         ThreadingStart start = Begin;
-        Threading thread = new Threading(start);
-        thread.Start();
+        thread = new Threading(start);
+       thread.Start();
+
+        start = Update;
+        Threading update = new Threading(start);
+       update.Start();
     }
 
     public override void _PhysicsProcess(float delta)
@@ -90,6 +95,14 @@ public class Player : LoadMarker
         gameController.InitialWorldGeneration(this);
     }
 
+    private void Update(){
+        while(true){
+            if(!thread.IsAlive){
+                gameController.UpdateSector(this);
+            }
+        }
+    }
+
     public override void _ExitTree()
     {
         Input.SetMouseMode(Input.MouseMode.Visible);
@@ -97,7 +110,7 @@ public class Player : LoadMarker
 
     public override void _Process(float delta)
     {
-        gameController.UpdateSector(this);
+        
         if (Input.IsActionPressed("toggle_mouse_capture"))
         {
             Input.SetMouseMode(Input.GetMouseMode() == Input.MouseMode.Captured
