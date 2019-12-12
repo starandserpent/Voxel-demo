@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 
-public class GameMesher : Node
+public class GameMesher
 {
     private volatile Node parent;
     private volatile SplatterMesher splatterMesher;

@@ -7,8 +7,8 @@ public class GameController : Spatial
 {
     private volatile List<MeshInstance> instances;
     private Picker picker;
-    private Terra world;
-    private LoadMarker player;
+    private Terra terra;
+    private Foreman foreman;
     [Export] public bool Profiling = false;
     [Export] public int AVERAGE_TERRAIN_HIGHT = 130;
     [Export] public int SEED = 19083;
@@ -28,25 +28,14 @@ public class GameController : Spatial
 
         GameMesher mesher = new GameMesher(this, registry, Profiling);
         Weltschmerz weltschmerz = new Weltschmerz(SEED, TERRAIN_GENERATION_MULTIPLIER, AVERAGE_TERRAIN_HIGHT);
-        Foreman foreman = new Foreman(weltschmerz);
-        world = new Terra(WORLD_SIZEX, WORLD_SIZEY, WORLD_SIZEZ, registry, mesher, this, foreman, Profiling);
-        picker = new Picker(world, mesher);
-        if (Profiling)
-        {
-            ThreadingStart start = Begin;
-        Threading thread = new Threading(start);
-        thread.Start();
-        }
+        terra = new Terra(WORLD_SIZEX, WORLD_SIZEY, WORLD_SIZEZ);
+        foreman = new Foreman(weltschmerz, this, terra, mesher);
+        foreman.SetMaterials(registry);
+        picker = new Picker(terra, mesher);
     }
-
-    private void Begin()
-    {
-        Generate(new LoadMarker());
-    }
-
     public void Generate(LoadMarker marker)
     {
-        world.Generate(marker);
+        foreman.GenerateTerrain(marker);
     }
 
     public Picker GetPicker()
