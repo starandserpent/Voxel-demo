@@ -9,7 +9,9 @@
 
 [node name="GameController" type="Spatial" parent="."]
 script = ExtResource( 1 )
-AVERAGE_TERRAIN_HIGHT = 150
+AVERAGE_TERRAIN_HIGHT = 10
+SEED = 1234
+TERRAIN_GENERATION_MULTIPLIER = 100
 
 [node name="Player" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 10 )

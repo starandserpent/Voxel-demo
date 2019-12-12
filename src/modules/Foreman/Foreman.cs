@@ -83,8 +83,7 @@ public class Foreman
 
         int lolong = (int) Morton3D.encode(parentNodePosX, parentNodePosY, parentNodePosZ);
         uint size = octree.sizeX * octree.sizeY * octree.sizeZ;
-        if(lolong < size && layer < octree.layers){
-            MeshInstance instance = DebugMesh();
+                   MeshInstance instance = DebugMesh();
             instance.Scale = new Vector3(16 * (float) Math.Pow(2, layer - 1), 16 * (float) Math.Pow(2, layer - 1),
                 16 * (float) Math.Pow(2, layer - 1));
             instance.Name = posX * 8 * (float) Math.Pow(2, layer) + " " + posY * 8 * (float) Math.Pow(2, layer) +
@@ -92,6 +91,7 @@ public class Foreman
             instance.Translation = new Vector3(posX * 8 * (float) Math.Pow(2, layer),
                 posY * 8 * (float) Math.Pow(2, layer), posZ * 8 * (float) Math.Pow(2, layer));
             parent.CallDeferred("add_child", instance);
+        if(lolong < size && layer < octree.layers){
         
             OctreeNode parentNode;
             if(octree.nodes.ContainsKey(layer)){
@@ -174,7 +174,7 @@ public class Foreman
          
         watch.Stop();
         debugMeasures[0].Add(watch.ElapsedMilliseconds);
-            mesher.MeshChunk(chunk, false);
+           // mesher.MeshChunk(chunk, false);
             Connect(x, y, z, 1, childNode);
         return chunk;
         }
@@ -207,7 +207,7 @@ public class Foreman
         {
             for (int x = 0; x < Constants.CHUNK_SIZE1D; x++)
             {
-                int elevation = (int) weltschmerz.getElevation(x + posx, z + posz);
+                int elevation = (int) weltschmerz.GetElevation(x + posx, z + posz);
 
                 Chunk chunk;
                 if(!chunks.ContainsKey(elevation/ Constants.CHUNK_SIZE1D)){
@@ -220,27 +220,27 @@ public class Foreman
                     int elev = elevation % Constants.CHUNK_SIZE1D;
                     uint bitPos;
                     uint bitValue;
-                        bitPos = (uint) elev << 8;
-                        bitValue = (uint) dirtID;
-
-                        chunk.voxels[lastPosition] = (bitPos | bitValue);
-
-                        lastPosition++;
-
-                    bitPos = (uint) 1 << 8;
-                    bitValue = (uint) grassID;
+                    
+                    bitPos = (uint) elev << 8;
+                    bitValue = (uint) dirtID;
 
                     chunk.voxels[lastPosition] = (bitPos | bitValue);
 
                     lastPosition++;
+
+                    if(elev + 1 < Constants.CHUNK_SIZE1D){
+                    bitPos = (uint) 1 << 8;
+                    bitValue = (uint) grassID;
+                    chunk.voxels[lastPosition] = (bitPos | bitValue);
+                     lastPosition++;
+                    }
+
                     bitPos = (uint) (Constants.CHUNK_SIZE1D - elev - 1) << 8;
                     bitValue = (uint) 0;
 
                     chunk.voxels[lastPosition] = (bitPos | bitValue);
 
                     lastPosition++;
-
-                    chunk.isEmpty = false;
             }
         }
         return chunks;
@@ -305,7 +305,6 @@ public class Foreman
 
         MeshInstance instance = new MeshInstance();
         instance.SetMesh(tool.Commit());
-        instance.AddChild(new OmniLight());
         return instance;
     }
 }

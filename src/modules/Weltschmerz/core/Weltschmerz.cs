@@ -10,7 +10,7 @@ public class Weltschmerz
         noise = new Noise(seed, terrainMP, avgTerrain, null);
     }
 
-    public double getElevation(int posX, int posY)
+    public double GetElevation(int posX, int posY)
     {
         return noise.getNoise(posX, posY);
     }
