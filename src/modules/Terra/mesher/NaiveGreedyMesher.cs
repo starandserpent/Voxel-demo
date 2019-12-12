@@ -530,7 +530,7 @@ public class NaiveGreedyMesher
 
              for(int i = 12; i < 18; i ++){
                 normals[i] = new Vector3(1, 0, 0);
-                         uvs[i].x = vertice[i].x * textureWidth;
+                         uvs[i].x = vertice[i].z * textureWidth;
                 uvs[i].y = vertice[i].y * textureHeight;
             }
 
