@@ -7,8 +7,6 @@ using System;
 public class Foreman
 {
      //This is recommend max static octree size because it takes 134 MB
-    private static readonly int MAX_OCTREE_NODE_SIZE = 256;
-    private static readonly int MAX_OCTANT_LAYERS = 4;
     private volatile GameMesher mesher;
     private volatile Octree octree;
     private volatile Node parent;
@@ -17,8 +15,6 @@ public class Foreman
     private int grassID;
     private int grassMeshID;
     private Weltschmerz weltschmerz;
-    private Registry registry;
-    private bool profiling;
     private volatile Dictionary<int, Chunk>[][] surfaceChunks;
     public Foreman(Weltschmerz weltschmerz, Node parent, Terra terra, GameMesher mesher)
     {
@@ -83,20 +79,22 @@ public class Foreman
 
         int lolong = (int) Morton3D.encode(parentNodePosX, parentNodePosY, parentNodePosZ);
         uint size = octree.sizeX * octree.sizeY * octree.sizeZ;
-                   MeshInstance instance = DebugMesh();
-            instance.Scale = new Vector3(16 * (float) Math.Pow(2, layer - 1), 16 * (float) Math.Pow(2, layer - 1),
-                16 * (float) Math.Pow(2, layer - 1));
+                  MeshInstance instance = DebugMesh();
+            instance.Scale = new Vector3(16 * (float) Math.Pow(2, layer - 2), 16 * (float) Math.Pow(2, layer - 2),
+                16 * (float) Math.Pow(2, layer - 2));
             instance.Name = posX * 8 * (float) Math.Pow(2, layer) + " " + posY * 8 * (float) Math.Pow(2, layer) +
                             " " + posZ * 8 * (float) Math.Pow(2, layer);
-            instance.Translation = new Vector3(posX * 8 * (float) Math.Pow(2, layer),
-                posY * 8 * (float) Math.Pow(2, layer), posZ * 8 * (float) Math.Pow(2, layer));
+            instance.Translation = new Vector3(posX * 8 * (float) Math.Pow(2, layer - 1),
+                posY * 8 * (float) Math.Pow(2, layer - 1), posZ * 8 * (float) Math.Pow(2, layer - 1));
             parent.CallDeferred("add_child", instance);
         if(lolong < size && layer < octree.layers){
-        
+            bool isNotInOctree = true;
+
             OctreeNode parentNode;
             if(octree.nodes.ContainsKey(layer)){
                 if(octree.nodes[layer][lolong] != default(OctreeNode)){
                   parentNode = octree.nodes[layer][lolong];
+                  isNotInOctree = false;
                 }else{
                     parentNode = new OctreeNode();
                     parentNode.locCode = lolong;
@@ -129,7 +127,9 @@ public class Foreman
             parentNode.children[7] = node;           
         }
 
+        if(isNotInOctree){
         Connect(parentNodePosX, parentNodePosY, parentNodePosZ, layer + 1, parentNode);
+        }
         }
     }
 
@@ -174,7 +174,7 @@ public class Foreman
          
         watch.Stop();
         debugMeasures[0].Add(watch.ElapsedMilliseconds);
-           // mesher.MeshChunk(chunk, false);
+          // mesher.MeshChunk(chunk, false);
             Connect(x, y, z, 1, childNode);
         return chunk;
         }
