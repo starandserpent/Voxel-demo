@@ -168,7 +168,7 @@ public class NaiveGreedyMesher
                     vectors[pos + 1].y = ay;
                     vectors[pos + 5].y = ay;
                 }
-                else if (vectors[pos + 2].y <= ay)
+                else if (vectors[pos + 2].y <= ay && vectors[pos].x == ax)
                 {
                     for(int s = 0; s < 6; s ++){
                         vectors[index - ((36 * Constants.CHUNK_SIZE1D) - s)].x = -147457;
@@ -218,7 +218,7 @@ public class NaiveGreedyMesher
                     vectors[index - 35].y = ay;
                     vectors[index - 31].y = ay;
                 }
-                else if (vectors[index - 34].y <= ay)
+                else if (vectors[index - 34].y <= ay && vectors[index - 34].x == sx)
                 {
                     for(int s = 0; s < 6; s ++){
                         vectors[index - (31 + s)].x = -147457;
@@ -266,7 +266,7 @@ public class NaiveGreedyMesher
                         pos = (int)-vectors[pos].x;
                      }
 
-                    if(vectors[index + 2].y <= vectors[pos].y){
+                    if(vectors[index + 2].y <= vectors[pos].y && vectors[pos].z == sz){
                      for(int s = 0; s < 6; s ++){
                         vectors[index + s].x = -pos;
                     }

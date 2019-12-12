@@ -1,8 +1,6 @@
-using System.Linq;
 using Godot;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System;
 
 public class Foreman
 {
@@ -10,12 +8,11 @@ public class Foreman
     private volatile GameMesher mesher;
     private volatile Octree octree;
     private volatile Node parent;
-    private List<long>[] debugMeasures;
-    private int dirtID;
-    private int grassID;
+    private volatile List<long>[] debugMeasures;
+    private volatile int dirtID;
+    private volatile int grassID;
     private int grassMeshID;
-    private Weltschmerz weltschmerz;
-    private volatile Dictionary<int, Chunk>[][] surfaceChunks;
+    private volatile Weltschmerz weltschmerz;
     public Foreman(Weltschmerz weltschmerz, Node parent, Terra terra, GameMesher mesher)
     {
         this.weltschmerz = weltschmerz;
@@ -23,10 +20,6 @@ public class Foreman
         this.octree = terra.GetOctree();
         this.parent = parent;
         debugMeasures = new List<long>[3];
-        surfaceChunks = new Dictionary<int, Chunk>[octree.sizeZ][];
-        for(int i = 0; i < octree.sizeZ; i ++){
-            surfaceChunks[i] = new Dictionary<int, Chunk>[octree.sizeZ];
-        }
         debugMeasures[0] = new List<long>();
     }
 
@@ -40,7 +33,7 @@ public class Foreman
 
         Translation translation = new Translation();
 
-               for(int y = 0; y < loadMarker.loadRadiusY/2; y++){
+        for(int y = 0; y < loadMarker.loadRadiusY/2; y++){
             for(int z = 0; z < loadMarker.loadRadiusZ/2; z++){
                 for(int x = 0; x < loadMarker.loadRadiusX/2; x++){
                     LoadArea(playerPosX + x, playerPosY + y, playerPosZ + z, loadMarker);
@@ -79,22 +72,21 @@ public class Foreman
 
         int lolong = (int) Morton3D.encode(parentNodePosX, parentNodePosY, parentNodePosZ);
         uint size = octree.sizeX * octree.sizeY * octree.sizeZ;
-                  MeshInstance instance = DebugMesh();
-            instance.Scale = new Vector3(16 * (float) Math.Pow(2, layer - 2), 16 * (float) Math.Pow(2, layer - 2),
-                16 * (float) Math.Pow(2, layer - 2));
+            /*      MeshInstance instance = DebugMesh();
+            instance.Scale = new Vector3(32 * (float) Math.Pow(2, layer - 2), 32 * (float) Math.Pow(2, layer - 2),
+                32 * (float) Math.Pow(2, layer - 2));
             instance.Name = posX * 8 * (float) Math.Pow(2, layer) + " " + posY * 8 * (float) Math.Pow(2, layer) +
-                            " " + posZ * 8 * (float) Math.Pow(2, layer);
-            instance.Translation = new Vector3(posX * 8 * (float) Math.Pow(2, layer - 1),
-                posY * 8 * (float) Math.Pow(2, layer - 1), posZ * 8 * (float) Math.Pow(2, layer - 1));
-            parent.CallDeferred("add_child", instance);
+                            " " + posZ * 16 * (float) Math.Pow(2, layer);
+            instance.Translation = new Vector3(posX * 16 * (float) Math.Pow(2, layer - 1),
+                posY * 16 * (float) Math.Pow(2, layer - 1), posZ * 16 * (float) Math.Pow(2, layer - 1));
+            parent.GetParent().CallDeferred("add_child", instance);
+            */
         if(lolong < size && layer < octree.layers){
-            bool isNotInOctree = true;
 
             OctreeNode parentNode;
             if(octree.nodes.ContainsKey(layer)){
                 if(octree.nodes[layer][lolong] != default(OctreeNode)){
                   parentNode = octree.nodes[layer][lolong];
-                  isNotInOctree = false;
                 }else{
                     parentNode = new OctreeNode();
                     parentNode.locCode = lolong;
@@ -127,9 +119,7 @@ public class Foreman
             parentNode.children[7] = node;           
         }
 
-        if(isNotInOctree){
         Connect(parentNodePosX, parentNodePosY, parentNodePosZ, layer + 1, parentNode);
-        }
         }
     }
 
@@ -147,35 +137,20 @@ public class Foreman
         OctreeNode childNode = new OctreeNode();
         childNode.locCode = lolong;
         octree.nodes[0][lolong] = childNode;
-
-        if(surfaceChunks[x][z] == null){
-            surfaceChunks[x][z] = GenerateSurfaceChunks(x  << Constants.CHUNK_EXPONENT, z << Constants.CHUNK_EXPONENT);
-        }
-
         Chunk chunk;
-
-        if(surfaceChunks[x][z].ContainsKey(y)){
-            chunk = surfaceChunks[x][z][y];    
-        }else{
+        if(y << Constants.CHUNK_EXPONENT > weltschmerz.GetMaxElevation()){
             chunk = new Chunk();
-            chunk.materials = 1;
-
-            chunk.x = (uint) x  << Constants.CHUNK_EXPONENT;
-            chunk.y = (uint) y  << Constants.CHUNK_EXPONENT;
-            chunk.z = (uint) z  << Constants.CHUNK_EXPONENT;
-
-            chunk.voxels = new uint[1];
-            chunk.voxels[0] = (uint) dirtID;
-
-            if(surfaceChunks[x][z].Keys.Max() < y){
-                chunk.isEmpty = true;
-            }
+            chunk.isEmpty = true;
+            chunk.x = (uint)x <<  Constants.CHUNK_EXPONENT;
+            chunk.y =  (uint)y <<  Constants.CHUNK_EXPONENT;
+            chunk.z =  (uint)z <<  Constants.CHUNK_EXPONENT;
+        }else{
+         chunk = GenerateChunk(x <<  Constants.CHUNK_EXPONENT, y <<Constants.CHUNK_EXPONENT, z << Constants.CHUNK_EXPONENT );
         }
-         
         watch.Stop();
         debugMeasures[0].Add(watch.ElapsedMilliseconds);
-          // mesher.MeshChunk(chunk, false);
-            Connect(x, y, z, 1, childNode);
+       mesher.MeshChunk(chunk, false);
+        Connect((int)x/2, (int)y/2, (int)z/2, 1, childNode);
         return chunk;
         }
         }
@@ -194,67 +169,84 @@ public class Foreman
         grassID = registry.SelectByName("grass").worldID;
     }
 
-    private Dictionary<int, Chunk> GenerateSurfaceChunks(float posX, float posZ)
+  public Chunk GenerateChunk(float posX, float posY, float posZ)
     {
-        Dictionary<int, Chunk> chunks = new Dictionary<int, Chunk>();
+        Chunk chunk = new Chunk();
+
+
+        chunk.x = (uint) posX;
+        chunk.y = (uint) posY;
+        chunk.z = (uint) posZ;
+
+        chunk.materials = 1;
+
+        chunk.voxels =  new uint[Constants.CHUNK_SIZE3D];
+
+        chunk.isEmpty = true;
 
         int posx = (int) (posX * 4);
         int posz = (int) (posZ * 4);
+        int posy = (int) (posY * 4);
 
         int lastPosition = 0;
 
+        chunk.isSurface = false;
         for (int z = 0; z < Constants.CHUNK_SIZE1D; z++)
         {
             for (int x = 0; x < Constants.CHUNK_SIZE1D; x++)
             {
                 int elevation = (int) weltschmerz.GetElevation(x + posx, z + posz);
 
-                Chunk chunk;
-                if(!chunks.ContainsKey(elevation/ Constants.CHUNK_SIZE1D)){
-                    chunk = InitChunk((int)posX, elevation/ Constants.CHUNK_SIZE1D, (int)posZ);
-                    chunks.Add(elevation/ Constants.CHUNK_SIZE1D, chunk);
-                }else{
-                    chunk = chunks[elevation/ Constants.CHUNK_SIZE1D];
-                }
-
+                if (elevation / Constants.CHUNK_SIZE1D == posy / Constants.CHUNK_SIZE1D)
+                {
                     int elev = elevation % Constants.CHUNK_SIZE1D;
                     uint bitPos;
                     uint bitValue;
-                    
-                    bitPos = (uint) elev << 8;
-                    bitValue = (uint) dirtID;
+                        bitPos = (uint) elev << 8;
+                        bitValue = (uint) dirtID;
+
+                        chunk.voxels[lastPosition] = (bitPos | bitValue);
+
+                        lastPosition++;
+
+                    bitPos = (uint) 1 << 8;
+                    bitValue = (uint) grassID;
 
                     chunk.voxels[lastPosition] = (bitPos | bitValue);
 
                     lastPosition++;
-
-                    if(elev + 1 < Constants.CHUNK_SIZE1D){
-                    bitPos = (uint) 1 << 8;
-                    bitValue = (uint) grassID;
-                    chunk.voxels[lastPosition] = (bitPos | bitValue);
-                     lastPosition++;
-                    }
-
                     bitPos = (uint) (Constants.CHUNK_SIZE1D - elev - 1) << 8;
                     bitValue = (uint) 0;
 
                     chunk.voxels[lastPosition] = (bitPos | bitValue);
 
                     lastPosition++;
+
+                    chunk.isSurface = true;
+                    chunk.isEmpty = false;
+                }else if (elevation / Constants.CHUNK_SIZE1D > posy / Constants.CHUNK_SIZE1D){
+                    uint bitPos = (uint) (Constants.CHUNK_SIZE1D) << 8;
+                    uint bitValue = (uint) dirtID;
+                    chunk.isEmpty = false;
+
+                    chunk.voxels[lastPosition] = (bitPos | bitValue);
+
+                    lastPosition++;
+                }else if(elevation / Constants.CHUNK_SIZE1D < posy / Constants.CHUNK_SIZE1D){
+                    uint bitPos = (uint) (Constants.CHUNK_SIZE1D) << 8;
+                    uint bitValue = (uint) 0;
+
+                    chunk.voxels[lastPosition] = (bitPos | bitValue);
+
+                    lastPosition++;
+                }
             }
         }
-        return chunks;
-    }
 
-    private Chunk InitChunk(int posX, int posY, int posZ){
-        Chunk chunk = new Chunk();
-        chunk.x = (uint) posX;
-        chunk.y = (uint) posY << Constants.CHUNK_EXPONENT;
-        chunk.z = (uint) posZ;
+        if(chunk.isSurface){
+            chunk.materials = 3;
+        }
 
-        chunk.voxels =  new uint[Constants.CHUNK_SIZE3D];
-
-        chunk.materials = 3;
         return chunk;
     }
 

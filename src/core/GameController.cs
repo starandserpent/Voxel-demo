@@ -13,6 +13,9 @@ public class GameController : Spatial
     [Export] public int AVERAGE_TERRAIN_HIGHT = 130;
     [Export] public int SEED = 19083;
     [Export] public int TERRAIN_GENERATION_MULTIPLIER = 10;
+    [Export] public int MAX_ELEVATION = 30;
+    [Export] public float NOISE_FREQUENCY = 0.45F;
+
     [Export] public uint WORLD_SIZEX = 32;
     [Export] public uint WORLD_SIZEY = 32;
     [Export] public uint WORLD_SIZEZ = 32;
@@ -27,7 +30,7 @@ public class GameController : Spatial
         PrimitiveResources.register(registry);
 
         GameMesher mesher = new GameMesher(this, registry, Profiling);
-        Weltschmerz weltschmerz = new Weltschmerz(SEED, TERRAIN_GENERATION_MULTIPLIER, AVERAGE_TERRAIN_HIGHT);
+        Weltschmerz weltschmerz = new Weltschmerz(SEED, TERRAIN_GENERATION_MULTIPLIER, AVERAGE_TERRAIN_HIGHT, MAX_ELEVATION, NOISE_FREQUENCY);
         terra = new Terra(WORLD_SIZEX, WORLD_SIZEY, WORLD_SIZEZ);
         foreman = new Foreman(weltschmerz, this, terra, mesher);
         foreman.SetMaterials(registry);
