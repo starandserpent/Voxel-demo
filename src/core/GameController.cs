@@ -16,9 +16,9 @@ public class GameController : Spatial
     [Export] public int MAX_ELEVATION = 30;
     [Export] public float NOISE_FREQUENCY = 0.45F;
 
-    [Export] public uint WORLD_SIZEX = 32;
-    [Export] public uint WORLD_SIZEY = 32;
-    [Export] public uint WORLD_SIZEZ = 32;
+    [Export] public int WORLD_SIZEX = 32;
+    [Export] public int WORLD_SIZEY = 32;
+    [Export] public int WORLD_SIZEZ = 32;
 
 
     // Called when the node enters the scene tree for the first time.

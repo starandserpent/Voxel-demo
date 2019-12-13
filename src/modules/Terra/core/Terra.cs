@@ -1,22 +1,23 @@
 
+using System.Buffers;
 using System.Collections.Generic;
 
 public class Terra
 {
     // Declare member variables here. Examples:
     private volatile Octree octree;
-    public Terra(uint sizeX, uint sizeY, uint sizeZ)
+    public Terra(int sizeX, int sizeY, int sizeZ)
     {
         octree = new Octree();
         octree.sizeX = sizeX;
         octree.sizeY = sizeY;
         octree.sizeZ = sizeZ;
 
-        uint size = octree.sizeX * octree.sizeY * octree.sizeZ;
-        octree.layers = (uint) Utils.calculateLayers(size);
+        int size = octree.sizeX * octree.sizeY * octree.sizeZ;
+        octree.layers = (uint) Utils.calculateLayers((uint)size);
 
         octree.nodes = new Dictionary<int, OctreeNode[]>();
-        octree.nodes[0] = new OctreeNode[size];
+        octree.nodes[0] = ArrayPool<OctreeNode>.Shared.Rent(size);
     }
 
     public Octree GetOctree(){

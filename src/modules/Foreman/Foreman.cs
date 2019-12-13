@@ -1,4 +1,6 @@
+using System.Buffers;
 using Godot;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -71,16 +73,16 @@ public class Foreman
         int parentNodePosZ = (int)(posZ/2);
 
         int lolong = (int) Morton3D.encode(parentNodePosX, parentNodePosY, parentNodePosZ);
-        uint size = octree.sizeX * octree.sizeY * octree.sizeZ;
-            /*      MeshInstance instance = DebugMesh();
+        int size = octree.sizeX * octree.sizeY * octree.sizeZ;
+   /*              MeshInstance instance = DebugMesh();
             instance.Scale = new Vector3(32 * (float) Math.Pow(2, layer - 2), 32 * (float) Math.Pow(2, layer - 2),
                 32 * (float) Math.Pow(2, layer - 2));
             instance.Name = posX * 8 * (float) Math.Pow(2, layer) + " " + posY * 8 * (float) Math.Pow(2, layer) +
                             " " + posZ * 16 * (float) Math.Pow(2, layer);
             instance.Translation = new Vector3(posX * 16 * (float) Math.Pow(2, layer - 1),
                 posY * 16 * (float) Math.Pow(2, layer - 1), posZ * 16 * (float) Math.Pow(2, layer - 1));
-            parent.GetParent().CallDeferred("add_child", instance);
-            */
+            parent.GetParent().CallDeferred("add_child", instance);*/
+            
         if(lolong < size && layer < octree.layers){
 
             OctreeNode parentNode;
@@ -94,7 +96,7 @@ public class Foreman
                     octree.nodes[layer][lolong] = parentNode;
                 }
             }else{
-                octree.nodes[layer] = new OctreeNode[size];
+                octree.nodes[layer] = ArrayPool<OctreeNode>.Shared.Rent(size);
                 parentNode = new OctreeNode();
                 parentNode.locCode = lolong;
                 parentNode.children = new OctreeNode[8];
@@ -128,15 +130,14 @@ public class Foreman
     {
          if (x >= 0 && z >= 0 && y >= 0){
         int lolong = (int) Morton3D.encode(x, y, z);
-        uint size = octree.sizeX * octree.sizeY * octree.sizeZ;
+        int size = octree.sizeX * octree.sizeY * octree.sizeZ;
 
-        if(lolong < size  && octree.nodes[0][lolong] == default(OctreeNode)){
+        if(lolong < size  && octree.nodes[0][lolong] == null){
         Stopwatch watch = new Stopwatch();
         watch.Start();
             
         OctreeNode childNode = new OctreeNode();
         childNode.locCode = lolong;
-        octree.nodes[0][lolong] = childNode;
         Chunk chunk;
         if(y << Constants.CHUNK_EXPONENT > weltschmerz.GetMaxElevation()){
             chunk = new Chunk();
@@ -144,13 +145,25 @@ public class Foreman
             chunk.x = (uint)x <<  Constants.CHUNK_EXPONENT;
             chunk.y =  (uint)y <<  Constants.CHUNK_EXPONENT;
             chunk.z =  (uint)z <<  Constants.CHUNK_EXPONENT;
+            childNode.materialID = 0;
         }else{
-         chunk = GenerateChunk(x <<  Constants.CHUNK_EXPONENT, y <<Constants.CHUNK_EXPONENT, z << Constants.CHUNK_EXPONENT );
+            chunk = GenerateChunk(x <<  Constants.CHUNK_EXPONENT, y <<Constants.CHUNK_EXPONENT, z << Constants.CHUNK_EXPONENT);
+            if(chunk.isSurface){
+                childNode.materialID = -1;
+            }else{
+                childNode.materialID = (int)chunk.voxels[0];
+                chunk.voxels = new uint[1];
+                chunk.voxels[0] = (uint)childNode.materialID;
+                chunk.x = (uint)x <<  Constants.CHUNK_EXPONENT;
+                chunk.y =  (uint)y <<  Constants.CHUNK_EXPONENT;
+                chunk.z =  (uint)z <<  Constants.CHUNK_EXPONENT;
+            }
         }
         watch.Stop();
         debugMeasures[0].Add(watch.ElapsedMilliseconds);
-       mesher.MeshChunk(chunk, false);
+        mesher.MeshChunk(chunk, false);
         Connect((int)x/2, (int)y/2, (int)z/2, 1, childNode);
+        octree.nodes[0][lolong] = childNode;
         return chunk;
         }
         }
@@ -180,7 +193,7 @@ public class Foreman
 
         chunk.materials = 1;
 
-        chunk.voxels =  new uint[Constants.CHUNK_SIZE3D];
+        chunk.voxels =  ArrayPool<uint>.Shared.Rent(Constants.CHUNK_SIZE3D);
 
         chunk.isEmpty = true;
 
