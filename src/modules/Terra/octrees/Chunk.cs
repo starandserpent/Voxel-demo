@@ -1,4 +1,4 @@
-public struct Chunk
+public class Chunk
 {
     public uint x { get; set; }
     public uint y { get; set; }

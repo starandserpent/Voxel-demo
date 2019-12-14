@@ -1,8 +1,6 @@
 using System;
 using Godot;
 using System.Collections.Generic;
-using Threading = System.Threading.Thread;
-using ThreadingStart = System.Threading.ThreadStart;
 
 public class Picker
 {
@@ -26,9 +24,9 @@ public class Picker
         float posX = pos.x;
         float posY = pos.y;
         float posZ = pos.z;
-        Chunk chunk = terra.TraverseOctree((int) posX / 16, (int) posY / 16, (int) posZ / 16);
+       // Chunk chunk = terra.TraverseOctree((int) posX / 16, (int) posY / 16, (int) posZ / 16);
 
-        int x = (int) ((posX - chunk.x) * 4);
+       /* int x = (int) ((posX - chunk.x) * 4);
         int y = (int) ((posY - chunk.y) * 4);
         int z = (int) ((posZ - chunk.z) * 4);
 
@@ -47,6 +45,7 @@ public class Picker
         //      terra.ReplaceChunk((int) posX/16,(int) posY/16,(int) posZ/16,chunk);
         //    ProcessChunks(chunk);
         //}
+        */
     }
 
     private void ProcessChunks(Chunk chunk)

@@ -31,7 +31,7 @@ public class GameController : Spatial
 
         GameMesher mesher = new GameMesher(this, registry, Profiling);
         Weltschmerz weltschmerz = new Weltschmerz(SEED, TERRAIN_GENERATION_MULTIPLIER, AVERAGE_TERRAIN_HIGHT, MAX_ELEVATION, NOISE_FREQUENCY);
-        terra = new Terra(WORLD_SIZEX, WORLD_SIZEY, WORLD_SIZEZ);
+        terra = new Terra(WORLD_SIZEX, WORLD_SIZEY, WORLD_SIZEZ, this);
         foreman = new Foreman(weltschmerz, this, terra, mesher);
         foreman.SetMaterials(registry);
         picker = new Picker(terra, mesher);
