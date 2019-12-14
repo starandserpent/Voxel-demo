@@ -17,6 +17,7 @@ public class Terra
         octree.layers = (uint) Utils.calculateLayers((uint)size);
 
         octree.nodes = new Dictionary<int, OctreeNode[]>();
+        octree.nodes[(int)octree.layers] = ArrayPool<OctreeNode>.Shared.Rent(size);
         octree.nodes[0] = ArrayPool<OctreeNode>.Shared.Rent(size);
     }
 

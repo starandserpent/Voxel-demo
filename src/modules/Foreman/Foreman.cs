@@ -15,6 +15,7 @@ public class Foreman
     private volatile int grassID;
     private int grassMeshID;
     private volatile Weltschmerz weltschmerz;
+    int lol;
     public Foreman(Weltschmerz weltschmerz, Node parent, Terra terra, GameMesher mesher)
     {
         this.weltschmerz = weltschmerz;
@@ -67,27 +68,51 @@ public class Foreman
     */
     }
 
-    private void Connect(int posX, int posY, int posZ, int layer, OctreeNode node){
-        int parentNodePosX = (int)(posX/2);
-        int parentNodePosY = (int)(posY/2);
-        int parentNodePosZ = (int)(posZ/2);
-
-        int lolong = (int) Morton3D.encode(parentNodePosX, parentNodePosY, parentNodePosZ);
+    private void Connect(OctreeNode chunk, int layer, OctreeNode node){
+        int[] pos = Morton3D.Decode(chunk.locCode);
         int size = octree.sizeX * octree.sizeY * octree.sizeZ;
-   /*              MeshInstance instance = DebugMesh();
+        int posX = pos[0];
+        int posY = pos[1];
+        int posZ = pos[2];
+
+        if(layer == 0){
+        if(posX % 2 == 0 && posY % 2 == 0 && posZ % 2 == 0){
+            node.children[0] = chunk;
+        }else if(posX % 2 == 1 && posY % 2 == 0 && posZ % 2 == 0){
+            node.children[1] = chunk;
+        }else if(posX % 2 == 0 && posY % 2 == 0 && posZ % 2 == 1){
+            node.children[2] = chunk;
+        }else if(posX % 2 == 1 && posY % 2 == 0 && posZ % 2 == 1){
+            node.children[3] = chunk;
+        }else if(posX % 2 == 0 && posY % 2 == 1 && posZ % 2 == 0){
+            node.children[4] = chunk;
+        }else if(posX % 2 == 1 && posY % 2 == 1 && posZ % 2 == 0){
+            node.children[5] = chunk;
+        }else if(posX % 2 == 0 && posY % 2 == 1 && posZ % 2 == 1){
+            node.children[6] = chunk;
+        }else if(posX % 2 == 1 && posY % 2 == 1 && posZ % 2 == 1){
+            node.children[7] = chunk;           
+        }
+        }else if(chunk.locCode < size && layer >= 1 && node.materialID == -1){
+
+        int nodePosX = (int)(posX/(layer * 2));
+        int nodePosY = (int)(posY/(layer * 2));
+        int nodePosZ = (int)(posZ/(layer * 2));
+
+        int lolong = (int) Morton3D.encode(nodePosX, nodePosY, nodePosZ);
+
+                 MeshInstance instance = DebugMesh();
             instance.Scale = new Vector3(32 * (float) Math.Pow(2, layer - 2), 32 * (float) Math.Pow(2, layer - 2),
                 32 * (float) Math.Pow(2, layer - 2));
-            instance.Name = posX * 8 * (float) Math.Pow(2, layer) + " " + posY * 8 * (float) Math.Pow(2, layer) +
-                            " " + posZ * 16 * (float) Math.Pow(2, layer);
-            instance.Translation = new Vector3(posX * 16 * (float) Math.Pow(2, layer - 1),
-                posY * 16 * (float) Math.Pow(2, layer - 1), posZ * 16 * (float) Math.Pow(2, layer - 1));
-            parent.GetParent().CallDeferred("add_child", instance);*/
+            instance.Name = "layer: " + layer + " "+ nodePosX * 16 * (float) Math.Pow(2, layer) + " " + nodePosY * 16 * (float) Math.Pow(2, layer) +
+                            " " + nodePosZ * 16 * (float) Math.Pow(2, layer);
+            instance.Translation = new Vector3(nodePosX * 16 * (float) Math.Pow(2, layer - 1),
+                nodePosY * 16 * (float) Math.Pow(2, layer - 1), nodePosZ * 16 * (float) Math.Pow(2, layer - 1));
+            parent.CallDeferred("add_child", instance);
             
-        if(lolong < size && layer < octree.layers){
-
             OctreeNode parentNode;
             if(octree.nodes.ContainsKey(layer)){
-                if(octree.nodes[layer][lolong] != default(OctreeNode)){
+                if(octree.nodes[layer][lolong] != null){
                   parentNode = octree.nodes[layer][lolong];
                 }else{
                     parentNode = new OctreeNode();
@@ -103,41 +128,100 @@ public class Foreman
                 octree.nodes[layer][lolong] = parentNode;
             }
 
-        if(posX % 2 == 0 && posX % 2 == 0 && posX % 2 == 0){
-            parentNode.children[0] = node;
-        }else if(posX % 2 == 1 && posX % 2 == 0 && posX % 2 == 0){
-            parentNode.children[1] = node;
-        }else if(posX % 2 == 0 && posX % 2 == 0 && posX % 2 == 1){
-            parentNode.children[2] = node;
-        }else if(posX % 2 == 1 && posX % 2 == 0 && posX % 2 == 1){
-            parentNode.children[3] = node;
-        }else if(posX % 2 == 0 && posX % 2 == 1 && posX % 2 == 0){
-            parentNode.children[4] = node;
-        }else if(posX % 2 == 1 && posX % 2 == 1 && posX % 2 == 0){
-            parentNode.children[5] = node;
-        }else if(posX % 2 == 0 && posX % 2 == 1 && posX % 2 == 1){
-            parentNode.children[6] = node;
-        }else if(posX % 2 == 1 && posX % 2 == 1 && posX % 2 == 1){
-            parentNode.children[7] = node;           
+            if(nodePosX % 2 == 0 && nodePosY % 2 == 0 && nodePosZ % 2 == 0){
+            node.children[0] = parentNode;
+            }else if(nodePosX % 2 == 1 && nodePosY % 2 == 0 && nodePosZ % 2 == 0){
+                parentNode.children[1] = chunk;
+            }else if(nodePosX % 2 == 0 && nodePosY % 2 == 0 && nodePosZ % 2 == 1){
+            parentNode.children[2] = chunk;
+            }else if(nodePosX % 2 == 1 && nodePosY % 2 == 0 && nodePosZ % 2 == 1){
+            parentNode.children[3] = chunk;
+            }else if(nodePosX % 2 == 0 && nodePosY % 2 == 1 && nodePosZ % 2 == 0){
+            parentNode.children[4] = chunk;
+            }else if(nodePosX % 2 == 1 && nodePosY % 2 == 1 && nodePosZ % 2 == 0){
+            parentNode.children[5] = chunk;
+            }else if(nodePosX % 2 == 0 && nodePosY % 2 == 1 && nodePosZ % 2 == 1){
+            parentNode.children[6] = chunk;
+            }else if(nodePosX % 2 == 1 && nodePosY % 2 == 1 && nodePosZ % 2 == 1){
+            parentNode.children[7] = chunk;           
+            }
+             Connect(chunk, layer - 1, parentNode);
         }
 
-        Connect(parentNodePosX, parentNodePosY, parentNodePosZ, layer + 1, parentNode);
+    /*    if(node.children[0] != null){
+                List<int> materialIDs = new List<int>(8);
+                materialIDs.Add(node.children[0].materialID);
+        for(int i = 0; i < 8; i++){
+            if(node.children[i] != null){
+            if(materialIDs.Contains(node.children[i].materialID)){
+                materialIDs.Add(node.children[i].materialID);
+            }
+            }else{
+                materialIDs = null;
+                break;
+            }
         }
+
+        if(materialIDs != null){
+           JoinChildren(node, layer, materialIDs[0]);
+        }
+        }
+        
+        lol++;
+        GD.Print(lol);
+        */
+    }
+
+    private void JoinChildren(OctreeNode parentNode, int layer, int materialID){
+        if(layer > 1){
+        for(int i = 0; i < 8; i++){
+            OctreeNode octreeNode = parentNode.children[i];
+                octree.nodes[layer - 1][octreeNode.locCode] = null;
+            parentNode.children[i] = null;
+            
+            int[] pos = Morton3D.Decode(octreeNode.locCode);
+            int posX = pos[0];
+            int posY = pos[1];
+            int posZ = pos[2];
+
+            string name = "layer: " + (layer - 1) + " "+ posX * 16 * (float) Math.Pow(2, (layer - 1) ) + " " + posY * 16 * (float) Math.Pow(2, (layer - 1) ) +
+                            " " + posZ * 16 * (float) Math.Pow(2, (layer - 1) );
+            foreach (Node node in parent.GetChildren()){
+             if(node.Name.Equals(name)){
+                node.Dispose();
+            }
+            }
+        }
+        }
+        parentNode.materialID = materialID;
     }
 
     //Loads chunks
-    private Chunk LoadArea(int x, int y, int z, LoadMarker marker)
+    private void LoadArea(int x, int y, int z, LoadMarker marker)
     {
          if (x >= 0 && z >= 0 && y >= 0){
-        int lolong = (int) Morton3D.encode(x, y, z);
+        int lolong = (int) Morton3D.encode(x/((int)octree.layers*2), y/((int)octree.layers*2), z/((int)octree.layers*2));
         int size = octree.sizeX * octree.sizeY * octree.sizeZ;
 
-        if(lolong < size  && octree.nodes[0][lolong] == null){
+        if(lolong < size){
         Stopwatch watch = new Stopwatch();
         watch.Start();
-            
-        OctreeNode childNode = new OctreeNode();
-        childNode.locCode = lolong;
+
+        OctreeNode parentNode;
+        if(octree.nodes[(int)octree.layers][lolong] == null){
+            parentNode = new OctreeNode();
+            parentNode.locCode = lolong;
+            parentNode.children = new OctreeNode[8];
+        }else{
+           parentNode = octree.nodes[(int)octree.layers][lolong];
+        }
+
+        OctreeNode childNode;
+        lolong = (int) Morton3D.encode(x, y, z);
+        if(octree.nodes[0][lolong] == null && lolong < size){
+
+        childNode = new OctreeNode();
+
         Chunk chunk;
         if(y << Constants.CHUNK_EXPONENT > weltschmerz.GetMaxElevation()){
             chunk = new Chunk();
@@ -145,29 +229,27 @@ public class Foreman
             chunk.x = (uint)x <<  Constants.CHUNK_EXPONENT;
             chunk.y =  (uint)y <<  Constants.CHUNK_EXPONENT;
             chunk.z =  (uint)z <<  Constants.CHUNK_EXPONENT;
-            childNode.materialID = 0;
         }else{
             chunk = GenerateChunk(x <<  Constants.CHUNK_EXPONENT, y <<Constants.CHUNK_EXPONENT, z << Constants.CHUNK_EXPONENT);
-            if(chunk.isSurface){
-                childNode.materialID = -1;
-            }else{
+            if(!chunk.isSurface){
                 childNode.materialID = (int)chunk.voxels[0];
                 chunk.voxels = new uint[1];
                 chunk.voxels[0] = (uint)childNode.materialID;
                 chunk.x = (uint)x <<  Constants.CHUNK_EXPONENT;
                 chunk.y =  (uint)y <<  Constants.CHUNK_EXPONENT;
-                chunk.z =  (uint)z <<  Constants.CHUNK_EXPONENT;
+                chunk.z =  (uint)z <<  Constants.CHUNK_EXPONENT;       
             }
         }
+
+        childNode.locCode = lolong;
+        octree.nodes[0][lolong] = childNode;
+        Connect(childNode, (int) octree.layers - 1, parentNode);
         watch.Stop();
         debugMeasures[0].Add(watch.ElapsedMilliseconds);
         mesher.MeshChunk(chunk, false);
-        Connect((int)x/2, (int)y/2, (int)z/2, 1, childNode);
-        octree.nodes[0][lolong] = childNode;
-        return chunk;
         }
         }
-        return new Chunk();
+        }
     }
 
     public List<long>[] GetMeasures(){
@@ -185,7 +267,6 @@ public class Foreman
   public Chunk GenerateChunk(float posX, float posY, float posZ)
     {
         Chunk chunk = new Chunk();
-
 
         chunk.x = (uint) posX;
         chunk.y = (uint) posY;

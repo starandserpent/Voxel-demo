@@ -186,15 +186,15 @@ public class Morton3D
      * @param c morton code up to 64 bits
      * @return array [x,y,z] .
      */
-    public static int[] decode(int c)
+    public static int[] Decode(long c)
     {
         int[] result = new int[3];
         // Morton codes up to 64 bits
         if (c < Math.Pow(2, 48))
         {
-            result[0] = decodeHelper(c, MortonTable512DecodeX);
-            result[1] = decodeHelper(c, MortonTable512DecodeY);
-            result[2] = decodeHelper(c, MortonTable512DecodeZ);
+            result[0] = DecodeHelper(c, MortonTable512DecodeX);
+            result[1] = DecodeHelper(c, MortonTable512DecodeY);
+            result[2] = DecodeHelper(c, MortonTable512DecodeZ);
         }
 
         return result;
@@ -207,7 +207,7 @@ public class Morton3D
      * @param coord morton decode LUT
      * @return decoded value
      */
-    private static int decodeHelper(int c, int[] coord)
+    private static int DecodeHelper(long c, int[] coord)
     {
         long a = 0;
         long NINEBITMASK = 0x000001ff;
