@@ -198,4 +198,24 @@ public struct BoundingRect{
 
             return m;
         }
+        public static bool insideFrustum(Godot.Collections.Array planes, AABB box)
+        {
+            Godot.Vector3 half_extents = box.size.toGDVector3() * 0.5f;
+            Godot.Vector3 ofs = box.center.toGDVector3();
+
+            for (int i = 0; i < planes.Count; i++)
+            {
+                Godot.Plane p = (Godot.Plane)planes[i];
+                Godot.Vector3 point = new Godot.Vector3(
+                (p.Normal.x <= 0) ? -half_extents.x : half_extents.x,
+                (p.Normal.y <= 0) ? -half_extents.y : half_extents.y,
+                (p.Normal.z <= 0) ? -half_extents.z : half_extents.z);
+                point += ofs;
+                if (p.Normal.Dot(point) > p.D)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
