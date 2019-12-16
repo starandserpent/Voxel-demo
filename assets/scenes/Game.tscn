@@ -15,7 +15,7 @@ TERRAIN_GENERATION_MULTIPLIER = 100
 MAX_ELEVATION = 100
 
 [node name="Player" type="Spatial" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 10 )
+transform = Transform( -1, 0, -8.74228e-008, 0, 1, 0, 8.74228e-008, 0, -1, 10, 10, 10 )
 script = ExtResource( 2 )
 LOAD_RADIUS_X = 9
 LOAD_RADIUS_Y = 9
