@@ -14,7 +14,7 @@ public class Terra
         octree.sizeZ = sizeZ;
 
         int size = octree.sizeX * octree.sizeY * octree.sizeZ;
-        octree.layers = (int) Utils.calculateLayers((uint)size);
+        octree.layers = (int) Utils.CalculateLayers((uint)size);
 
         OctreeNode octreeNode = new OctreeNode();
         octreeNode.children = new OctreeNode[8];

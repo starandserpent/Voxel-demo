@@ -1,6 +1,5 @@
-using System.Numerics;
 using System;
-
+using Godot;
 public class Utils
 {
     private const int WORDBITS = 32;
@@ -42,8 +41,12 @@ public class Utils
         return (int) (x & 0x0000003f);
     }
 
-    public static double calculateLayers(uint size)
+    public static double CalculateLayers(uint size)
     {
         return FloorLog2(size) / 3;
+    }
+
+    public static int GetPosFromFOV(float fov, int lenght){
+        return (int)(lenght * Math.Atan(fov));
     }
 } 

@@ -7,9 +7,7 @@ public class LoadMarker : Spatial
      * The radius which this marker will force the world to be loaded.
      * Squared to avoid sqrt.
      */
-    public int loadRadiusX{get; protected set;}
-    public int loadRadiusY{get; protected set;}
-    public int loadRadiusZ{get; protected set;}
+    public int loadRadius{get; protected set;}
     public void SendChunk(Chunk chunk)
     {
     }

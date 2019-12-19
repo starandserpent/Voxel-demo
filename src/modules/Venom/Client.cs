@@ -10,7 +10,7 @@ public class Client
         this.server = server;
     }
 
-    public void recieveChunk(Chunk chunk)
+    public void RecieveChunk(Chunk chunk)
     {
     }
 }

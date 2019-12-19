@@ -6,11 +6,8 @@ using ThreadingStart = System.Threading.ThreadStart;
 public class Player : LoadMarker
 {
     [Export]  public float MOUSE_SENSITIVITY = 0.002F;
-    [Export] public float move_speed = 0.9F;
-    [Export] public int LOAD_RADIUS_X = 4;
-    [Export] public int LOAD_RADIUS_Y = 4;
-    [Export] public int LOAD_RADIUS_Z = 4;
-
+    [Export] public float MOVE_SPEED = 0.9F;
+    [Export] public int LOAD_RADIUS = 2;
     private Vector3 motion;
     private Vector3 velocity;
     private Vector3 initialRotation;
@@ -53,9 +50,7 @@ public class Player : LoadMarker
 
     public override void _Ready()
     {
-        loadRadiusX = LOAD_RADIUS_X;
-        loadRadiusY = LOAD_RADIUS_Y;
-        loadRadiusZ = LOAD_RADIUS_Z;
+        loadRadius = LOAD_RADIUS;
 
         foreach (Node child in GetParent().GetChildren())
         {
@@ -104,7 +99,8 @@ public class Player : LoadMarker
 
         threading = Begin;
         generation = new Threading(threading);
-       generation.Start();
+
+        gameController.Prepare(camera);
     }
 
     public override void _PhysicsProcess(float delta)
@@ -118,7 +114,7 @@ public class Player : LoadMarker
 
     private void Begin()
     {
-        gameController.Generate(this);
+        gameController.Generate(this, this.Transform.basis);
     }
 
     public override void _ExitTree()
@@ -199,7 +195,7 @@ public class Player : LoadMarker
             .Rotated(new Vector3(1, 0, 0), (float) Math.Cos(GetRotation().y) * GetRotation().x)
             .Rotated(new Vector3(0, 0, 1), -(float) Math.Sin(GetRotation().y) * GetRotation().x);
 
-        velocity += motion * move_speed;
+        velocity += motion * MOVE_SPEED;
 
         velocity = new Vector3(velocity.x * 0.9f, velocity.y * 0.9f, velocity.z * 0.9f);
 

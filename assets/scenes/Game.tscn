@@ -9,21 +9,23 @@
 
 [node name="GameController" type="Spatial" parent="."]
 script = ExtResource( 1 )
-AVERAGE_TERRAIN_HIGHT = 10
 SEED = 1234
+AVERAGE_TERRAIN_HIGHT = 10
 TERRAIN_GENERATION_MULTIPLIER = 100
-MAX_ELEVATION = 100
+VIEW_DISTANCE = 60
+WORLD_SIZEX = 900
+WORLD_SIZEY = 900
+WORLD_SIZEZ = 900
 
 [node name="Player" type="Spatial" parent="."]
 transform = Transform( -1, 0, -8.74228e-008, 0, 1, 0, 8.74228e-008, 0, -1, 10, 10, 10 )
 script = ExtResource( 2 )
-LOAD_RADIUS_X = 9
-LOAD_RADIUS_Y = 9
-LOAD_RADIUS_Z = 9
+LOAD_RADIUS = 4
 
 [node name="Camera" type="Camera" parent="Player"]
 environment = ExtResource( 3 )
 current = true
+near = 0.01
 far = 8192.0
 
 [node name="Sprite3D" type="Sprite3D" parent="Player/Camera"]

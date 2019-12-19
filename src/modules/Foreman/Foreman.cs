@@ -16,36 +16,81 @@ public class Foreman
     private int grassMeshID;
     private volatile Weltschmerz weltschmerz;
     private Terra terra;
+    private int viewDistance;
+    private float fov;
     int lol;
-    public Foreman(Weltschmerz weltschmerz, Node parent, Terra terra, GameMesher mesher)
+    public Foreman(Weltschmerz weltschmerz, Node parent, Terra terra, GameMesher mesher,
+     int viewDistance, float fov)
     {
         this.weltschmerz = weltschmerz;
         this.terra = terra;
         this.mesher = mesher;
         this.octree = terra.GetOctree();
         this.parent = parent;
+        this.viewDistance = viewDistance;
+        this.fov = fov;
         debugMeasures = new List<long>[3];
         debugMeasures[0] = new List<long>();
     }
 
     //Initial generation
-    public void GenerateTerrain(LoadMarker loadMarker)
+    public void GenerateTerrain(LoadMarker loadMarker, Basis basis)
     {
         //Round world size to nearest node lenght
         int playerPosX = (int) ((loadMarker.GetTranslation().x / Constants.CHUNK_LENGHT));
         int playerPosY = (int) ((loadMarker.GetTranslation().y / Constants.CHUNK_LENGHT));
         int playerPosZ = (int) ((loadMarker.GetTranslation().z / Constants.CHUNK_LENGHT));
 
-        Translation translation = new Translation();
+       for(int l = loadMarker.loadRadius; l < viewDistance; l +=8){
+            for(int y = 0; y < Utils.GetPosFromFOV(fov, l); y +=8){
+                for(int x = 0; x <  Utils.GetPosFromFOV(fov, l); x +=8){
 
-        for(int y = 0; y < loadMarker.loadRadiusY/2; y++){
-            for(int z = 0; z < loadMarker.loadRadiusZ/2; z++){
-                for(int x = 0; x < loadMarker.loadRadiusX/2; x++){
+            Vector3 center = new Vector3(x, y, -l);
+
+            Vector3 newPos = loadMarker.ToGlobal(center);
+
+            LoadArea((int)newPos.x/8,(int)newPos.y/8, (int)newPos.z/8, loadMarker);
+
+             center = new Vector3(x, y, -l);
+
+             newPos = loadMarker.ToGlobal(center);
+                        
+            LoadArea((int)newPos.x/8,(int)newPos.y/8, (int)newPos.z/8, loadMarker);
+
+
+              center = new Vector3(-x, y, -l);
+
+             newPos = loadMarker.ToGlobal(center);
+                        
+            LoadArea((int)newPos.x/8,(int)newPos.y/8, (int)newPos.z/8, loadMarker);
+
+
+              center = new Vector3(x, -y, -l);
+
+             newPos = loadMarker.ToGlobal(center);
+                        
+            LoadArea((int)newPos.x/8,(int)newPos.y/8, (int)newPos.z/8, loadMarker);
+
+            
+              center = new Vector3(-x, -y, -l);
+
+             newPos = loadMarker.ToGlobal(center);
+                        
+            LoadArea((int)newPos.x/8,(int)newPos.y/8, (int)newPos.z/8, loadMarker);
+            
+            }
+        }
+       }
+
+        for(int y = 0; y < loadMarker.loadRadius/2; y++){
+            for(int z = 0; z < loadMarker.loadRadius/2; z++){
+                for(int x = 0; x < loadMarker.loadRadius/2; x++){
                     LoadArea(playerPosX + x, playerPosY + y, playerPosZ + z, loadMarker);
                     LoadArea(playerPosX - x, playerPosY - y, playerPosZ - z, loadMarker);
              }
         }     
         }
+    }
 
       /*          if(profiling){
         GD.Print("Profiling started at " + DateTime.Now);
@@ -68,7 +113,6 @@ public class Foreman
         GD.Print("Total time taken for one chunk  " + (measures[0].Average() + measures[1].Average() + measures[2].Average() )+" ms");
         }
     */
-    }
 
     /*    if(node.children[0] != null){
                 List<int> materialIDs = new List<int>(8);

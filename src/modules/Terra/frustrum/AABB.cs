@@ -1,7 +1,7 @@
 using System.Numerics;
 using System;
 public struct AABB
-    {
+{
         public Vector3 min;
         public Vector3 max;
         public Vector3 size;
@@ -91,7 +91,7 @@ public struct AABB
 
             return m;
         }
-        public static bool insideFrustum(Godot.Collections.Array planes, AABB box)
+        public static bool InsideFrustum(Godot.Collections.Array planes, AABB box)
         {
             Godot.Vector3 half_extents = box.size.toGDVector3() * 0.5f;
             Godot.Vector3 ofs = box.center.toGDVector3();
