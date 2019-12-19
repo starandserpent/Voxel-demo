@@ -20,7 +20,7 @@ public class Foreman
     private Terra terra;
     private int viewDistance;
     private float fov;
-    SortedSet<Tuple<int, int, int>> localCenters;
+    List<Vector3> localCenters;
     int lol;
     public Foreman(Weltschmerz weltschmerz, Node parent, Terra terra, GameMesher mesher,
      int viewDistance, float fov)
@@ -34,21 +34,12 @@ public class Foreman
         this.fov = fov;
         debugMeasures = new List<long>[3];
         debugMeasures[0] = new List<long>();
-        localCenters = new SortedSet<Tuple<int, int, int>>();
+        localCenters = new List<Vector3>();
 
-               for(int l = 0; l < viewDistance; l +=8){
-            for(int y = 0; y < Utils.GetPosFromFOV(fov, l); y +=8){
-                for(int x = 0; x <  Utils.GetPosFromFOV(fov, l); x +=8){
-                    Tuple<int, int, int> center = new Tuple<int, int, int>(x, y, -l);
-                        localCenters.Add(center);
-
-                    center = new Tuple<int, int, int>(-x, y, -l);
-                        localCenters.Add(center);
-
-                center = new Tuple<int, int, int>(x, -y, -l);
-                        localCenters.Add(center);
-
-                    center = new Tuple<int, int, int>(-x, -y, -l);
+               for(int l = -viewDistance; l < viewDistance; l +=8){
+            for(int y = -Utils.GetPosFromFOV(fov, l); y < Utils.GetPosFromFOV(fov, l); y +=8){
+                for(int x = -Utils.GetPosFromFOV(fov, l); x <  Utils.GetPosFromFOV(fov, l); x +=8){
+                    Vector3 center = new Vector3(x, y, -l);
                         localCenters.Add(center);
                 }
             }
@@ -58,35 +49,26 @@ public class Foreman
     //Initial generation
     public void GenerateTerrain(LoadMarker loadMarker)
     {
-        SortedSet<Tuple<int, int, int>> topPriority = new SortedSet<Tuple<int, int, int>>();
+        List<Vector3> topPriority = new List<Vector3>();
 
-        for(int y = 0; y < (loadMarker.loadRadius/2) * 8; y+=8){
-            for(int z = 0; z < (loadMarker.loadRadius/2) * 8; z+=8){
-                for(int x = 0; x < (loadMarker.loadRadius/2) * 8; x+=8){
-                    Tuple<int, int, int> center = new Tuple<int, int, int>(x, y, z);
-                    if(!localCenters.Contains(center)){
-                        topPriority.Add(center);
-                    }
-
-                    if(!localCenters.Contains(center)){
-                    center = new Tuple<int, int, int>(x, y, z);
-                    topPriority.Add(center);    
-                    }     
+        for(int y = (loadMarker.loadRadius/2) * 8; y >= -(loadMarker.loadRadius/2) * 8; y -=8){
+            for(int z = (loadMarker.loadRadius/2) * 8; z >= -(loadMarker.loadRadius/2) * 8; z -=8){
+                for(int x = (loadMarker.loadRadius/2) * 8; x >= -(loadMarker.loadRadius/2) * 8; x -=8){
+                    Vector3 center = new Vector3(x, y, z);
+                    topPriority.Add(center);
                 }
             }     
         }
 
-        foreach (Tuple<int, int, int> center in topPriority){
-            GodotVector3 newPos = loadMarker.ToGlobal(new GodotVector3(center.Item1, center.Item2, center.Item3));
+      topPriority.AddRange(localCenters);
+
+        for (int c = 0; c < topPriority.Count; c++){
+            Vector3 center = topPriority[c];
+            GodotVector3 newPos = loadMarker.ToGlobal(new GodotVector3(center.X, center.Y, center.Z));
             LoadArea((int)newPos.x/8,(int)newPos.y/8, (int)newPos.z/8, loadMarker);
         }
 
-        foreach (Tuple<int, int, int> center in localCenters){
-            GodotVector3 newPos = loadMarker.ToGlobal(new GodotVector3(center.Item1, center.Item2, center.Item3));
-            LoadArea((int)newPos.x/8,(int)newPos.y/8, (int)newPos.z/8, loadMarker);
-        }
-
-        topPriority.Clear();
+         topPriority.Clear();
     }
 
       /*          if(profiling){

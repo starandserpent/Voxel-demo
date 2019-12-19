@@ -20,7 +20,7 @@ WORLD_SIZEZ = 900
 [node name="Player" type="Spatial" parent="."]
 transform = Transform( -1, 0, -8.74228e-008, 0, 1, 0, 8.74228e-008, 0, -1, 200, 10, 200 )
 script = ExtResource( 2 )
-LOAD_RADIUS = 4
+LOAD_RADIUS = 10
 
 [node name="Camera" type="Camera" parent="Player"]
 environment = ExtResource( 3 )
