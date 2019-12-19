@@ -23,6 +23,8 @@ public class Player : LoadMarker
     private Label memory;
     private Label objects;
 
+    private Vector3 lastPosition;
+
     public override void _Input(InputEvent @event)
     {
         if (@event is InputEventMouseMotion eventKey)
@@ -101,6 +103,7 @@ public class Player : LoadMarker
         generation = new Threading(threading);
 
         gameController.Prepare(camera);
+        lastPosition = this.Translation;
     }
 
     public override void _PhysicsProcess(float delta)
@@ -114,7 +117,7 @@ public class Player : LoadMarker
 
     private void Begin()
     {
-        gameController.Generate(this, this.Transform.basis);
+        gameController.Generate(this);
     }
 
     public override void _ExitTree()

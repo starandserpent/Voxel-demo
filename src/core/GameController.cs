@@ -29,10 +29,19 @@ public class GameController : Spatial
         instances = new List<MeshInstance>();
         registry = new Registry();
         PrimitiveResources.register(registry);
-        mesher = new GameMesher(this, registry, Profiling);
+        mesher = new GameMesher(instances, registry, Profiling);
         weltschmerz = new Weltschmerz(SEED, TERRAIN_GENERATION_MULTIPLIER, AVERAGE_TERRAIN_HIGHT, MAX_ELEVATION, NOISE_FREQUENCY);
         terra = new Terra(WORLD_SIZEX, WORLD_SIZEY, WORLD_SIZEZ, this);
         picker = new Picker(terra, mesher);
+    }
+
+     public override void _PhysicsProcess(float delta)
+    {
+        if(instances.Count > 0){
+            MeshInstance instance = instances[0];
+            this.AddChild(instance);
+            instances.RemoveAt(0);
+        }
     }
 
     public void Prepare(Camera camera){
@@ -40,9 +49,9 @@ public class GameController : Spatial
         foreman.SetMaterials(registry);
     }
 
-    public void Generate(LoadMarker marker, Basis basis)
+    public void Generate(LoadMarker marker)
     {
-        foreman.GenerateTerrain(marker, basis);
+        foreman.GenerateTerrain(marker);
     }
 
     public Picker GetPicker()

@@ -1,5 +1,5 @@
 using System;
-using Godot;
+using System.Numerics;
 public class Utils
 {
     private const int WORDBITS = 32;
@@ -48,5 +48,16 @@ public class Utils
 
     public static int GetPosFromFOV(float fov, int lenght){
         return (int)(lenght * Math.Atan(fov));
+    }
+
+    public static int CompareVectors(Vector3 a, Vector3 b){
+        if(a.Equals(b)){
+            if(a.X > b.X && a.Z > b.Z){
+                return 1;
+            }
+
+            return -1;
+        }
+        return 0;
     }
 } 

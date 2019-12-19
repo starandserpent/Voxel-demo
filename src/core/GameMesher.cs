@@ -3,12 +3,12 @@ using Godot;
 
 public class GameMesher
 {
-    private volatile Node parent;
+    private volatile List<MeshInstance> instances;
     private volatile SplatterMesher splatterMesher;
     private volatile NaiveGreedyMesher mesher = null;
-    public GameMesher(Node parent, Registry reg, bool profile)
+    public GameMesher(List<MeshInstance> instances, Registry reg, bool profile)
     {
-        this.parent = parent;
+        this.instances = instances;
         mesher = new NaiveGreedyMesher(reg);
         ShaderMaterial shaderMat = new ShaderMaterial();
         shaderMat.Shader = (GD.Load("res://assets/shaders/splatvoxel.shader") as Shader);
@@ -36,7 +36,7 @@ public class GameMesher
             meshInstance.Name = "chunk:" + chunk.x + "," + chunk.y + "," + chunk.z;
             meshInstance.Translation = new Vector3(chunk.x, chunk.y, chunk.z);
 
-            parent.CallDeferred("add_child", meshInstance);
+            instances.Add(meshInstance);
         }
     }
 
