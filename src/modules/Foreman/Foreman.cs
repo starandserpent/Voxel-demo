@@ -1,10 +1,14 @@
-using System;
+using System.Linq;
+using System.Threading;
 using System.Buffers;
 using System.Numerics;
 using Node = Godot.Node;
+using System.Collections.Concurrent;
 using GodotVector3 = Godot.Vector3;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Threading = System.Threading.Thread;
+using ThreadingStart = System.Threading.ThreadStart;
 
 public class Foreman
 {
@@ -20,7 +24,9 @@ public class Foreman
     private Terra terra;
     private int viewDistance;
     private float fov;
-    List<Vector3> localCenters;
+    private volatile List<Vector3> localCenters;
+    private volatile SortedList<float, List<GodotVector3>> priority;
+    private volatile ConcurrentQueue<GodotVector3> queue;
     int lol;
     public Foreman(Weltschmerz weltschmerz, Node parent, Terra terra, GameMesher mesher,
      int viewDistance, float fov)
@@ -32,11 +38,12 @@ public class Foreman
         this.parent = parent;
         this.viewDistance = viewDistance;
         this.fov = fov;
+        this.priority = new SortedList<float, List<GodotVector3>>();
         debugMeasures = new List<long>[3];
         debugMeasures[0] = new List<long>();
         localCenters = new List<Vector3>();
 
-               for(int l = -viewDistance; l < viewDistance; l +=8){
+        for(int l = -viewDistance; l < viewDistance; l +=8){
             for(int y = -Utils.GetPosFromFOV(fov, l); y < Utils.GetPosFromFOV(fov, l); y +=8){
                 for(int x = -Utils.GetPosFromFOV(fov, l); x <  Utils.GetPosFromFOV(fov, l); x +=8){
                     Vector3 center = new Vector3(x, y, -l);
@@ -65,12 +72,27 @@ public class Foreman
         for (int c = 0; c < topPriority.Count; c++){
             Vector3 center = topPriority[c];
             GodotVector3 newPos = loadMarker.ToGlobal(new GodotVector3(center.X, center.Y, center.Z));
-            LoadArea((int)newPos.x/8,(int)newPos.y/8, (int)newPos.z/8, loadMarker);
+            float distance = loadMarker.Translation.DistanceTo(newPos);
+
+            if(priority.ContainsKey(distance)){
+                priority[distance].Add(newPos);
+            }else{
+                List<GodotVector3> list = new List<GodotVector3>();
+                list.Add(newPos);
+                priority.Add(distance, list);
+            }
         }
 
          topPriority.Clear();
-    }
 
+         foreach(List<GodotVector3> list in priority.Values){
+            foreach(GodotVector3 pos in list){
+                LoadArea((int)pos.x/8,(int)pos.y/8, (int)pos.z/8);
+            }
+         }
+
+         priority.Clear();
+    }
       /*          if(profiling){
         GD.Print("Profiling started at " + DateTime.Now);
         Stopwatch watch = new Stopwatch();
@@ -117,7 +139,7 @@ public class Foreman
         */
 
     //Loads chunks
-    private void LoadArea(int x, int y, int z, LoadMarker marker)
+    private void LoadArea(int x, int y, int z)
     {
          if (x >= 0 && z >= 0 && y >= 0){
         int lolong = (int) Morton3D.encode(x, y, z);
