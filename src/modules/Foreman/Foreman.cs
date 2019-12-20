@@ -25,8 +25,6 @@ public class Foreman
     private int viewDistance;
     private float fov;
     private volatile List<Vector3> localCenters;
-    private volatile SortedList<float, List<GodotVector3>> priority;
-    private volatile ConcurrentQueue<GodotVector3> queue;
     int lol;
     public Foreman(Weltschmerz weltschmerz, Node parent, Terra terra, GameMesher mesher,
      int viewDistance, float fov)
@@ -38,7 +36,6 @@ public class Foreman
         this.parent = parent;
         this.viewDistance = viewDistance;
         this.fov = fov;
-        this.priority = new SortedList<float, List<GodotVector3>>();
         debugMeasures = new List<long>[3];
         debugMeasures[0] = new List<long>();
         localCenters = new List<Vector3>();
@@ -56,6 +53,7 @@ public class Foreman
     //Initial generation
     public void GenerateTerrain(LoadMarker loadMarker)
     {
+        SortedList<float, List<GodotVector3>> priority = new SortedList<float, List<GodotVector3>>();
         List<Vector3> topPriority = new List<Vector3>();
 
         for(int y = (loadMarker.loadRadius/2) * 8; y >= -(loadMarker.loadRadius/2) * 8; y -=8){
@@ -66,8 +64,6 @@ public class Foreman
                 }
             }     
         }
-
-      topPriority.AddRange(localCenters);
 
         for (int c = 0; c < topPriority.Count; c++){
             Vector3 center = topPriority[c];
@@ -82,13 +78,27 @@ public class Foreman
                 priority.Add(distance, list);
             }
         }
+        topPriority.Clear();
 
-         topPriority.Clear();
+        for (int c = 0; c < localCenters.Count; c++){
+            Vector3 center = localCenters[c];
+            GodotVector3 newPos = loadMarker.ToGlobal(new GodotVector3(center.X, center.Y, center.Z));
+            float distance = loadMarker.Translation.DistanceTo(newPos);
 
-         foreach(List<GodotVector3> list in priority.Values){
-            foreach(GodotVector3 pos in list){
+            if(priority.ContainsKey(distance)){
+                priority[distance].Add(newPos);
+            }else{
+                List<GodotVector3> list = new List<GodotVector3>();
+                list.Add(newPos);
+                priority.Add(distance, list);
+            }
+        }
+
+         foreach(float key in priority.Keys.ToArray()){
+            foreach(GodotVector3 pos in priority[key]){
                 LoadArea((int)pos.x/8,(int)pos.y/8, (int)pos.z/8);
             }
+            priority.Remove(key);
          }
 
          priority.Clear();

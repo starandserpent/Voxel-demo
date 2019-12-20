@@ -22,7 +22,6 @@ public class Player : LoadMarker
     private Label fps;
     private Label memory;
     private Label objects;
-
     private Vector3 lastPosition;
 
     public override void _Input(InputEvent @event)
@@ -131,9 +130,10 @@ public class Player : LoadMarker
         fps.SetText("FPS: " + Performance.GetMonitor(Performance.Monitor.TimeFps));
         memory.SetText("Memory: " + Performance.GetMonitor(Performance.Monitor.MemoryStatic)/(1024*1024) + " MB");
 
-        if(!generation.IsAlive){
+        if(!generation.IsAlive || lastPosition != this.Translation){
             generation = new Threading(threading);
             generation.Start();
+            lastPosition = Translation;
         }
 
         if (Input.IsActionPressed("toggle_mouse_capture"))
