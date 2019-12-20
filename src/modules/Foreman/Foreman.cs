@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading;
 using System.Buffers;
@@ -53,6 +54,7 @@ public class Foreman
     //Initial generation
     public void GenerateTerrain(LoadMarker loadMarker)
     {
+        try{
         SortedList<float, List<GodotVector3>> priority = new SortedList<float, List<GodotVector3>>();
         List<Vector3> topPriority = new List<Vector3>();
 
@@ -102,6 +104,9 @@ public class Foreman
          }
 
          priority.Clear();
+        }catch(Exception ignore){
+            
+        }
     }
       /*          if(profiling){
         GD.Print("Profiling started at " + DateTime.Now);

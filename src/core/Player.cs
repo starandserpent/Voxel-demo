@@ -130,7 +130,11 @@ public class Player : LoadMarker
         fps.SetText("FPS: " + Performance.GetMonitor(Performance.Monitor.TimeFps));
         memory.SetText("Memory: " + Performance.GetMonitor(Performance.Monitor.MemoryStatic)/(1024*1024) + " MB");
 
-        if(!generation.IsAlive || lastPosition != this.Translation){
+if (!gameController.CheckPlayerPosition((int)Translation.x/8, (int)Translation.y/8, (int)Translation.z/8) && generation.IsAlive){
+    generation.Abort();
+}
+
+        if(!generation.IsAlive){
             generation = new Threading(threading);
             generation.Start();
             lastPosition = Translation;

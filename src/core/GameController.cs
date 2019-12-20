@@ -17,7 +17,6 @@ public class GameController : Spatial
     [Export] public int WORLD_SIZEX = 32;
     [Export] public int WORLD_SIZEY = 32;
     [Export] public int WORLD_SIZEZ = 32;
-
     private GameMesher mesher;
     private Weltschmerz weltschmerz;
     private Registry registry;
@@ -35,7 +34,7 @@ public class GameController : Spatial
         picker = new Picker(terra, mesher);
     }
 
-     public override void _PhysicsProcess(float delta)
+    public override void _PhysicsProcess(float delta)
     {
         if(instances.Count > 0){
             MeshInstance instance = instances[0];
@@ -52,6 +51,10 @@ public class GameController : Spatial
     public void Generate(LoadMarker marker)
     {
         foreman.GenerateTerrain(marker);
+    }
+
+    public bool CheckPlayerPosition(int posX, int posY, int posZ){
+        return terra.TraverseOctree(posX, posY, posZ, 0).chunk != default(Chunk);
     }
 
     public Picker GetPicker()
