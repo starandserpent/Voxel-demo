@@ -22,10 +22,24 @@ public class Player : LoadMarker
     private Label chunks;
     private Label vertices;
     private Vector3 lastPosition;
+    private bool wireframe = false;
 
     public override void _Input(InputEvent @event)
     {
-        if (@event is InputEventMouseMotion eventKey)
+        if (Input.IsActionPressed("toggle_mouse_capture"))
+        {
+            Input.SetMouseMode(Input.GetMouseMode() == Input.MouseMode.Captured
+                ? Input.MouseMode.Visible
+                : Input.MouseMode.Captured);
+        }else if (Input.IsActionPressed("toggle_wireframe_mode"))
+        {
+            if(wireframe){
+                GetViewport().DebugDraw = Viewport.DebugDrawEnum.Wireframe; 
+            }else{
+                GetViewport().DebugDraw = Viewport.DebugDrawEnum.Disabled; 
+            }
+            wireframe = !wireframe;
+        }else if (@event is InputEventMouseMotion eventKey)
         {
             if (Input.GetMouseMode() == Input.MouseMode.Captured)
             {
@@ -50,6 +64,7 @@ public class Player : LoadMarker
 
     public override void _Ready()
     {
+        VisualServer.SetDebugGenerateWireframes(true);
         loadRadius = LOAD_RADIUS;
 
         foreach (Node child in GetParent().GetChildren())
@@ -99,8 +114,6 @@ public class Player : LoadMarker
             }
         }
 
-        //  GetViewport().DebugDraw = Viewport.DebugDrawEnum.Wireframe; 
-        // VisualServer.SetDebugGenerateWireframes(true);
         initialRotation = new Vector3();
 
         picker = gameController.GetPicker();
@@ -140,13 +153,6 @@ public class Player : LoadMarker
         memory.SetText("Memory: " + Performance.GetMonitor(Performance.Monitor.MemoryStatic) / (1024 * 1024) + " MB");
 
         Begin();
-
-        if (Input.IsActionPressed("toggle_mouse_capture"))
-        {
-            Input.SetMouseMode(Input.GetMouseMode() == Input.MouseMode.Captured
-                ? Input.MouseMode.Visible
-                : Input.MouseMode.Captured);
-        }
 
         if (Input.IsActionPressed("ui_cancel"))
         {
