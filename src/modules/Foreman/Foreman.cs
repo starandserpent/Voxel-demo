@@ -63,8 +63,6 @@ public class Foreman
     public void GenerateTerrain(LoadMarker loadMarker)
     {
         SortedList<float, List<GodotVector3>> priority = new SortedList<float, List<GodotVector3>>();
-        try
-        {
             List<Vector3> topPriority = new List<Vector3>();
 
             for (int y = (loadMarker.loadRadius / 2) * 8; y >= -(loadMarker.loadRadius / 2) * 8; y -= 8)
@@ -121,6 +119,7 @@ public class Foreman
             }
 
             canLoad = false;
+            centerQueue = new ConcurrentQueue<GodotVector3>();
             foreach (float key in priority.Keys.ToArray())
             {
                 foreach (GodotVector3 pos in priority[key])
@@ -133,13 +132,6 @@ public class Foreman
 
             priority.Clear();
             canLoad = true;
-        }
-        catch (Exception ignore)
-        {
-            centerQueue = new ConcurrentQueue<GodotVector3>();
-            canLoad = true;
-            priority.Clear();
-        }
     }
 
     public void Process()
