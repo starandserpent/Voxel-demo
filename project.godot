@@ -125,6 +125,5 @@ project/auto_update_project=false
 
 [rendering]
 
-threads/thread_model=2
 quality/filters/use_nearest_mipmap_filter=true
 environment/default_environment="res://default_env.tres"

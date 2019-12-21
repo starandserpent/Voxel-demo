@@ -13,7 +13,7 @@ public class GameMesher
         splatterMesher = new SplatterMesher(shaderMat, reg);
     }
 
-public RawChunk MeshChunk(Chunk chunk, Registry registry){
+public RawChunk MeshChunk(Chunk chunk){
     RawChunk rawChunk = new RawChunk();
     rawChunk.x = chunk.x;
     rawChunk.y = chunk.y;
@@ -397,7 +397,7 @@ public RawChunk MeshChunk(Chunk chunk, Registry registry){
                 int size = indice[t];
                 if (size + arraySize[t] > 0)
                 {
-                    Texture texture = registry.SelectByID(t + 1).texture;
+                    Texture texture = reg.SelectByID(t + 1).texture;
                     int[] indices = new int[(size + arraySize[t])];
                     Vector3[] vertice = new Vector3[size + arraySize[t]];
                     Vector3[] normals = new Vector3[size + arraySize[t]];
@@ -495,7 +495,7 @@ public RawChunk MeshChunk(Chunk chunk, Registry registry){
             uint bytes = chunk.voxels[0];
             int objectID = (int) (bytes & b);
 
-            Texture texture = registry.SelectByID(objectID).texture;
+            Texture texture = reg.SelectByID(objectID).texture;
             SpatialMaterial material = new SpatialMaterial();
 
             float textureWidth = 2048f / texture.GetWidth();

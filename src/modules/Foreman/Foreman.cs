@@ -49,7 +49,7 @@ public class Foreman
         }
 
         for(int t = 0; t < generationThreads; t++){
-            Threading thread = new Threading(() => Process(terra, weltschmerz, registry));
+            Threading thread = new Threading(() => Process());
             thread.Start();
         }
     }
@@ -128,7 +128,7 @@ public class Foreman
             priority.Clear();
     }
 
-    public void Process(Terra terra, Weltschmerz weltschmerz, Registry reg)
+    public void Process()
     {
         while (Threading.CurrentThread.IsAlive)
         {
@@ -137,14 +137,14 @@ public class Foreman
                 GodotVector3 pos;
                 if (centerQueue.TryDequeue(out pos))
                 {
-                    LoadArea((int) pos.x / 8, (int) pos.y / 8, (int) pos.z / 8, terra, weltschmerz, reg);
+                    LoadArea((int) pos.x / 8, (int) pos.y / 8, (int) pos.z / 8);
                 }
             }
         }
     }
  
     //Loads chunks
-    private void LoadArea(int x, int y, int z, Terra terra, Weltschmerz weltschmerz, Registry reg)
+    private void LoadArea(int x, int y, int z)
     {
         if (x >= 0 && z >= 0 && y >= 0)
         {
@@ -182,7 +182,7 @@ public class Foreman
 
                     terra.PlaceChunk(x, y, z, chunk);
                     if(!chunk.isEmpty){
-                        RawChunk rawChunk = mesher.MeshChunk(chunk, reg);
+                        RawChunk rawChunk = mesher.MeshChunk(chunk);
                         rawChunks.Enqueue(rawChunk);
                     }
                 }
