@@ -5,11 +5,8 @@ public class Terra
 {
     // Declare member variables here. Examples:
     private volatile Octree octree;
-    private Node parent;
-
-    public Terra(int sizeX, int sizeY, int sizeZ, Node parent)
+    public Terra(int sizeX, int sizeY, int sizeZ)
     {
-        this.parent = parent;
         octree = new Octree();
         octree.sizeX = sizeX;
         octree.sizeY = sizeY;

@@ -50,10 +50,11 @@ public class Picker
 
     private void ProcessChunks(Chunk chunk)
     {
-        DateTime timeA = DateTime.Now;
+        /*DateTime timeA = DateTime.Now;
         mesher.MeshChunk(chunk, false);
         DateTime timeB = DateTime.Now;
         GD.Print("Picking meshing finished in: " + timeB.Subtract(timeA).Milliseconds + " ms");
+        */
     }
 
     public void Place()

@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Buffers;
 using System.Numerics;
@@ -6,7 +5,6 @@ using Node = Godot.Node;
 using System.Collections.Concurrent;
 using GodotVector3 = Godot.Vector3;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Threading = System.Threading.Thread;
 
 public class Foreman
@@ -14,34 +12,26 @@ public class Foreman
     //This is recommend max static octree size because it takes 134 MB
     private volatile GameMesher mesher;
     private volatile Octree octree;
-    private volatile Node parent;
-    private volatile List<long>[] debugMeasures;
-    private volatile int dirtID;
-    private volatile int grassID;
+    private volatile static int dirtID;
+    private volatile static int grassID;
     private int grassMeshID;
     private volatile Weltschmerz weltschmerz;
-    private Terra terra;
+    private volatile Terra terra;
     private int viewDistance;
     private float fov;
     private volatile List<Vector3> localCenters;
-    private volatile bool canLoad = false;
-    private volatile ConcurrentQueue<GodotVector3> centerQueue;
-    int lol;
-
-    public Foreman(Weltschmerz weltschmerz, Node parent, Terra terra, GameMesher mesher,
-        int viewDistance, float fov)
+    private volatile static bool canLoad = false;
+    private volatile static ConcurrentQueue<GodotVector3> centerQueue = new ConcurrentQueue<GodotVector3>();
+    private volatile static ConcurrentQueue<RawChunk> rawChunks;
+    public Foreman(Weltschmerz weltschmerz, Terra terra, Registry registry,
+        int viewDistance, float fov, int generationThreads)
     {
         this.weltschmerz = weltschmerz;
         this.terra = terra;
-        this.mesher = mesher;
         this.octree = terra.GetOctree();
-        this.parent = parent;
         this.viewDistance = viewDistance;
         this.fov = fov;
-        debugMeasures = new List<long>[3];
-        debugMeasures[0] = new List<long>();
         localCenters = new List<Vector3>();
-        this.centerQueue = new ConcurrentQueue<GodotVector3>();
 
         for (int l = -viewDistance; l < viewDistance; l += 8)
         {
@@ -55,14 +45,20 @@ public class Foreman
             }
         }
 
-        Threading thread = new Threading(Process);
-        thread.Start();
+        for(int t = 0; t < generationThreads; t++){
+            Threading thread = new Threading(() => Process(terra, weltschmerz, registry));
+            thread.Start();
+        }
+    }
+
+    public void SetQueue(ConcurrentQueue<RawChunk> rawChunks){
+        Foreman.rawChunks = rawChunks;
     }
 
     //Initial generation
     public void GenerateTerrain(LoadMarker loadMarker)
     {
-        SortedList<float, List<GodotVector3>> priority = new SortedList<float, List<GodotVector3>>();
+            SortedList<float, List<GodotVector3>> priority = new SortedList<float, List<GodotVector3>>();
             List<Vector3> topPriority = new List<Vector3>();
 
             for (int y = (loadMarker.loadRadius / 2) * 8; y >= -(loadMarker.loadRadius / 2) * 8; y -= 8)
@@ -129,12 +125,11 @@ public class Foreman
 
                 priority.Remove(key);
             }
-
-            priority.Clear();
             canLoad = true;
+            priority.Clear();
     }
 
-    public void Process()
+    public static void Process(Terra terra, Weltschmerz weltschmerz, Registry reg)
     {
         while (true)
         {
@@ -143,70 +138,22 @@ public class Foreman
                 GodotVector3 pos;
                 if (centerQueue.TryDequeue(out pos))
                 {
-                    LoadArea((int) pos.x / 8, (int) pos.y / 8, (int) pos.z / 8);
+                    LoadArea((int) pos.x / 8, (int) pos.y / 8, (int) pos.z / 8, terra, weltschmerz, reg);
                 }
             }
         }
     }
-    /*          if(profiling){
-      GD.Print("Profiling started at " + DateTime.Now);
-      Stopwatch watch = new Stopwatch();
-      List<long>[] measures = GetMeasures();
-      GD.Print("Profiling finished after " + watch.Elapsed.Seconds +" seconds");
-
-      GD.Print("Average filling " + measures[0].Average()+" ms");
-      GD.Print("Min filling " + measures[0].Min()+" ms");
-      GD.Print("Max filling " + measures[0].Max()+" ms");
-
-        GD.Print("Average meshing rle " + measures[2].Average()+" ms");
-      GD.Print("Min Meshing " + measures[2].Min()+" ms");
-      GD.Print("Max Meshing " + measures[2].Max()+" ms");
-
-        GD.Print("Average adding to godot  " + measures[1].Average()+" ms");
-      GD.Print("Min Mesh generation  " + measures[1].Min()+" ms");
-      GD.Print("Max Mesh generation  " + measures[1].Max()+" ms");
-
-      GD.Print("Total time taken for one chunk  " + (measures[0].Average() + measures[1].Average() + measures[2].Average() )+" ms");
-      }
-  */
-
-    /*    if(node.children[0] != null){
-                List<int> materialIDs = new List<int>(8);
-                materialIDs.Add(node.children[0].materialID);
-        for(int i = 0; i < 8; i++){
-            if(node.children[i] != null){
-            if(materialIDs.Contains(node.children[i].materialID)){
-                materialIDs.Add(node.children[i].materialID);
-            }
-            }else{
-                materialIDs = null;
-                break;
-            }
-        }
-
-        if(materialIDs != null){
-           JoinChildren(node, layer, materialIDs[0]);
-        }
-        }
-        
-        lol++;
-        GD.Print(lol);
-        */
-
+ 
     //Loads chunks
-    private void LoadArea(int x, int y, int z)
+    private static void LoadArea(int x, int y, int z, Terra terra, Weltschmerz weltschmerz, Registry reg)
     {
         if (x >= 0 && z >= 0 && y >= 0)
         {
             int lolong = (int) Morton3D.encode(x, y, z);
-            int size = octree.sizeX * octree.sizeY * octree.sizeZ;
+            Octree octree = terra.GetOctree();
+            int size =  octree.sizeX * octree.sizeY * octree.sizeZ;
 
-            if (lolong < size)
-            {
-                Stopwatch watch = new Stopwatch();
-                watch.Start();
-
-                if (terra.TraverseOctree(x, y, z, 0).chunk == null && lolong < size)
+            if (lolong < size && terra.TraverseOctree(x, y, z, 0).chunk == null && lolong < size)
                 {
                     OctreeNode childNode = new OctreeNode();
 
@@ -222,7 +169,7 @@ public class Foreman
                     else
                     {
                         chunk = GenerateChunk(x << Constants.CHUNK_EXPONENT, y << Constants.CHUNK_EXPONENT,
-                            z << Constants.CHUNK_EXPONENT);
+                            z << Constants.CHUNK_EXPONENT, weltschmerz);
                         if (!chunk.isSurface)
                         {
                             childNode.materialID = (int) chunk.voxels[0];
@@ -235,21 +182,13 @@ public class Foreman
                     }
 
                     terra.PlaceChunk(x, y, z, chunk);
-
-                    watch.Stop();
-                    debugMeasures[0].Add(watch.ElapsedMilliseconds);
-                    mesher.MeshChunk(chunk, false);
+                    if(!chunk.isEmpty){
+                        RawChunk rawChunk = GameMesher.CreateRawChunk(chunk);
+                        rawChunks.Enqueue(rawChunk);
+                    }
                 }
             }
         }
-    }
-
-    public List<long>[] GetMeasures()
-    {
-        debugMeasures[1] = mesher.GetAddingMeasures();
-        debugMeasures[2] = mesher.GetMeshingMeasures();
-        return debugMeasures;
-    }
 
     public void SetMaterials(Registry registry)
     {
@@ -257,7 +196,7 @@ public class Foreman
         grassID = registry.SelectByName("grass").worldID;
     }
 
-    public Chunk GenerateChunk(float posX, float posY, float posZ)
+    public static Chunk GenerateChunk(float posX, float posY, float posZ, Weltschmerz weltschmerz)
     {
         Chunk chunk = new Chunk();
 

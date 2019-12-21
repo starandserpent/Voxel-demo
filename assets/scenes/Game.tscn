@@ -13,9 +13,6 @@ script = ExtResource( 1 )
 SEED = 1234
 AVERAGE_TERRAIN_HIGHT = 10
 TERRAIN_GENERATION_MULTIPLIER = 100
-WORLD_SIZEX = 900
-WORLD_SIZEY = 900
-WORLD_SIZEZ = 900
 
 [node name="Player" type="Spatial" parent="."]
 transform = Transform( -1, 0, -8.74228e-008, 0, 1, 0, 8.74228e-008, 0, -1, 200, 10, 200 )
