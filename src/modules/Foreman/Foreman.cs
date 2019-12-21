@@ -131,7 +131,7 @@ public class Foreman
 
     public static void Process(Terra terra, Weltschmerz weltschmerz, Registry reg)
     {
-        while (true)
+        while (Threading.CurrentThread.IsAlive)
         {
             if (canLoad && !centerQueue.IsEmpty)
             {
@@ -183,7 +183,7 @@ public class Foreman
 
                     terra.PlaceChunk(x, y, z, chunk);
                     if(!chunk.isEmpty){
-                        RawChunk rawChunk = GameMesher.CreateRawChunk(chunk);
+                        RawChunk rawChunk = GameMesher.MeshChunk(chunk, reg);
                         rawChunks.Enqueue(rawChunk);
                     }
                 }

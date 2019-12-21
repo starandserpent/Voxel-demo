@@ -1,4 +1,6 @@
-using System.Collections.Generic;
+using System;
+using System.Linq;
+using Godot.Collections;
 using System.Collections.Concurrent;
 using Godot;
 
@@ -32,7 +34,7 @@ public class GameController : Spatial
         PrimitiveResources.register(registry);
         weltschmerz = new Weltschmerz(SEED, TERRAIN_GENERATION_MULTIPLIER, AVERAGE_TERRAIN_HIGHT, MAX_ELEVATION,
             NOISE_FREQUENCY);
-            mesher = new GameMesher(registry, false);
+        mesher = new GameMesher(registry, false);
         terra = new Terra(WORLD_SIZE_X, WORLD_SIZE_Y, WORLD_SIZE_Z);
         picker = new Picker(terra, mesher);
     }
@@ -44,8 +46,36 @@ public class GameController : Spatial
             RawChunk chunk;
             if (instances.TryDequeue(out chunk))
             {
-               MeshInstance instance = mesher.MeshChunk(chunk);
-                this.AddChild(instance);
+                MeshInstance meshInstance = new MeshInstance();
+                ArrayMesh mesh = new ArrayMesh();
+                StaticBody body = new StaticBody();
+                
+                for(int t = 0; t < chunk.arrays.Count(); t ++){
+                    Texture texture = chunk.textures[t];
+                    Vector3[] vertice = chunk.colliderFaces[t];
+                    Godot.Collections.Array godotArray = chunk.arrays[t];
+
+                    SpatialMaterial material = new SpatialMaterial();
+                    texture.Flags = 2;
+                    material.AlbedoTexture = texture;
+
+                    ConcavePolygonShape shape = new ConcavePolygonShape();
+                    shape.SetFaces(vertice);
+
+                    mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, godotArray);
+                    mesh.SurfaceSetMaterial(mesh.GetSurfaceCount() - 1, material);
+                    CollisionShape colShape = new CollisionShape();
+                    colShape.SetShape(shape);
+                    body.AddChild(colShape);
+                }
+
+                meshInstance.AddChild(body);
+                 meshInstance.Mesh = mesh;
+
+            meshInstance.Name = "chunk:" + chunk.x + "," + chunk.y + "," + chunk.z;
+            meshInstance.Translation = new Vector3(chunk.x, chunk.y, chunk.z);
+
+                this.AddChild(meshInstance);
             }
         }
     }

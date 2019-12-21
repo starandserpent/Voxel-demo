@@ -120,10 +120,10 @@ public class Player : LoadMarker
 
     public override void _Process(float delta)
     {
-       /* objects.SetText("Objects: " + Performance.GetMonitor(Performance.Monitor.ObjectCount));
+        objects.SetText("Objects: " + Performance.GetMonitor(Performance.Monitor.ObjectCount));
         fps.SetText("FPS: " + Performance.GetMonitor(Performance.Monitor.TimeFps));
         memory.SetText("Memory: " + Performance.GetMonitor(Performance.Monitor.MemoryStatic) / (1024 * 1024) + " MB");
-*/
+
         gameController.Generate(this);
 
         if (Input.IsActionPressed("toggle_mouse_capture"))
