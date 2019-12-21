@@ -1,13 +1,14 @@
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using Godot;
 
 public class GameMesher
 {
-    private volatile List<MeshInstance> instances;
+    private volatile ConcurrentQueue<MeshInstance> instances;
     private volatile SplatterMesher splatterMesher;
     private volatile NaiveGreedyMesher mesher = null;
 
-    public GameMesher(List<MeshInstance> instances, Registry reg, bool profile)
+    public GameMesher(ConcurrentQueue<MeshInstance> instances, Registry reg, bool profile)
     {
         this.instances = instances;
         mesher = new NaiveGreedyMesher(reg);
@@ -37,7 +38,7 @@ public class GameMesher
             meshInstance.Name = "chunk:" + chunk.x + "," + chunk.y + "," + chunk.z;
             meshInstance.Translation = new Vector3(chunk.x, chunk.y, chunk.z);
 
-            instances.Add(meshInstance);
+            instances.Enqueue(meshInstance);
         }
     }
 

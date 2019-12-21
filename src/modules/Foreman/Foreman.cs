@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Threading;
 using System.Buffers;
 using System.Numerics;
 using Node = Godot.Node;
@@ -9,7 +8,6 @@ using GodotVector3 = Godot.Vector3;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Threading = System.Threading.Thread;
-using ThreadingStart = System.Threading.ThreadStart;
 
 public class Foreman
 {
@@ -138,9 +136,8 @@ public class Foreman
         }
         catch (Exception ignore)
         {
-            canLoad = false;
+            canLoad = true;
             priority.Clear();
-            centerQueue = new ConcurrentQueue<GodotVector3>();
         }
     }
 

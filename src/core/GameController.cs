@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using Godot;
 
 public class GameController : Spatial
 {
-    private volatile List<MeshInstance> instances;
+    private volatile ConcurrentQueue<MeshInstance> instances;
     private Picker picker;
     private Terra terra;
     private Foreman foreman;
@@ -25,7 +26,7 @@ public class GameController : Spatial
     public override void _Ready()
     {
         //Has to be devidable by 16
-        instances = new List<MeshInstance>();
+        instances = new ConcurrentQueue<MeshInstance>();
         registry = new Registry();
         PrimitiveResources.register(registry);
         mesher = new GameMesher(instances, registry, Profiling);
@@ -37,11 +38,13 @@ public class GameController : Spatial
 
     public override void _PhysicsProcess(float delta)
     {
-        if (instances.Count > 0)
+        if (!instances.IsEmpty)
         {
-            MeshInstance instance = instances[0];
-            this.AddChild(instance);
-            instances.RemoveAt(0);
+            MeshInstance instance;
+            if (instances.TryDequeue(out instance))
+            {
+                this.AddChild(instance);
+            }
         }
     }
 

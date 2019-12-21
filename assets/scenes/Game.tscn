@@ -12,7 +12,7 @@ script = ExtResource( 1 )
 SEED = 1234
 AVERAGE_TERRAIN_HIGHT = 10
 TERRAIN_GENERATION_MULTIPLIER = 100
-VIEW_DISTANCE = 60
+VIEW_DISTANCE = 200
 WORLD_SIZEX = 900
 WORLD_SIZEY = 900
 WORLD_SIZEZ = 900
@@ -28,11 +28,6 @@ environment = ExtResource( 3 )
 current = true
 near = 0.01
 far = 8192.0
-
-[node name="Sprite3D" type="Sprite3D" parent="Player/Camera"]
-transform = Transform( 50, 0, 0, 0, 50, 0, 0, 0, 1, 0, 0, -0.1 )
-pixel_size = 0.0001
-texture = ExtResource( 4 )
 
 [node name="GUI" type="CanvasLayer" parent="Player/Camera"]
 
@@ -55,6 +50,18 @@ margin_top = 72.4778
 margin_right = 52.1317
 margin_bottom = 86.4778
 text = "Objects"
+
+[node name="crosshair" type="TextureRect" parent="Player/Camera/GUI"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -50.0
+margin_top = -50.0
+margin_right = 50.0
+margin_bottom = 50.0
+texture = ExtResource( 4 )
+expand = true
 
 [node name="Picker" type="RayCast" parent="."]
 enabled = true

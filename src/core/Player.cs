@@ -1,7 +1,6 @@
 using System;
 using Godot;
 using Threading = System.Threading.Thread;
-using ThreadingStart = System.Threading.ThreadStart;
 
 public class Player : LoadMarker
 {
@@ -17,7 +16,6 @@ public class Player : LoadMarker
     private Camera camera;
     private Picker picker;
     private Threading generation;
-    private ThreadingStart threading;
     private CanvasLayer GUI;
     private Label fps;
     private Label memory;
@@ -103,8 +101,9 @@ public class Player : LoadMarker
 
         picker = gameController.GetPicker();
 
-        threading = Begin;
-        generation = new Threading(threading);
+        generation = new Threading(Begin);
+
+        Input.SetMouseMode(Input.MouseMode.Captured);
 
         gameController.Prepare(camera);
         lastPosition = this.Translation;
@@ -143,7 +142,7 @@ public class Player : LoadMarker
 
         if (!generation.IsAlive)
         {
-            generation = new Threading(threading);
+            generation = new Threading(Begin);
             generation.Start();
             lastPosition = Translation;
         }
