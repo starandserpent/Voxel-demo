@@ -19,7 +19,8 @@ public class Player : LoadMarker
     private CanvasLayer GUI;
     private Label fps;
     private Label memory;
-    private Label objects;
+    private Label chunks;
+    private Label vertices;
     private Vector3 lastPosition;
 
     public override void _Input(InputEvent @event)
@@ -89,9 +90,12 @@ public class Player : LoadMarker
             {
                 memory = (Label) child;
             }
-            else if (child.Name.Equals("Objects"))
+            else if (child.Name.Equals("Chunks"))
             {
-                objects = (Label) child;
+                chunks = (Label) child;
+            } else if (child.Name.Equals("Vertices"))
+            {
+                vertices = (Label) child;
             }
         }
 
@@ -130,7 +134,8 @@ public class Player : LoadMarker
 
     public override void _Process(float delta)
     {
-        objects.SetText("Objects: " + Performance.GetMonitor(Performance.Monitor.ObjectCount));
+        chunks.SetText("Chunks: " + gameController.GetChunkCount());
+        vertices.SetText("Vertices: " + Performance.GetMonitor(Performance.Monitor.RenderVerticesInFrame));
         fps.SetText("FPS: " + Performance.GetMonitor(Performance.Monitor.TimeFps));
         memory.SetText("Memory: " + Performance.GetMonitor(Performance.Monitor.MemoryStatic) / (1024 * 1024) + " MB");
 

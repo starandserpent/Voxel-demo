@@ -40,14 +40,20 @@ margin_right = 44.2634
 margin_bottom = 40.6463
 text = "Memory:"
 
-[node name="Objects" type="Label" parent="Player/Camera/GUI"]
+[node name="Chunks" type="Label" parent="Player/Camera/GUI"]
 margin_left = 2.1317
 margin_top = 72.4778
 margin_right = 52.1317
 margin_bottom = 86.4778
-text = "Objects"
+text = "Chunks: "
 
-[node name="crosshair" type="TextureRect" parent="Player/Camera/GUI"]
+[node name="Vertices" type="Label" parent="Player/Camera/GUI"]
+margin_top = 105.812
+margin_right = 60.0
+margin_bottom = 119.812
+text = "Vertices: "
+
+[node name="Crosshair" type="TextureRect" parent="Player/Camera/GUI"]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5

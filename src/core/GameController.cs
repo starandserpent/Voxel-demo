@@ -21,6 +21,7 @@ public class GameController : Spatial
     private GameMesher mesher;
     private Weltschmerz weltschmerz;
     private Registry registry;
+    private int chunkCount;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -44,6 +45,7 @@ public class GameController : Spatial
             if (instances.TryDequeue(out instance))
             {
                 this.AddChild(instance);
+                chunkCount++;
             }
         }
     }
@@ -72,5 +74,9 @@ public class GameController : Spatial
     public Picker GetPicker()
     {
         return picker;
+    }
+
+    public int GetChunkCount(){
+        return chunkCount;
     }
 }
