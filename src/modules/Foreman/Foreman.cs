@@ -136,6 +136,7 @@ public class Foreman
         }
         catch (Exception ignore)
         {
+            centerQueue = new ConcurrentQueue<GodotVector3>();
             canLoad = true;
             priority.Clear();
         }

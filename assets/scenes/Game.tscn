@@ -8,11 +8,11 @@
 [node name="Spatial" type="Spatial"]
 
 [node name="GameController" type="Spatial" parent="."]
+transform = Transform( 0.999989, 0.00459154, 0, -0.00459154, 0.999989, 0, 0, 0, 1, 0, 0, 0 )
 script = ExtResource( 1 )
 SEED = 1234
 AVERAGE_TERRAIN_HIGHT = 10
 TERRAIN_GENERATION_MULTIPLIER = 100
-VIEW_DISTANCE = 200
 WORLD_SIZEX = 900
 WORLD_SIZEY = 900
 WORLD_SIZEZ = 900
