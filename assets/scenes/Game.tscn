@@ -13,9 +13,6 @@ script = ExtResource( 1 )
 SEED = 1234
 AVERAGE_TERRAIN_HIGHT = 10
 TERRAIN_GENERATION_MULTIPLIER = 100
-WORLD_SIZEX = 900
-WORLD_SIZEY = 900
-WORLD_SIZEZ = 900
 
 [node name="Player" type="Spatial" parent="."]
 transform = Transform( -1, 0, -8.74228e-008, 0, 1, 0, 8.74228e-008, 0, -1, 200, 10, 200 )
@@ -34,7 +31,6 @@ far = 8192.0
 [node name="FPS" type="Label" parent="Player/Camera/GUI"]
 margin_right = 68.0
 margin_bottom = 14.0
-custom_colors/font_color = Color( 0, 0, 0, 1 )
 text = "FPS:"
 
 [node name="Memory" type="Label" parent="Player/Camera/GUI"]
@@ -56,10 +52,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-margin_left = -50.0
-margin_top = -50.0
-margin_right = 50.0
-margin_bottom = 50.0
+margin_left = -10.0
+margin_top = -10.0
+margin_right = 10.0
+margin_bottom = 10.0
 texture = ExtResource( 4 )
 expand = true
 
