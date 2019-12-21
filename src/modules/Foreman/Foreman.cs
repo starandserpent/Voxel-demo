@@ -12,26 +12,29 @@ public class Foreman
     //This is recommend max static octree size because it takes 134 MB
     private volatile GameMesher mesher;
     private volatile Octree octree;
-    private volatile static int dirtID;
-    private volatile static int grassID;
+    private volatile int dirtID;
+    private volatile int grassID;
     private int grassMeshID;
     private volatile Weltschmerz weltschmerz;
     private volatile Terra terra;
     private int viewDistance;
     private float fov;
     private volatile List<Vector3> localCenters;
-    private volatile static bool canLoad = false;
-    private volatile static ConcurrentQueue<GodotVector3> centerQueue = new ConcurrentQueue<GodotVector3>();
-    private volatile static ConcurrentQueue<RawChunk> rawChunks;
-    public Foreman(Weltschmerz weltschmerz, Terra terra, Registry registry,
-        int viewDistance, float fov, int generationThreads)
+    private volatile bool canLoad = false;
+    private volatile ConcurrentQueue<GodotVector3> centerQueue;
+    private volatile ConcurrentQueue<RawChunk> rawChunks;
+    public Foreman(Weltschmerz weltschmerz, Terra terra, Registry registry, GameMesher mesher,
+        int viewDistance, float fov, int generationThreads, ConcurrentQueue<RawChunk> rawChunks)
     {
         this.weltschmerz = weltschmerz;
         this.terra = terra;
         this.octree = terra.GetOctree();
         this.viewDistance = viewDistance;
         this.fov = fov;
+        this.mesher = mesher;
+        this.rawChunks = rawChunks;
         localCenters = new List<Vector3>();
+        centerQueue = new ConcurrentQueue<GodotVector3>();
 
         for (int l = -viewDistance; l < viewDistance; l += 8)
         {
@@ -49,10 +52,6 @@ public class Foreman
             Threading thread = new Threading(() => Process(terra, weltschmerz, registry));
             thread.Start();
         }
-    }
-
-    public void SetQueue(ConcurrentQueue<RawChunk> rawChunks){
-        Foreman.rawChunks = rawChunks;
     }
 
     //Initial generation
@@ -129,7 +128,7 @@ public class Foreman
             priority.Clear();
     }
 
-    public static void Process(Terra terra, Weltschmerz weltschmerz, Registry reg)
+    public void Process(Terra terra, Weltschmerz weltschmerz, Registry reg)
     {
         while (Threading.CurrentThread.IsAlive)
         {
@@ -145,7 +144,7 @@ public class Foreman
     }
  
     //Loads chunks
-    private static void LoadArea(int x, int y, int z, Terra terra, Weltschmerz weltschmerz, Registry reg)
+    private void LoadArea(int x, int y, int z, Terra terra, Weltschmerz weltschmerz, Registry reg)
     {
         if (x >= 0 && z >= 0 && y >= 0)
         {
@@ -183,7 +182,7 @@ public class Foreman
 
                     terra.PlaceChunk(x, y, z, chunk);
                     if(!chunk.isEmpty){
-                        RawChunk rawChunk = GameMesher.MeshChunk(chunk, reg);
+                        RawChunk rawChunk = mesher.MeshChunk(chunk, reg);
                         rawChunks.Enqueue(rawChunk);
                     }
                 }
@@ -196,7 +195,7 @@ public class Foreman
         grassID = registry.SelectByName("grass").worldID;
     }
 
-    public static Chunk GenerateChunk(float posX, float posY, float posZ, Weltschmerz weltschmerz)
+    public Chunk GenerateChunk(float posX, float posY, float posZ, Weltschmerz weltschmerz)
     {
         Chunk chunk = new Chunk();
 

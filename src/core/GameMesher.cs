@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using Godot;
 using System.Buffers;
 
@@ -14,7 +13,7 @@ public class GameMesher
         splatterMesher = new SplatterMesher(shaderMat, reg);
     }
 
-public static RawChunk MeshChunk(Chunk chunk, Registry registry){
+public RawChunk MeshChunk(Chunk chunk, Registry registry){
     RawChunk rawChunk = new RawChunk();
     rawChunk.x = chunk.x;
     rawChunk.y = chunk.y;

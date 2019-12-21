@@ -82,8 +82,8 @@ public class GameController : Spatial
 
     public void Prepare(Camera camera)
     {
-        foreman = new Foreman(weltschmerz, terra, registry, VIEW_DISTANCE, camera.Fov, GENERATION_THREADS);
-        foreman.SetQueue(instances);
+        foreman = new Foreman(weltschmerz, terra, registry, mesher, VIEW_DISTANCE, camera.Fov, GENERATION_THREADS, 
+        instances);
         foreman.SetMaterials(registry);
     }
 
