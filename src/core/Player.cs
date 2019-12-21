@@ -5,7 +5,7 @@ using ThreadingStart = System.Threading.ThreadStart;
 
 public class Player : LoadMarker
 {
-    [Export]  public float MOUSE_SENSITIVITY = 0.002F;
+    [Export] public float MOUSE_SENSITIVITY = 0.002F;
     [Export] public float MOVE_SPEED = 0.9F;
     [Export] public int LOAD_RADIUS = 2;
     private Vector3 motion;
@@ -73,7 +73,7 @@ public class Player : LoadMarker
             }
         }
 
-          foreach (Node child in camera.GetChildren())
+        foreach (Node child in camera.GetChildren())
         {
             if (child.Name.Equals("GUI"))
             {
@@ -83,17 +83,22 @@ public class Player : LoadMarker
 
         foreach (Node child in GUI.GetChildren())
         {
-            if(child.Name.Equals("FPS")){
+            if (child.Name.Equals("FPS"))
+            {
                 fps = (Label) child;
-            }else if(child.Name.Equals("Memory")){
+            }
+            else if (child.Name.Equals("Memory"))
+            {
                 memory = (Label) child;
-            }else if(child.Name.Equals("Objects")){
+            }
+            else if (child.Name.Equals("Objects"))
+            {
                 objects = (Label) child;
             }
         }
 
-     //  GetViewport().DebugDraw = Viewport.DebugDrawEnum.Wireframe; 
-       // VisualServer.SetDebugGenerateWireframes(true);
+        //  GetViewport().DebugDraw = Viewport.DebugDrawEnum.Wireframe; 
+        // VisualServer.SetDebugGenerateWireframes(true);
         initialRotation = new Vector3();
 
         picker = gameController.GetPicker();
@@ -128,13 +133,16 @@ public class Player : LoadMarker
     {
         objects.SetText("Objects: " + Performance.GetMonitor(Performance.Monitor.ObjectCount));
         fps.SetText("FPS: " + Performance.GetMonitor(Performance.Monitor.TimeFps));
-        memory.SetText("Memory: " + Performance.GetMonitor(Performance.Monitor.MemoryStatic)/(1024*1024) + " MB");
+        memory.SetText("Memory: " + Performance.GetMonitor(Performance.Monitor.MemoryStatic) / (1024 * 1024) + " MB");
 
-if (!gameController.CheckPlayerPosition((int)Translation.x/8, (int)Translation.y/8, (int)Translation.z/8) && generation.IsAlive){
-    generation.Abort();
-}
+        if (!gameController.CheckPlayerPosition((int) Translation.x / 8, (int) Translation.y / 8,
+                (int) Translation.z / 8) && generation.IsAlive)
+        {
+            generation.Abort();
+        }
 
-        if(!generation.IsAlive){
+        if (!generation.IsAlive)
+        {
             generation = new Threading(threading);
             generation.Start();
             lastPosition = Translation;

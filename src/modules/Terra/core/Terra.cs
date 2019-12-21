@@ -1,10 +1,12 @@
 using System;
 using Godot;
+
 public class Terra
 {
     // Declare member variables here. Examples:
     private volatile Octree octree;
     private Node parent;
+
     public Terra(int sizeX, int sizeY, int sizeZ, Node parent)
     {
         this.parent = parent;
@@ -14,7 +16,7 @@ public class Terra
         octree.sizeZ = sizeZ;
 
         int size = octree.sizeX * octree.sizeY * octree.sizeZ;
-        octree.layers = (int) Utils.CalculateLayers((uint)size);
+        octree.layers = (int) Utils.CalculateLayers((uint) size);
 
         OctreeNode octreeNode = new OctreeNode();
         octreeNode.children = new OctreeNode[8];
@@ -22,7 +24,8 @@ public class Terra
         octree.mainNode = octreeNode;
     }
 
-    public Octree GetOctree(){
+    public Octree GetOctree()
+    {
         return octree;
     }
 
@@ -32,15 +35,17 @@ public class Terra
         {
             int currentLayer = octree.layers;
             OctreeNode currentNode = octree.mainNode;
-            while (currentLayer > layer){
-                int nodePosX = (int)(posX/(currentLayer * 2));
-                int nodePosY = (int)(posY/(currentLayer * 2));
-                int nodePosZ = (int)(posZ/(currentLayer * 2));
+            while (currentLayer > layer)
+            {
+                int nodePosX = (int) (posX / (currentLayer * 2));
+                int nodePosY = (int) (posY / (currentLayer * 2));
+                int nodePosZ = (int) (posZ / (currentLayer * 2));
 
                 currentLayer -= 1;
                 int nodePos = SelectChildOctant(nodePosX, nodePosY, nodePosZ);
                 OctreeNode childNode = currentNode.children[nodePos];
-                if(childNode == null){
+                if (childNode == null)
+                {
                     childNode = new OctreeNode();
                     childNode.children = new OctreeNode[8];
                     currentNode.children[nodePos] = childNode;
@@ -48,34 +53,40 @@ public class Terra
 
                 currentNode = childNode;
 
-               /* string name =  "layer: " + currentLayer + " "+ nodePosX * 16 * (float) Math.Pow(2, currentLayer) + " " + nodePosY * 16 * (float) Math.Pow(2, currentLayer) +
-                            " " + nodePosZ * 16 * (float) Math.Pow(2, currentLayer);
-            if(parent.FindNode(name) == null){
-            MeshInstance instance = DebugMesh();
-            instance.Scale = new Vector3(32 * (float) Math.Pow(2, currentLayer - 2), 32 * (float) Math.Pow(2, currentLayer - 2),
-                32 * (float) Math.Pow(2, currentLayer - 2));
-            instance.Name = name;
-            instance.Translation = new Vector3(nodePosX * 16 * (float) Math.Pow(2, currentLayer - 1),
-                nodePosY * 16 * (float) Math.Pow(2, currentLayer - 1), nodePosZ * 16 * (float) Math.Pow(2, currentLayer - 1));
-            parent.AddChild(instance);
-            }*/
+                /* string name =  "layer: " + currentLayer + " "+ nodePosX * 16 * (float) Math.Pow(2, currentLayer) + " " + nodePosY * 16 * (float) Math.Pow(2, currentLayer) +
+                             " " + nodePosZ * 16 * (float) Math.Pow(2, currentLayer);
+             if(parent.FindNode(name) == null){
+             MeshInstance instance = DebugMesh();
+             instance.Scale = new Vector3(32 * (float) Math.Pow(2, currentLayer - 2), 32 * (float) Math.Pow(2, currentLayer - 2),
+                 32 * (float) Math.Pow(2, currentLayer - 2));
+             instance.Name = name;
+             instance.Translation = new Vector3(nodePosX * 16 * (float) Math.Pow(2, currentLayer - 1),
+                 nodePosY * 16 * (float) Math.Pow(2, currentLayer - 1), nodePosZ * 16 * (float) Math.Pow(2, currentLayer - 1));
+             parent.AddChild(instance);
+             }*/
             }
-            if(currentLayer == 0){
+
+            if (currentLayer == 0)
+            {
                 int pos = SelectChildOctant(posX, posY, posZ);
                 OctreeNode childNode = currentNode.children[pos];
-                if(childNode == null){
+                if (childNode == null)
+                {
                     childNode = new OctreeNode();
                     currentNode.children[pos] = childNode;
                 }
 
                 return childNode;
             }
+
             return currentNode;
         }
+
         return null;
     }
 
-    public void PlaceChunk(int posX, int posY, int posZ, Chunk chunk){
+    public void PlaceChunk(int posX, int posY, int posZ, Chunk chunk)
+    {
         OctreeNode node = TraverseOctree(posX, posY, posZ, 0);
         node.chunk = chunk;
     }
@@ -88,27 +99,43 @@ public class Terra
         octree.nodes[0][lolong] = node;*/
     }
 
-    private int SelectChildOctant(int posX, int posY, int posZ){
-        if(posX % 2 == 0 && posY % 2 == 0 && posZ % 2 == 0){
+    private int SelectChildOctant(int posX, int posY, int posZ)
+    {
+        if (posX % 2 == 0 && posY % 2 == 0 && posZ % 2 == 0)
+        {
             return 0;
-         }else if(posX % 2 == 1 && posY % 2 == 0 && posZ % 2 == 0){
+        }
+        else if (posX % 2 == 1 && posY % 2 == 0 && posZ % 2 == 0)
+        {
             return 1;
-        }else if(posX % 2 == 0 && posY % 2 == 0 && posZ % 2 == 1){
+        }
+        else if (posX % 2 == 0 && posY % 2 == 0 && posZ % 2 == 1)
+        {
             return 2;
-        }else if(posX % 2 == 1 && posY % 2 == 0 && posZ % 2 == 1){
+        }
+        else if (posX % 2 == 1 && posY % 2 == 0 && posZ % 2 == 1)
+        {
             return 3;
-        }else if(posX % 2 == 0 && posY % 2 == 1 && posZ % 2 == 0){
+        }
+        else if (posX % 2 == 0 && posY % 2 == 1 && posZ % 2 == 0)
+        {
             return 4;
-        }else if(posX % 2 == 1 && posY % 2 == 1 && posZ % 2 == 0){
+        }
+        else if (posX % 2 == 1 && posY % 2 == 1 && posZ % 2 == 0)
+        {
             return 5;
-        }else if(posX % 2 == 0 && posY % 2 == 1 && posZ % 2 == 1){
+        }
+        else if (posX % 2 == 0 && posY % 2 == 1 && posZ % 2 == 1)
+        {
             return 6;
-        }else{
+        }
+        else
+        {
             return 7;
         }
     }
 
-            private static MeshInstance DebugMesh()
+    private static MeshInstance DebugMesh()
     {
         SurfaceTool tool = new SurfaceTool();
         tool.Begin(PrimitiveMesh.PrimitiveType.Lines);

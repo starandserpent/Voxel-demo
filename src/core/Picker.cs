@@ -24,28 +24,28 @@ public class Picker
         float posX = pos.x;
         float posY = pos.y;
         float posZ = pos.z;
-       // Chunk chunk = terra.TraverseOctree((int) posX / 16, (int) posY / 16, (int) posZ / 16);
+        // Chunk chunk = terra.TraverseOctree((int) posX / 16, (int) posY / 16, (int) posZ / 16);
 
-       /* int x = (int) ((posX - chunk.x) * 4);
-        int y = (int) ((posY - chunk.y) * 4);
-        int z = (int) ((posZ - chunk.z) * 4);
-
-        if (normals.y > 0)
-        {
-            y--;
-        }
-
-        if (normals.z > 0)
-        {
-            z--;
-        }
-
-        //      if(x + (y * 64) + (z * 4096) < chunk.voxels.Length && !chunk.voxels.Span.IsEmpty){
-        //        chunk.voxels.Span[x + (y * 64) + (z * 64 * 64)] = 0;
-        //      terra.ReplaceChunk((int) posX/16,(int) posY/16,(int) posZ/16,chunk);
-        //    ProcessChunks(chunk);
-        //}
-        */
+        /* int x = (int) ((posX - chunk.x) * 4);
+         int y = (int) ((posY - chunk.y) * 4);
+         int z = (int) ((posZ - chunk.z) * 4);
+ 
+         if (normals.y > 0)
+         {
+             y--;
+         }
+ 
+         if (normals.z > 0)
+         {
+             z--;
+         }
+ 
+         //      if(x + (y * 64) + (z * 4096) < chunk.voxels.Length && !chunk.voxels.Span.IsEmpty){
+         //        chunk.voxels.Span[x + (y * 64) + (z * 64 * 64)] = 0;
+         //      terra.ReplaceChunk((int) posX/16,(int) posY/16,(int) posZ/16,chunk);
+         //    ProcessChunks(chunk);
+         //}
+         */
     }
 
     private void ProcessChunks(Chunk chunk)

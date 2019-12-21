@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+
 public class Utils
 {
     private const int WORDBITS = 32;
@@ -46,7 +47,8 @@ public class Utils
         return FloorLog2(size) / 3;
     }
 
-    public static int GetPosFromFOV(float fov, int lenght){
-        return (int)(lenght * Math.Atan(fov));
+    public static int GetPosFromFOV(float fov, int lenght)
+    {
+        return (int) (lenght * Math.Atan(fov));
     }
-} 
+}

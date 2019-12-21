@@ -27,458 +27,487 @@ public class NaiveGreedyMesher
         long a = 16777215 << 8;
         byte b = 255;
 
-        if(chunk.materials > 1){
-        Stopwatch watch = new Stopwatch();
-        watch.Start();
-        Vector3[][] vertices = new Vector3[chunk.materials - 1][];
-        int count = 0;
-        int[] indice = new int[chunk.materials - 1];
-        int[] arraySize = new int[chunk.materials - 1];
-
-        for (int i = 0; i < Constants.CHUNK_SIZE3D; i++)
+        if (chunk.materials > 1)
         {
-            if(count >=Constants.CHUNK_SIZE3D){
-                break;
-            }
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            Vector3[][] vertices = new Vector3[chunk.materials - 1][];
+            int count = 0;
+            int[] indice = new int[chunk.materials - 1];
+            int[] arraySize = new int[chunk.materials - 1];
 
-            uint bytes = chunk.voxels[i];
-
-            int lenght = (int) (bytes & a) >> 8;
-            int objectID = (int) (bytes & b);
-
-            if (objectID == 0)
+            for (int i = 0; i < Constants.CHUNK_SIZE3D; i++)
             {
-                count += lenght;
-                continue;
-            }
+                if (count >= Constants.CHUNK_SIZE3D)
+                {
+                    break;
+                }
 
-            if (vertices[objectID - 1] == null)
-            {   
-                Vector3[] buffer =  ArrayPool<Vector3>.Shared.Rent((Constants.CHUNK_SIZE3D/chunk.materials) * 6);
-                vertices[objectID - 1] = buffer;                                
-            }
+                uint bytes = chunk.voxels[i];
 
-            int z = count / Constants.CHUNK_SIZE2D;
-            int y = count % Constants.CHUNK_SIZE1D;
-            int x = (count / Constants.CHUNK_SIZE1D)%Constants.CHUNK_SIZE1D;
-            
-            float sx = x * Constants.VOXEL_SIZE;
-            float sy = y * Constants.VOXEL_SIZE;
-            float sz = z * Constants.VOXEL_SIZE;
+                int lenght = (int) (bytes & a) >> 8;
+                int objectID = (int) (bytes & b);
 
-            float ax = (x + 1) * Constants.VOXEL_SIZE;
-            float ay = (lenght + y)* Constants.VOXEL_SIZE;
-            float az = (z + 1)* Constants.VOXEL_SIZE;
+                if (objectID == 0)
+                {
+                    count += lenght;
+                    continue;
+                }
 
-            //Front
-            Vector3[] vectors = vertices[objectID - 1];
+                if (vertices[objectID - 1] == null)
+                {
+                    Vector3[] buffer = ArrayPool<Vector3>.Shared.Rent((Constants.CHUNK_SIZE3D / chunk.materials) * 6);
+                    vertices[objectID - 1] = buffer;
+                }
 
-            int index = indice[objectID - 1];
-            //Front
-            //1
-            vectors[index].x = sx;
-            vectors[index].y = sy;
-            vectors[index].z = sz;
+                int z = count / Constants.CHUNK_SIZE2D;
+                int y = count % Constants.CHUNK_SIZE1D;
+                int x = (count / Constants.CHUNK_SIZE1D) % Constants.CHUNK_SIZE1D;
 
-            //2
-            vectors[index + 1].x = ax;
-            vectors[index + 1].y = sy;
-            vectors[index + 1].z = sz;
+                float sx = x * Constants.VOXEL_SIZE;
+                float sy = y * Constants.VOXEL_SIZE;
+                float sz = z * Constants.VOXEL_SIZE;
 
-            //3
-             vectors[index + 2].x = ax;
-            vectors[index + 2].y = ay;
-            vectors[index + 2].z = sz;
+                float ax = (x + 1) * Constants.VOXEL_SIZE;
+                float ay = (lenght + y) * Constants.VOXEL_SIZE;
+                float az = (z + 1) * Constants.VOXEL_SIZE;
 
-            //4
-             vectors[index + 3].x = ax;
-            vectors[index + 3].y = ay;
-            vectors[index + 3].z = sz;
+                //Front
+                Vector3[] vectors = vertices[objectID - 1];
 
-            //5
-           vectors[index + 4].x = sx;
-            vectors[index + 4].y = ay;
-            vectors[index + 4].z = sz;
+                int index = indice[objectID - 1];
+                //Front
+                //1
+                vectors[index].x = sx;
+                vectors[index].y = sy;
+                vectors[index].z = sz;
 
-            //6
-           vectors[index + 5].x = sx;
-            vectors[index + 5].y = sy;
-            vectors[index + 5].z = sz;
+                //2
+                vectors[index + 1].x = ax;
+                vectors[index + 1].y = sy;
+                vectors[index + 1].z = sz;
 
-            if(z > 0 && index > (36 * Constants.CHUNK_SIZE1D)){     
-                      int pos = index - (36 * Constants.CHUNK_SIZE1D) + 2;
-                     if(vectors[pos].x < 0){
-                         pos = (int)-vectors[pos].x;
-                     }
+                //3
+                vectors[index + 2].x = ax;
+                vectors[index + 2].y = ay;
+                vectors[index + 2].z = sz;
 
-                    if(vectors[index + 2].y <= vectors[pos].y){
-                     for(int s = 0; s < 6; s ++){
-                        vectors[index + s].x = -pos;
+                //4
+                vectors[index + 3].x = ax;
+                vectors[index + 3].y = ay;
+                vectors[index + 3].z = sz;
+
+                //5
+                vectors[index + 4].x = sx;
+                vectors[index + 4].y = ay;
+                vectors[index + 4].z = sz;
+
+                //6
+                vectors[index + 5].x = sx;
+                vectors[index + 5].y = sy;
+                vectors[index + 5].z = sz;
+
+                if (z > 0 && index > (36 * Constants.CHUNK_SIZE1D))
+                {
+                    int pos = index - (36 * Constants.CHUNK_SIZE1D) + 2;
+                    if (vectors[pos].x < 0)
+                    {
+                        pos = (int) -vectors[pos].x;
                     }
+
+                    if (vectors[index + 2].y <= vectors[pos].y)
+                    {
+                        for (int s = 0; s < 6; s++)
+                        {
+                            vectors[index + s].x = -pos;
+                        }
+
                         arraySize[objectID - 1] -= 6;
                     }
 
-                    if (vectors[pos].y  < vectors[index + 2].y && vectors[pos + 2].y >= vectors[index].y){
-                        vectors[index].y = vectors[pos].y ; 
+                    if (vectors[pos].y < vectors[index + 2].y && vectors[pos + 2].y >= vectors[index].y)
+                    {
+                        vectors[index].y = vectors[pos].y;
                         vectors[index + 1].y = vectors[pos].y;
                         vectors[index + 5].y = vectors[pos].y;
                     }
-            }
-            
-            index += 6;
-
-            //Back
-            //1
-            vectors[index].x = ax;
-            vectors[index].y = sy;
-            vectors[index].z = az;
-
-            //2
-            vectors[index + 1].x = sx;
-            vectors[index + 1].y = sy;
-            vectors[index + 1].z = az;
-
-            //3
-             vectors[index + 2].x = sx;
-            vectors[index + 2].y = ay;
-            vectors[index + 2].z = az;
-
-            //4
-             vectors[index + 3].x = sx;
-            vectors[index + 3].y = ay;
-            vectors[index + 3].z = az;
-
-            //5
-           vectors[index + 4].x = ax;
-            vectors[index + 4].y = ay;
-            vectors[index + 4].z = az;
-
-            //6
-           vectors[index + 5].x = ax;
-            vectors[index + 5].y = sy;
-            vectors[index + 5].z = az;
-
-            if (z > 0 && index > (36 * Constants.CHUNK_SIZE1D))
-            {
-
-                int pos = index - (36 * Constants.CHUNK_SIZE1D);
-                if (vectors[pos + 2].y > ay && vectors[pos].y <= sy)
-                {
-                    vectors[pos].y = ay;
-                    vectors[pos + 1].y = ay;
-                    vectors[pos + 5].y = ay;
                 }
-                else if (vectors[pos + 2].y <= ay && vectors[pos].x == ax)
+
+                index += 6;
+
+                //Back
+                //1
+                vectors[index].x = ax;
+                vectors[index].y = sy;
+                vectors[index].z = az;
+
+                //2
+                vectors[index + 1].x = sx;
+                vectors[index + 1].y = sy;
+                vectors[index + 1].z = az;
+
+                //3
+                vectors[index + 2].x = sx;
+                vectors[index + 2].y = ay;
+                vectors[index + 2].z = az;
+
+                //4
+                vectors[index + 3].x = sx;
+                vectors[index + 3].y = ay;
+                vectors[index + 3].z = az;
+
+                //5
+                vectors[index + 4].x = ax;
+                vectors[index + 4].y = ay;
+                vectors[index + 4].z = az;
+
+                //6
+                vectors[index + 5].x = ax;
+                vectors[index + 5].y = sy;
+                vectors[index + 5].z = az;
+
+                if (z > 0 && index > (36 * Constants.CHUNK_SIZE1D))
                 {
-                    for(int s = 0; s < 6; s ++){
-                        vectors[index - ((36 * Constants.CHUNK_SIZE1D) - s)].x = -147457;
+                    int pos = index - (36 * Constants.CHUNK_SIZE1D);
+                    if (vectors[pos + 2].y > ay && vectors[pos].y <= sy)
+                    {
+                        vectors[pos].y = ay;
+                        vectors[pos + 1].y = ay;
+                        vectors[pos + 5].y = ay;
                     }
-                    arraySize[objectID - 1] -= 6;
-                }
-            }
+                    else if (vectors[pos + 2].y <= ay && vectors[pos].x == ax)
+                    {
+                        for (int s = 0; s < 6; s++)
+                        {
+                            vectors[index - ((36 * Constants.CHUNK_SIZE1D) - s)].x = -147457;
+                        }
 
-            index += 6;
-
-            //Left
-            //1
-            vectors[index].x = ax;
-            vectors[index].y = sy;
-            vectors[index].z = sz;
-
-            //2
-            vectors[index + 1].x = ax;
-            vectors[index + 1].y = sy;
-            vectors[index + 1].z = az;
-
-            //3
-            vectors[index + 2].x = ax;
-            vectors[index + 2].y = ay;
-            vectors[index + 2].z = az;
-
-            //4
-            vectors[index + 3].x = ax;
-            vectors[index + 3].y = ay;
-            vectors[index + 3].z = az;
-
-            //5
-           vectors[index + 4].x = ax;
-            vectors[index + 4].y = ay;
-            vectors[index + 4].z = sz;
-
-            //6
-            vectors[index + 5].x = ax;
-            vectors[index + 5].y = sy;
-            vectors[index + 5].z = sz;
-
-            if (x > 0 && index > 36)
-            {
-                if (vectors[index - 34].y > ay && vectors[index - 36].y <= sy)
-                {
-                    vectors[index - 36].y = ay;
-                    vectors[index - 35].y = ay;
-                    vectors[index - 31].y = ay;
-                }
-                else if (vectors[index - 34].y <= ay && vectors[index - 34].x == sx)
-                {
-                    for(int s = 0; s < 6; s ++){
-                        vectors[index - (31 + s)].x = -147457;
+                        arraySize[objectID - 1] -= 6;
                     }
-                    arraySize[objectID - 1] -= 6;
                 }
-            }
 
-            index += 6;
+                index += 6;
 
-            //Right
-           //1
-            vectors[index].x = sx;
-            vectors[index].y = sy;
-            vectors[index].z = az;
+                //Left
+                //1
+                vectors[index].x = ax;
+                vectors[index].y = sy;
+                vectors[index].z = sz;
 
-            //2
-            vectors[index + 1].x = sx;
-            vectors[index + 1].y = sy;
-            vectors[index + 1].z = sz;
+                //2
+                vectors[index + 1].x = ax;
+                vectors[index + 1].y = sy;
+                vectors[index + 1].z = az;
 
-            //3
-            vectors[index + 2].x = sx;
-            vectors[index + 2].y = ay;
-            vectors[index + 2].z = sz;
+                //3
+                vectors[index + 2].x = ax;
+                vectors[index + 2].y = ay;
+                vectors[index + 2].z = az;
 
-            //4
-            vectors[index + 3].x = sx;
-            vectors[index + 3].y = ay;
-            vectors[index + 3].z = sz;
+                //4
+                vectors[index + 3].x = ax;
+                vectors[index + 3].y = ay;
+                vectors[index + 3].z = az;
 
-            //5
-            vectors[index + 4].x = sx;
-            vectors[index + 4].y = ay;
-            vectors[index + 4].z = az;
+                //5
+                vectors[index + 4].x = ax;
+                vectors[index + 4].y = ay;
+                vectors[index + 4].z = sz;
 
-            //6
-            vectors[index + 5].x = sx;
-            vectors[index + 5].y = sy;
-            vectors[index + 5].z = az;
+                //6
+                vectors[index + 5].x = ax;
+                vectors[index + 5].y = sy;
+                vectors[index + 5].z = sz;
 
-            if(x > 0 && index > 36){     
-                      int pos = index - 34;
-                     if(vectors[pos].x < 0){
-                        pos = (int)-vectors[pos].x;
-                     }
-
-                    if(vectors[index + 2].y <= vectors[pos].y && vectors[pos].z == sz){
-                     for(int s = 0; s < 6; s ++){
-                        vectors[index + s].x = -pos;
+                if (x > 0 && index > 36)
+                {
+                    if (vectors[index - 34].y > ay && vectors[index - 36].y <= sy)
+                    {
+                        vectors[index - 36].y = ay;
+                        vectors[index - 35].y = ay;
+                        vectors[index - 31].y = ay;
                     }
+                    else if (vectors[index - 34].y <= ay && vectors[index - 34].x == sx)
+                    {
+                        for (int s = 0; s < 6; s++)
+                        {
+                            vectors[index - (31 + s)].x = -147457;
+                        }
+
+                        arraySize[objectID - 1] -= 6;
+                    }
+                }
+
+                index += 6;
+
+                //Right
+                //1
+                vectors[index].x = sx;
+                vectors[index].y = sy;
+                vectors[index].z = az;
+
+                //2
+                vectors[index + 1].x = sx;
+                vectors[index + 1].y = sy;
+                vectors[index + 1].z = sz;
+
+                //3
+                vectors[index + 2].x = sx;
+                vectors[index + 2].y = ay;
+                vectors[index + 2].z = sz;
+
+                //4
+                vectors[index + 3].x = sx;
+                vectors[index + 3].y = ay;
+                vectors[index + 3].z = sz;
+
+                //5
+                vectors[index + 4].x = sx;
+                vectors[index + 4].y = ay;
+                vectors[index + 4].z = az;
+
+                //6
+                vectors[index + 5].x = sx;
+                vectors[index + 5].y = sy;
+                vectors[index + 5].z = az;
+
+                if (x > 0 && index > 36)
+                {
+                    int pos = index - 34;
+                    if (vectors[pos].x < 0)
+                    {
+                        pos = (int) -vectors[pos].x;
+                    }
+
+                    if (vectors[index + 2].y <= vectors[pos].y && vectors[pos].z == sz)
+                    {
+                        for (int s = 0; s < 6; s++)
+                        {
+                            vectors[index + s].x = -pos;
+                        }
+
                         arraySize[objectID - 1] -= 6;
                     }
 
-                    if (vectors[pos].y  < vectors[index + 2].y && vectors[pos + 2].y >= vectors[index].y){
-                        vectors[index].y = vectors[pos].y; 
+                    if (vectors[pos].y < vectors[index + 2].y && vectors[pos + 2].y >= vectors[index].y)
+                    {
+                        vectors[index].y = vectors[pos].y;
                         vectors[index + 1].y = vectors[pos].y;
                         vectors[index + 5].y = vectors[pos].y;
                     }
-            }
+                }
 
-            index += 6;
+                index += 6;
 
-            //Top
-             float tx = sx;
-             float tz = sz;
-                if (x > 0 && index > 36 && vectors[index - 36].y == ay  && vectors[index - 35].x == sx && vectors[index - 34].x == sx)
+                //Top
+                float tx = sx;
+                float tz = sz;
+                if (x > 0 && index > 36 && vectors[index - 36].y == ay && vectors[index - 35].x == sx &&
+                    vectors[index - 34].x == sx)
                 {
                     tx = vectors[index - 36].x;
-                    for(int s = 0; s < 6; s ++){
+                    for (int s = 0; s < 6; s++)
+                    {
                         vectors[index - (31 + s)].x = -147457;
                     }
+
                     arraySize[objectID - 1] -= 6;
                 }
-            
-            //1
-            vectors[index].x = tx;
-            vectors[index].y = ay;
-            vectors[index].z = tz;
 
-            //2
-            vectors[index + 1].x = ax;
-            vectors[index + 1].y = ay;
-            vectors[index + 1].z = tz;
+                //1
+                vectors[index].x = tx;
+                vectors[index].y = ay;
+                vectors[index].z = tz;
 
-            //3
-            vectors[index + 2].x = ax;
-            vectors[index + 2].y = ay;
-            vectors[index + 2].z = az;
-                
-            //4 
-            vectors[index + 3].x = ax;
-            vectors[index + 3].y = ay;
-            vectors[index + 3].z = az;
+                //2
+                vectors[index + 1].x = ax;
+                vectors[index + 1].y = ay;
+                vectors[index + 1].z = tz;
 
-            //5
-            vectors[index + 4].x = tx;
-            vectors[index + 4].y = ay;
-            vectors[index + 4].z = az;
+                //3
+                vectors[index + 2].x = ax;
+                vectors[index + 2].y = ay;
+                vectors[index + 2].z = az;
 
-            //6
-            vectors[index + 5].x = tx;
-            vectors[index + 5].y = ay;
-            vectors[index + 5].z = tz;
+                //4 
+                vectors[index + 3].x = ax;
+                vectors[index + 3].y = ay;
+                vectors[index + 3].z = az;
 
-            index += 6;
-            //Bottom
-            tx = sx;
-            tz = sz;
-                if (x > 0 && index > 36 && vectors[index - 35].y == sy  && vectors[index - 36].x == sx  && vectors[index - 32].x == sx)
+                //5
+                vectors[index + 4].x = tx;
+                vectors[index + 4].y = ay;
+                vectors[index + 4].z = az;
+
+                //6
+                vectors[index + 5].x = tx;
+                vectors[index + 5].y = ay;
+                vectors[index + 5].z = tz;
+
+                index += 6;
+                //Bottom
+                tx = sx;
+                tz = sz;
+                if (x > 0 && index > 36 && vectors[index - 35].y == sy && vectors[index - 36].x == sx &&
+                    vectors[index - 32].x == sx)
                 {
                     tx = vectors[index - 35].x;
-                    for(int s = 0; s < 6; s ++){
+                    for (int s = 0; s < 6; s++)
+                    {
                         vectors[index - (31 + s)].x = -147457;
                     }
+
                     arraySize[objectID - 1] -= 6;
                 }
 
-            //1
-            vectors[index].x = ax;
-            vectors[index].y = sy;
-            vectors[index].z = tz;
+                //1
+                vectors[index].x = ax;
+                vectors[index].y = sy;
+                vectors[index].z = tz;
 
-            //2
-            vectors[index + 1].x = tx;
-            vectors[index + 1].y = sy;
-            vectors[index + 1].z = tz;
+                //2
+                vectors[index + 1].x = tx;
+                vectors[index + 1].y = sy;
+                vectors[index + 1].z = tz;
 
-            //3
-            vectors[index + 2].x = tx;
-            vectors[index + 2].y = sy;
-            vectors[index + 2].z = az;
+                //3
+                vectors[index + 2].x = tx;
+                vectors[index + 2].y = sy;
+                vectors[index + 2].z = az;
 
-            //4
-            vectors[index + 3].x = tx;
-            vectors[index + 3].y = sy;
-            vectors[index + 3].z = az;
+                //4
+                vectors[index + 3].x = tx;
+                vectors[index + 3].y = sy;
+                vectors[index + 3].z = az;
 
-            //5
-            vectors[index + 4].x = ax;
-            vectors[index + 4].y = sy;
-            vectors[index + 4].z = az;
+                //5
+                vectors[index + 4].x = ax;
+                vectors[index + 4].y = sy;
+                vectors[index + 4].z = az;
 
-            //6
-            vectors[index + 5].x = ax;
-            vectors[index + 5].y = sy;
-            vectors[index + 5].z = tz;
-            index += 6;
+                //6
+                vectors[index + 5].x = ax;
+                vectors[index + 5].y = sy;
+                vectors[index + 5].z = tz;
+                index += 6;
 
-            indice[objectID - 1] = index;
-            count += lenght;
-        }
-        
-        watch.Stop();
-        meshingMeasures.Add(watch.ElapsedMilliseconds);
-        watch.Reset();
-        watch.Start();
+                indice[objectID - 1] = index;
+                count += lenght;
+            }
 
-        for (int t = 0; t < chunk.materials - 1; t++)
-        {
-            int size = indice[t];
-            if(size + arraySize[t] > 0){
+            watch.Stop();
+            meshingMeasures.Add(watch.ElapsedMilliseconds);
+            watch.Reset();
+            watch.Start();
 
-            Texture texture = registry.SelectByID(t + 1).texture;
-            int[] indices = new int[(size + arraySize[t])];
-            Vector3[] vertice = new Vector3[size + arraySize[t]];
-            Vector3[] normals = new Vector3[size + arraySize[t]];
-            Vector2[] uvs = new Vector2[size + arraySize[t]];
+            for (int t = 0; t < chunk.materials - 1; t++)
+            {
+                int size = indice[t];
+                if (size + arraySize[t] > 0)
+                {
+                    Texture texture = registry.SelectByID(t + 1).texture;
+                    int[] indices = new int[(size + arraySize[t])];
+                    Vector3[] vertice = new Vector3[size + arraySize[t]];
+                    Vector3[] normals = new Vector3[size + arraySize[t]];
+                    Vector2[] uvs = new Vector2[size + arraySize[t]];
 
-            float textureWidth = 2048f / texture.GetWidth();
-            float textureHeight = 2048f / texture.GetHeight();
+                    float textureWidth = 2048f / texture.GetWidth();
+                    float textureHeight = 2048f / texture.GetHeight();
 
-            Vector3[] primitives = vertices[t];
-            int pos = 0;
-            for (int i = 0; i < size; i ++)    
-            { 
-                Vector3 vector = primitives[i];
-                if(vector.x >= 0 && pos < size + arraySize[t]){
-                int s = ((i%36))/6;
-                vertice[pos].x = vector.x;
-                vertice[pos].y = vector.y;
-                vertice[pos].z = vector.z;
+                    Vector3[] primitives = vertices[t];
+                    int pos = 0;
+                    for (int i = 0; i < size; i++)
+                    {
+                        Vector3 vector = primitives[i];
+                        if (vector.x >= 0 && pos < size + arraySize[t])
+                        {
+                            int s = ((i % 36)) / 6;
+                            vertice[pos].x = vector.x;
+                            vertice[pos].y = vector.y;
+                            vertice[pos].z = vector.z;
 
-                    indices[pos] = pos;
+                            indices[pos] = pos;
 
-                switch(s) {
-                    case 0:
-                    normals[pos].x = 0f;
-                normals[pos].y = 0f;
-                normals[pos].z = -1f;
-                    uvs[pos].x = vector.x * textureWidth;
-                    uvs[pos].y = vector.y * textureHeight;
-                    break;
-                    case 1:
-                    normals[pos].x = 0f;
-                normals[pos].y = 0f;
-                normals[pos].z = 1f;
-                    uvs[pos].x = vector.x * textureWidth;
-                    uvs[pos].y = vector.y * textureHeight;
-                    break;
-                     case 2:
-                     normals[pos].x = -1f;
-                normals[pos].y = 0f;
-                normals[pos].z = 0f;
-                    uvs[pos].x = vector.z * textureWidth;
-                    uvs[pos].y = vector.y * textureHeight;
-                    break;
-                     case 3:
-                     normals[pos].x = 1f;
-                normals[pos].y = 0f;
-                normals[pos].z = 0f;
-                    uvs[pos].x = vector.z * textureWidth;
-                    uvs[pos].y = vector.y * textureHeight;
-                    break;
-                     case 4:
-                    normals[pos].x = 0f;
-                normals[pos].y = 1f;
-                normals[pos].z = 0f;
-                    uvs[pos].x = vector.x * textureWidth;
-                    uvs[pos].y = vector.z * textureHeight;
-                    break;
-                     case 5:
-                     normals[pos].x = 0f;
-                normals[pos].y = -1f;
-                normals[pos].z = 0f;
-                    uvs[pos].x = vector.x * textureWidth;
-                    uvs[pos].y = vector.z * textureHeight;
-                    break;
-                }
-                pos ++;
+                            switch (s)
+                            {
+                                case 0:
+                                    normals[pos].x = 0f;
+                                    normals[pos].y = 0f;
+                                    normals[pos].z = -1f;
+                                    uvs[pos].x = vector.x * textureWidth;
+                                    uvs[pos].y = vector.y * textureHeight;
+                                    break;
+                                case 1:
+                                    normals[pos].x = 0f;
+                                    normals[pos].y = 0f;
+                                    normals[pos].z = 1f;
+                                    uvs[pos].x = vector.x * textureWidth;
+                                    uvs[pos].y = vector.y * textureHeight;
+                                    break;
+                                case 2:
+                                    normals[pos].x = -1f;
+                                    normals[pos].y = 0f;
+                                    normals[pos].z = 0f;
+                                    uvs[pos].x = vector.z * textureWidth;
+                                    uvs[pos].y = vector.y * textureHeight;
+                                    break;
+                                case 3:
+                                    normals[pos].x = 1f;
+                                    normals[pos].y = 0f;
+                                    normals[pos].z = 0f;
+                                    uvs[pos].x = vector.z * textureWidth;
+                                    uvs[pos].y = vector.y * textureHeight;
+                                    break;
+                                case 4:
+                                    normals[pos].x = 0f;
+                                    normals[pos].y = 1f;
+                                    normals[pos].z = 0f;
+                                    uvs[pos].x = vector.x * textureWidth;
+                                    uvs[pos].y = vector.z * textureHeight;
+                                    break;
+                                case 5:
+                                    normals[pos].x = 0f;
+                                    normals[pos].y = -1f;
+                                    normals[pos].z = 0f;
+                                    uvs[pos].x = vector.x * textureWidth;
+                                    uvs[pos].y = vector.z * textureHeight;
+                                    break;
+                            }
+
+                            pos++;
+                        }
+                    }
+
+                    godotArray[0] = vertice;
+                    godotArray[1] = normals;
+                    godotArray[4] = uvs;
+                    godotArray[8] = indices;
+
+                    SpatialMaterial material = new SpatialMaterial();
+                    texture.Flags = 2;
+                    material.AlbedoTexture = texture;
+
+                    ConcavePolygonShape shape = new ConcavePolygonShape();
+                    shape.SetFaces(vertice);
+                    ArrayPool<Vector3>.Shared.Return(primitives);
+
+                    mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, godotArray);
+                    mesh.SurfaceSetMaterial(mesh.GetSurfaceCount() - 1, material);
+                    CollisionShape colShape = new CollisionShape();
+                    colShape.SetShape(shape);
+                    body.AddChild(colShape);
                 }
             }
-            godotArray[0] = vertice;
-           godotArray[1] = normals;
-            godotArray[4] = uvs;
-            godotArray[8] = indices;
 
-           SpatialMaterial material = new SpatialMaterial();
-            texture.Flags = 2;
-         material.AlbedoTexture = texture;
 
-          ConcavePolygonShape shape = new ConcavePolygonShape();
-           shape.SetFaces(vertice);
-         ArrayPool<Vector3>.Shared.Return(primitives);
-        
-          mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, godotArray);
-           mesh.SurfaceSetMaterial(mesh.GetSurfaceCount() - 1, material);
-                   CollisionShape colShape = new CollisionShape();
-           colShape.SetShape(shape);
-                 body.AddChild(colShape);
+            meshInstance.CallDeferred("add_child", body);
+
+            watch.Stop();
+            addingMeasures.Add(watch.ElapsedMilliseconds);
+            meshInstance.Mesh = mesh;
         }
-        }
-
-
-        meshInstance.CallDeferred("add_child", body);
-   
-        watch.Stop();
-        addingMeasures.Add(watch.ElapsedMilliseconds);
-        meshInstance.Mesh = mesh;
-        }else{
+        else
+        {
             uint bytes = chunk.voxels[0];
             int objectID = (int) (bytes & b);
 
@@ -497,10 +526,11 @@ public class NaiveGreedyMesher
             vertice[1] = new Vector3(Constants.CHUNK_LENGHT, 0, 0);
             vertice[2] = new Vector3(Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT, 0);
             vertice[3] = new Vector3(Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT, 0);
-            vertice[4] = new Vector3(0, Constants.CHUNK_LENGHT,0 );
+            vertice[4] = new Vector3(0, Constants.CHUNK_LENGHT, 0);
             vertice[5] = new Vector3(0, 0, 0);
 
-            for(int i = 0; i < 6; i ++){
+            for (int i = 0; i < 6; i++)
+            {
                 normals[i] = new Vector3(0, 0, -1);
                 uvs[i].x = vertice[i].x * textureWidth;
                 uvs[i].y = vertice[i].y * textureHeight;
@@ -514,9 +544,10 @@ public class NaiveGreedyMesher
             vertice[10] = new Vector3(Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT);
             vertice[11] = new Vector3(Constants.CHUNK_LENGHT, 0, Constants.CHUNK_LENGHT);
 
-             for(int i = 6; i < 12; i ++){
+            for (int i = 6; i < 12; i++)
+            {
                 normals[i] = new Vector3(0, 0, 1);
-                         uvs[i].x = vertice[i].x * textureWidth;
+                uvs[i].x = vertice[i].x * textureWidth;
                 uvs[i].y = vertice[i].y * textureHeight;
             }
 
@@ -526,29 +557,31 @@ public class NaiveGreedyMesher
             vertice[14] = new Vector3(0, Constants.CHUNK_LENGHT, 0);
             vertice[15] = new Vector3(0, Constants.CHUNK_LENGHT, 0);
             vertice[16] = new Vector3(0, Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT);
-            vertice[17] = new Vector3(0, 0 , Constants.CHUNK_LENGHT);
+            vertice[17] = new Vector3(0, 0, Constants.CHUNK_LENGHT);
 
-             for(int i = 12; i < 18; i ++){
+            for (int i = 12; i < 18; i++)
+            {
                 normals[i] = new Vector3(1, 0, 0);
-                         uvs[i].x = vertice[i].z * textureWidth;
+                uvs[i].x = vertice[i].z * textureWidth;
                 uvs[i].y = vertice[i].y * textureHeight;
             }
 
             //RIGHT
             vertice[18] = new Vector3(Constants.CHUNK_LENGHT, 0, 0);
             vertice[19] = new Vector3(Constants.CHUNK_LENGHT, 0, Constants.CHUNK_LENGHT);
-            vertice[20]= new Vector3(Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT);
+            vertice[20] = new Vector3(Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT);
             vertice[21] = new Vector3(Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT);
             vertice[22] = new Vector3(Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT, 0);
             vertice[23] = new Vector3(Constants.CHUNK_LENGHT, 0, 0);
 
-             for(int i = 18; i < 24; i ++){
+            for (int i = 18; i < 24; i++)
+            {
                 normals[i] = new Vector3(-1, 0, 0);
-                         uvs[i].x = vertice[i].z * textureWidth;
+                uvs[i].x = vertice[i].z * textureWidth;
                 uvs[i].y = vertice[i].y * textureHeight;
             }
 
-           // TOP
+            // TOP
             vertice[24] = new Vector3(0, Constants.CHUNK_LENGHT, 0);
             vertice[25] = new Vector3(Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT, 0);
             vertice[26] = new Vector3(Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT);
@@ -556,9 +589,10 @@ public class NaiveGreedyMesher
             vertice[28] = new Vector3(0, Constants.CHUNK_LENGHT, Constants.CHUNK_LENGHT);
             vertice[29] = new Vector3(0, Constants.CHUNK_LENGHT, 0);
 
-             for(int i = 24; i < 30; i ++){
+            for (int i = 24; i < 30; i++)
+            {
                 normals[i] = new Vector3(0, 1, 0);
-                         uvs[i].x = vertice[i].x * textureWidth;
+                uvs[i].x = vertice[i].x * textureWidth;
                 uvs[i].y = vertice[i].z * textureHeight;
             }
 
@@ -570,16 +604,17 @@ public class NaiveGreedyMesher
             vertice[34] = new Vector3(Constants.CHUNK_LENGHT, 0, Constants.CHUNK_LENGHT);
             vertice[35] = new Vector3(Constants.CHUNK_LENGHT, 0, 0);
 
-             for(int i = 30; i < 36; i ++){
+            for (int i = 30; i < 36; i++)
+            {
                 normals[i] = new Vector3(0, -1, 0);
-                         uvs[i].x = vertice[i].x * textureWidth;
+                uvs[i].x = vertice[i].x * textureWidth;
                 uvs[i].y = vertice[i].z * textureHeight;
             }
 
             godotArray[0] = vertice;
-           godotArray[1] = normals;
+            godotArray[1] = normals;
             godotArray[4] = uvs;
-            
+
             texture.Flags = 2;
             material.AlbedoTexture = texture;
 
@@ -587,23 +622,26 @@ public class NaiveGreedyMesher
             mesh.SurfaceSetMaterial(0, material);
 
             ConcavePolygonShape shape = new ConcavePolygonShape();
-           shape.SetFaces(vertice);
-                 CollisionShape colShape = new CollisionShape();
-           colShape.SetShape(shape);
-                 body.AddChild(colShape);
+            shape.SetFaces(vertice);
+            CollisionShape colShape = new CollisionShape();
+            colShape.SetShape(shape);
+            body.AddChild(colShape);
 
             meshInstance.Mesh = mesh;
 
             meshInstance.AddChild(body);
         }
+
         return meshInstance;
     }
 
-    public List<long> GetAddingMeasures(){
+    public List<long> GetAddingMeasures()
+    {
         return addingMeasures;
     }
 
-    public List<long> GetMesherMeasures(){
+    public List<long> GetMesherMeasures()
+    {
         return meshingMeasures;
     }
 }
