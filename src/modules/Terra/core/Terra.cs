@@ -48,9 +48,9 @@ public class Terra
 
                 currentNode = childNode;
 
-                string name =  "layer: " + currentLayer + " "+ nodePosX * 16 * (float) Math.Pow(2, currentLayer) + " " + nodePosY * 16 * (float) Math.Pow(2, currentLayer) +
+               /* string name =  "layer: " + currentLayer + " "+ nodePosX * 16 * (float) Math.Pow(2, currentLayer) + " " + nodePosY * 16 * (float) Math.Pow(2, currentLayer) +
                             " " + nodePosZ * 16 * (float) Math.Pow(2, currentLayer);
-            /*if(parent.FindNode(name) == null){
+            if(parent.FindNode(name) == null){
             MeshInstance instance = DebugMesh();
             instance.Scale = new Vector3(32 * (float) Math.Pow(2, currentLayer - 2), 32 * (float) Math.Pow(2, currentLayer - 2),
                 32 * (float) Math.Pow(2, currentLayer - 2));

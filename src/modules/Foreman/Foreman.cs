@@ -26,6 +26,8 @@ public class Foreman
     private int viewDistance;
     private float fov;
     private volatile List<Vector3> localCenters;
+    private volatile bool canLoad = false;
+    private volatile ConcurrentQueue<GodotVector3> centerQueue;
     int lol;
     public Foreman(Weltschmerz weltschmerz, Node parent, Terra terra, GameMesher mesher,
      int viewDistance, float fov)
@@ -40,6 +42,7 @@ public class Foreman
         debugMeasures = new List<long>[3];
         debugMeasures[0] = new List<long>();
         localCenters = new List<Vector3>();
+        this.centerQueue = new ConcurrentQueue<GodotVector3>();
 
         for(int l = -viewDistance; l < viewDistance; l +=8){
             for(int y = -Utils.GetPosFromFOV(fov, l); y < Utils.GetPosFromFOV(fov, l); y +=8){
@@ -49,13 +52,15 @@ public class Foreman
                 }
             }
         }
+        Threading thread = new Threading(Process);
+        thread.Start();
     }
 
     //Initial generation
     public void GenerateTerrain(LoadMarker loadMarker)
     {
-        try{
         SortedList<float, List<GodotVector3>> priority = new SortedList<float, List<GodotVector3>>();
+        try{
         List<Vector3> topPriority = new List<Vector3>();
 
         for(int y = (loadMarker.loadRadius/2) * 8; y >= -(loadMarker.loadRadius/2) * 8; y -=8){
@@ -87,6 +92,7 @@ public class Foreman
             GodotVector3 newPos = loadMarker.ToGlobal(new GodotVector3(center.X, center.Y, center.Z));
             float distance = loadMarker.Translation.DistanceTo(newPos);
 
+            if(distance < viewDistance){
             if(priority.ContainsKey(distance)){
                 priority[distance].Add(newPos);
             }else{
@@ -94,18 +100,33 @@ public class Foreman
                 list.Add(newPos);
                 priority.Add(distance, list);
             }
+            }
         }
 
+        canLoad = false;
          foreach(float key in priority.Keys.ToArray()){
             foreach(GodotVector3 pos in priority[key]){
-                LoadArea((int)pos.x/8,(int)pos.y/8, (int)pos.z/8);
+                centerQueue.Enqueue(pos);
             }
             priority.Remove(key);
          }
-
-         priority.Clear();
+            priority.Clear();
+            canLoad = true;
         }catch(Exception ignore){
-            
+            canLoad = false;
+            priority.Clear();
+            centerQueue = new ConcurrentQueue<GodotVector3>();
+        }
+    }
+
+    public void Process(){
+        while(true){
+            if(canLoad && !centerQueue.IsEmpty){
+            GodotVector3 pos;
+            if(centerQueue.TryDequeue(out pos)){
+                LoadArea((int)pos.x/8,(int)pos.y/8, (int)pos.z/8);
+            }
+            }
         }
     }
       /*          if(profiling){

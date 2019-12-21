@@ -54,7 +54,10 @@ public class GameController : Spatial
     }
 
     public bool CheckPlayerPosition(int posX, int posY, int posZ){
+        if(posX > 0 && posY > 0 && posZ > 0){
         return terra.TraverseOctree(posX, posY, posZ, 0).chunk != default(Chunk);
+        }
+        return false;
     }
 
     public Picker GetPicker()
