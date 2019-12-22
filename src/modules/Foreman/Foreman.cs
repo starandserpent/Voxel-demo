@@ -132,12 +132,16 @@ public class Foreman
     {
         while (Threading.CurrentThread.IsAlive)
         {
-            if (canLoad && !centerQueue.IsEmpty)
+            if (canLoad)
             {
+                if(!centerQueue.IsEmpty){
                 GodotVector3 pos;
                 if (centerQueue.TryDequeue(out pos))
                 {
                     LoadArea((int) pos.x / 8, (int) pos.y / 8, (int) pos.z / 8);
+                }
+                }else{
+                    canLoad = false;
                 }
             }
         }

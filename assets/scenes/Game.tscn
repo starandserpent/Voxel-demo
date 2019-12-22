@@ -60,7 +60,7 @@ margin_left = -10.0
 margin_top = -10.0
 margin_right = 10.0
 margin_bottom = 10.0
-texture = ExtResource( 4 )
+texture = ExtResource( 3 )
 expand = true
 
 [node name="Picker" type="RayCast" parent="."]
