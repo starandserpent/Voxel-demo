@@ -1,6 +1,5 @@
 using Godot;
 using System.Buffers;
-
 public class GameMesher
 {
     private SplatterMesher splatterMesher;
@@ -8,6 +7,7 @@ public class GameMesher
    public GameMesher(Registry reg, bool profile)
     {
         this.reg = reg;
+        GD.Print(System.Numerics.Vector.IsHardwareAccelerated);
         ShaderMaterial shaderMat = new ShaderMaterial();
         shaderMat.Shader = (GD.Load("res://assets/shaders/splatvoxel.shader") as Shader);
         splatterMesher = new SplatterMesher(shaderMat, reg);
@@ -19,9 +19,9 @@ public RawChunk MeshChunk(Chunk chunk){
     rawChunk.y = chunk.y;
     rawChunk.z = chunk.z;
 
-            rawChunk.arrays = new Godot.Collections.Array[chunk.materials - 1];
-            rawChunk.textures = new Texture[chunk.materials - 1];
-            rawChunk.colliderFaces = new Vector3[chunk.materials - 1][];
+        rawChunk.arrays = new Godot.Collections.Array[chunk.materials - 1];
+        rawChunk.textures = new Texture[chunk.materials - 1];
+        rawChunk.colliderFaces = new Vector3[chunk.materials - 1][];
 
         long a = 16777215 << 8;
         byte b = 255;

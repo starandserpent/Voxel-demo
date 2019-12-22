@@ -1,8 +1,7 @@
+using System.Numerics;
 using System.Diagnostics;
 using System.Linq;
 using System.Buffers;
-using System.Numerics;
-using Node = Godot.Node;
 using System.Collections.Concurrent;
 using GodotVector3 = Godot.Vector3;
 using System.Collections.Generic;
@@ -21,12 +20,12 @@ public class Foreman
     private int viewDistance;
     private float fov;
     private int generationThreads;
-    private volatile List<Vector3> localCenters;
+    private volatile List<GodotVector3> localCenters;
     private volatile bool canLoad = false;
     private volatile ConcurrentQueue<GodotVector3> centerQueue;
     private volatile ConcurrentQueue<RawChunk> rawChunks;
     private volatile List<long> chunkSpeed;
-    Threading[] threads;
+    private Threading[] threads;
     public Foreman(Weltschmerz weltschmerz, Terra terra, Registry registry, GameMesher mesher,
         int viewDistance, float fov, int generationThreads, ConcurrentQueue<RawChunk> rawChunks)
     {
@@ -38,10 +37,11 @@ public class Foreman
         this.mesher = mesher;
         this.rawChunks = rawChunks;
         this.generationThreads = generationThreads;
-        localCenters = new List<Vector3>();
+        localCenters = new List<GodotVector3>();
         centerQueue = new ConcurrentQueue<GodotVector3>();
         chunkSpeed = new List<long>();
         threads = new Threading[generationThreads]; 
+
 
         for (int l = -viewDistance; l < viewDistance; l += 8)
         {
@@ -49,7 +49,7 @@ public class Foreman
             {
                 for (int x = -Utils.GetPosFromFOV(fov, l); x < Utils.GetPosFromFOV(fov, l); x += 8)
                 {
-                    Vector3 center = new Vector3(x, y, -l);
+                    GodotVector3 center = new GodotVector3(x, y, -l);
                     localCenters.Add(center);
                 }
             }
@@ -66,7 +66,7 @@ public class Foreman
     public void GenerateTerrain(LoadMarker loadMarker)
     {
             SortedList<float, List<GodotVector3>> priority = new SortedList<float, List<GodotVector3>>();
-            List<Vector3> topPriority = new List<Vector3>();
+            List<GodotVector3> topPriority = new List<GodotVector3>();
 
             for (int y = (loadMarker.loadRadius / 2) * 8; y >= -(loadMarker.loadRadius / 2) * 8; y -= 8)
             {
@@ -74,7 +74,7 @@ public class Foreman
                 {
                     for (int x = (loadMarker.loadRadius / 2) * 8; x >= -(loadMarker.loadRadius / 2) * 8; x -= 8)
                     {
-                        Vector3 center = new Vector3(x, y, z);
+                        GodotVector3 center = new GodotVector3(x, y, z);
                         topPriority.Add(center);
                     }
                 }
@@ -82,8 +82,8 @@ public class Foreman
 
             for (int c = 0; c < topPriority.Count; c++)
             {
-                Vector3 center = topPriority[c];
-                GodotVector3 newPos = loadMarker.ToGlobal(new GodotVector3(center.X, center.Y, center.Z));
+                GodotVector3 center = topPriority[c];
+                GodotVector3 newPos = loadMarker.ToGlobal(new GodotVector3(center.x, center.y, center.z));
                 float distance = loadMarker.Translation.DistanceTo(newPos);
 
                 if (priority.ContainsKey(distance))
@@ -102,8 +102,8 @@ public class Foreman
 
             for (int c = 0; c < localCenters.Count; c++)
             {
-                Vector3 center = localCenters[c];
-                GodotVector3 newPos = loadMarker.ToGlobal(new GodotVector3(center.X, center.Y, center.Z));
+                GodotVector3 center = localCenters[c];
+                GodotVector3 newPos = loadMarker.ToGlobal(new GodotVector3(center.x, center.y, center.z));
                 float distance = loadMarker.Translation.DistanceTo(newPos);
 
                 if (distance < viewDistance)
