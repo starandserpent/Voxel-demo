@@ -1,6 +1,5 @@
 using System;
 using Godot;
-using Threading = System.Threading.Thread;
 
 public class Player : LoadMarker
 {
@@ -15,7 +14,6 @@ public class Player : LoadMarker
     private GameController gameController;
     private Camera camera;
     private Picker picker;
-    private Threading generation;
     private CanvasLayer GUI;
     private Label fps;
     private Label memory;
@@ -118,8 +116,6 @@ public class Player : LoadMarker
 
         picker = gameController.GetPicker();
 
-        generation = new Threading(Begin);
-
         Input.SetMouseMode(Input.MouseMode.Captured);
 
         gameController.Prepare(camera);
@@ -134,12 +130,6 @@ public class Player : LoadMarker
             ray.Enabled = false;
         }
     }
-
-    private void Begin()
-    {
-        gameController.Generate(this);
-    }
-
     public override void _ExitTree()
     {
         Input.SetMouseMode(Input.MouseMode.Visible);
@@ -152,7 +142,7 @@ public class Player : LoadMarker
         fps.SetText("FPS: " + Performance.GetMonitor(Performance.Monitor.TimeFps));
         memory.SetText("Memory: " + Performance.GetMonitor(Performance.Monitor.MemoryStatic) / (1024 * 1024) + " MB");
 
-        Begin();
+        gameController.Generate(this);
 
         if (Input.IsActionPressed("ui_cancel"))
         {
