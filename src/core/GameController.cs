@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System;
 using System.Linq;
 using Godot.Collections;
@@ -101,5 +102,13 @@ public class GameController : Spatial
 
     public int GetChunkCount(){
         return chunkCount;
+    }
+
+    public void Clear(){
+        foreman.Stop();
+    }
+
+    public List<long> GetMeasures(){
+        return foreman.GetMeasures();
     }
 }

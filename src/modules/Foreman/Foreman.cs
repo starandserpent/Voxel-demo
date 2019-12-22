@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Linq;
 using System.Buffers;
 using System.Numerics;
@@ -19,10 +20,13 @@ public class Foreman
     private volatile Terra terra;
     private int viewDistance;
     private float fov;
+    private int generationThreads;
     private volatile List<Vector3> localCenters;
     private volatile bool canLoad = false;
     private volatile ConcurrentQueue<GodotVector3> centerQueue;
     private volatile ConcurrentQueue<RawChunk> rawChunks;
+    private volatile List<long> chunkSpeed;
+    Threading[] threads;
     public Foreman(Weltschmerz weltschmerz, Terra terra, Registry registry, GameMesher mesher,
         int viewDistance, float fov, int generationThreads, ConcurrentQueue<RawChunk> rawChunks)
     {
@@ -33,8 +37,11 @@ public class Foreman
         this.fov = fov;
         this.mesher = mesher;
         this.rawChunks = rawChunks;
+        this.generationThreads = generationThreads;
         localCenters = new List<Vector3>();
         centerQueue = new ConcurrentQueue<GodotVector3>();
+        chunkSpeed = new List<long>();
+        threads = new Threading[generationThreads]; 
 
         for (int l = -viewDistance; l < viewDistance; l += 8)
         {
@@ -50,6 +57,7 @@ public class Foreman
 
         for(int t = 0; t < generationThreads; t++){
             Threading thread = new Threading(() => Process());
+            threads[t] = thread;
             thread.Start();
         }
     }
@@ -136,10 +144,14 @@ public class Foreman
             {
                 if(!centerQueue.IsEmpty){
                 GodotVector3 pos;
-                if (centerQueue.TryDequeue(out pos))
-                {
-                    LoadArea((int) pos.x / 8, (int) pos.y / 8, (int) pos.z / 8);
-                }
+                    if (centerQueue.TryDequeue(out pos))
+                    {
+                        Stopwatch stopwatch = new Stopwatch();
+                        stopwatch.Start();
+                        LoadArea((int) pos.x / 8, (int) pos.y / 8, (int) pos.z / 8);
+                        stopwatch.Stop();
+                        chunkSpeed.Add(stopwatch.ElapsedMilliseconds);
+                    }
                 }else{
                     canLoad = false;
                 }
@@ -197,6 +209,13 @@ public class Foreman
     {
         dirtID = registry.SelectByName("dirt").worldID;
         grassID = registry.SelectByName("grass").worldID;
+    }
+
+    public void Stop(){
+        for(int t = 0; t < generationThreads; t++){
+            threads[t].Abort();
+        }
+        localCenters.Clear();
     }
 
     public Chunk GenerateChunk(float posX, float posY, float posZ, Weltschmerz weltschmerz)
@@ -282,5 +301,9 @@ public class Foreman
         }
 
         return chunk;
+    }
+
+    public List<long> GetMeasures(){
+        return chunkSpeed;
     }
 }

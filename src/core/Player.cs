@@ -1,5 +1,7 @@
+using System.Linq;
 using System;
 using Godot;
+using System.Collections.Generic;
 
 public class Player : LoadMarker
 {
@@ -146,6 +148,13 @@ public class Player : LoadMarker
 
         if (Input.IsActionPressed("ui_cancel"))
         {
+            gameController.Clear();
+            List<long> measures = gameController.GetMeasures();
+            GD.Print("Min chunk generation: " + measures.Min());
+            GD.Print("Max chunk generation: " + measures.Max());
+            GD.Print("Average chunk generation: " + measures.Average());
+            GD.Print("Chunk amount generated: " + gameController.GetChunkCount());
+            measures.Clear();
             GetTree().Quit();
         }
 
