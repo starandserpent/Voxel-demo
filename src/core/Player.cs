@@ -130,6 +130,10 @@ public class Player : Spatial
 
     public override void _PhysicsProcess(float delta)
     {
+        marker.Transform = new Transform(Transform.basis, ToLocal((Translation/ Constants.CHUNK_LENGHT) * Constants.CHUNK_LENGHT));
+
+        gameController.Generate(marker);
+
         if (ray.IsColliding())
         {
             picker.Pick(ray.GetCollisionPoint(), ray.GetCollisionNormal());
@@ -148,15 +152,10 @@ public class Player : Spatial
         fps.SetText("FPS: " + Performance.GetMonitor(Performance.Monitor.TimeFps));
         memory.SetText("Memory: " + Performance.GetMonitor(Performance.Monitor.MemoryStatic) / (1024 * 1024) + " MB");
 
-        marker.Transform = new Transform(Transform.basis, new Vector3(((int) Translation.x / 16) * 16, ((int) Translation.y / 16) * 16, 
-        ((int) Translation.z / 16) * 16));
-
-        gameController.Generate(marker);
-
         if (Input.IsActionPressed("ui_cancel"))
         {
             gameController.Clear();
-            GetParent().RemoveChild(marker);
+            RemoveChild(marker);
             List<long> measures = gameController.GetMeasures();
             GD.Print("Min chunk generation: " + measures.Min() + " ms");
             GD.Print("Max chunk generation: " + measures.Max()+ " ms");
