@@ -150,10 +150,12 @@ public class Player : LoadMarker
         {
             gameController.Clear();
             List<long> measures = gameController.GetMeasures();
-            GD.Print("Min chunk generation: " + measures.Min() +" ms");
-            GD.Print("Max chunk generation: " + measures.Max()+" ms");
-            GD.Print("Average chunk generation: " + measures.Average()+" ms");
-            GD.Print("Chunk amount generated: " + gameController.GetChunkCount()+" ms");
+
+            GD.Print("Min chunk generation: " + measures.Min() + " ms");
+            GD.Print("Max chunk generation: " + measures.Max()+ " ms");
+            GD.Print("Average chunk generation: " + measures.Average() + " ms");
+            GD.Print("Chunk amount generated: " + gameController.GetChunkCount() + " ms");
+            
             measures.Clear();
             GetTree().Quit();
         }
