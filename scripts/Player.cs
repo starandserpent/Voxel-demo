@@ -3,7 +3,7 @@ using System;
 using Godot;
 using System.Collections.Generic;
 
-public class Player : LoadMarker
+public class Player : Spatial
 {
     [Export] public float MOUSE_SENSITIVITY = 0.002F;
     [Export] public float MOVE_SPEED = 0.9F;
@@ -23,6 +23,8 @@ public class Player : LoadMarker
     private Label vertices;
     private Vector3 lastPosition;
     private bool wireframe = false;
+
+    private volatile LoadMarker marker;
 
     public override void _Input(InputEvent @event)
     {
@@ -64,8 +66,10 @@ public class Player : LoadMarker
 
     public override void _Ready()
     {
+        marker = new LoadMarker();
+        AddChild(marker);
+        marker.loadRadius = LOAD_RADIUS;
         VisualServer.SetDebugGenerateWireframes(true);
-        loadRadius = LOAD_RADIUS;
 
         foreach (Node child in GetParent().GetChildren())
         {
@@ -126,6 +130,10 @@ public class Player : LoadMarker
 
     public override void _PhysicsProcess(float delta)
     {
+        marker.Transform = new Transform(Transform.basis, ToLocal((Translation/ Constants.CHUNK_LENGHT) * Constants.CHUNK_LENGHT));
+
+        gameController.Generate(marker);
+
         if (ray.IsColliding())
         {
             picker.Pick(ray.GetCollisionPoint(), ray.GetCollisionNormal());
@@ -144,11 +152,10 @@ public class Player : LoadMarker
         fps.SetText("FPS: " + Performance.GetMonitor(Performance.Monitor.TimeFps));
         memory.SetText("Memory: " + Performance.GetMonitor(Performance.Monitor.MemoryStatic) / (1024 * 1024) + " MB");
 
-        gameController.Generate(this);
-
         if (Input.IsActionPressed("ui_cancel"))
         {
             gameController.Clear();
+            RemoveChild(marker);
             List<long> measures = gameController.GetMeasures();
             GD.Print("Min chunk generation: " + measures.Min() + " ms");
             GD.Print("Max chunk generation: " + measures.Max()+ " ms");
