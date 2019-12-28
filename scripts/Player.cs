@@ -3,7 +3,7 @@ using System;
 using Godot;
 using System.Collections.Generic;
 
-public class Player : Spatial
+public class Player : LoadMarker
 {
     [Export] public float MOUSE_SENSITIVITY = 0.002F;
     [Export] public float MOVE_SPEED = 0.9F;
@@ -23,9 +23,6 @@ public class Player : Spatial
     private Label vertices;
     private Vector3 lastPosition;
     private bool wireframe = false;
-
-    private volatile LoadMarker marker;
-
     public override void _Input(InputEvent @event)
     {
         if (Input.IsActionPressed("toggle_mouse_capture"))
@@ -41,6 +38,16 @@ public class Player : Spatial
                 GetViewport().DebugDraw = Viewport.DebugDrawEnum.Disabled; 
             }
             wireframe = !wireframe;
+        } else if (Input.IsActionPressed("ui_cancel"))
+        {
+            gameController.Clear();
+            List<long> measures = gameController.GetMeasures();
+            GD.Print("Min chunk generation: " + measures.Min() + " ms");
+            GD.Print("Max chunk generation: " + measures.Max()+ " ms");
+            GD.Print("Average chunk generation: " + measures.Average() + " ms");
+            GD.Print("Chunk amount generated: " + gameController.GetChunkCount() + " ms");
+            measures.Clear();
+            GetTree().Quit();
         }else if (@event is InputEventMouseMotion eventKey)
         {
             if (Input.GetMouseMode() == Input.MouseMode.Captured)
@@ -66,9 +73,7 @@ public class Player : Spatial
 
     public override void _Ready()
     {
-        marker = new LoadMarker();
-        AddChild(marker);
-        marker.loadRadius = LOAD_RADIUS;
+        loadRadius = LOAD_RADIUS;
         VisualServer.SetDebugGenerateWireframes(true);
 
         foreach (Node child in GetParent().GetChildren())
@@ -130,9 +135,7 @@ public class Player : Spatial
 
     public override void _PhysicsProcess(float delta)
     {
-        marker.Transform = new Transform(Transform.basis, ToLocal((Translation/ Constants.CHUNK_LENGHT) * Constants.CHUNK_LENGHT));
-
-        gameController.Generate(marker);
+        gameController.Generate(this);
 
         if (ray.IsColliding())
         {
@@ -151,19 +154,6 @@ public class Player : Spatial
         vertices.SetText("Vertices: " + Performance.GetMonitor(Performance.Monitor.RenderVerticesInFrame));
         fps.SetText("FPS: " + Performance.GetMonitor(Performance.Monitor.TimeFps));
         memory.SetText("Memory: " + Performance.GetMonitor(Performance.Monitor.MemoryStatic) / (1024 * 1024) + " MB");
-
-        if (Input.IsActionPressed("ui_cancel"))
-        {
-            gameController.Clear();
-            RemoveChild(marker);
-            List<long> measures = gameController.GetMeasures();
-            GD.Print("Min chunk generation: " + measures.Min() + " ms");
-            GD.Print("Max chunk generation: " + measures.Max()+ " ms");
-            GD.Print("Average chunk generation: " + measures.Average() + " ms");
-            GD.Print("Chunk amount generated: " + gameController.GetChunkCount() + " ms");
-            measures.Clear();
-            GetTree().Quit();
-        }
 
         if (Input.IsActionPressed("walk_left"))
         {

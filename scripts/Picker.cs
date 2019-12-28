@@ -13,10 +13,6 @@ public class Picker
         this.terra = terra;
         this.mesher = mesher;
         chunksToProccess = new List<Chunk>();
-
-        /* ThreadingStart start = new ThreadingStart(ProcessChunks); 
-         Threading thread = new Threading(start);
-         thread.Start();*/
     }
 
     public void Pick(Vector3 pos, Vector3 normals)
