@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Diagnostics;
 using System.Linq;
 using System.Buffers;
@@ -21,15 +22,18 @@ public class Foreman
     private float fov;
     private volatile int generationThreads;
     private volatile List<Vector3> localCenters;
-    private volatile bool canLoad = false;
+    private volatile bool runThread = true;
     private volatile ConcurrentQueue<GodotVector3> centerQueue;
     private volatile ConcurrentQueue<RawChunk> rawChunks;
     private volatile List<long> chunkSpeed;
+    private volatile Threading[] threads;
+    private volatile ManualResetEvent _event;
     public Foreman(Weltschmerz weltschmerz, Terra terra, Registry registry, GameMesher mesher,
         int viewDistance, float fov, int generationThreads, ConcurrentQueue<RawChunk> rawChunks)
     {
         this.weltschmerz = weltschmerz;
         this.terra = terra;
+        _event = new ManualResetEvent(false);
         this.octree = terra.GetOctree();
         this.viewDistance = viewDistance;
         this.fov = fov;
@@ -39,6 +43,12 @@ public class Foreman
         localCenters = new List<Vector3>();
         centerQueue = new ConcurrentQueue<GodotVector3>();
         chunkSpeed = new List<long>();
+        threads = new Threading[generationThreads];
+
+        for(int t = 0; t < generationThreads; t++){
+            threads[t] = new Threading(() => Process());
+            threads[t].Start();
+        }
 
         for (int l = -viewDistance; l < viewDistance; l += 8)
         {
@@ -111,8 +121,8 @@ public class Foreman
                     }
                 }
             }
-
-            canLoad = false;
+            
+            _event.Set();
             centerQueue = new ConcurrentQueue<GodotVector3>();
             foreach (float key in priority.Keys.ToArray())
             {
@@ -123,32 +133,25 @@ public class Foreman
 
                 priority.Remove(key);
             }
-            canLoad = true;
-            priority.Clear();
+            
+            _event.Reset();
 
-            for(int t = 0; t < generationThreads; t++){
-                Threading thread = new Threading(() => Process());
-                thread.Start();
-            }
+            priority.Clear();
     }
 
     public void Process()
     {
-        while (canLoad)
+        Stopwatch stopwatch = new Stopwatch();
+        GodotVector3 pos;
+        while (runThread)
         {
-                if(!centerQueue.IsEmpty){
-                GodotVector3 pos;
-                    if (centerQueue.TryDequeue(out pos))
-                    {
-                        Stopwatch stopwatch = new Stopwatch();
-                        stopwatch.Start();
-                        LoadArea((int) pos.x / 8, (int) pos.y / 8, (int) pos.z / 8);
-                        stopwatch.Stop();
-                        //chunkSpeed.Add(stopwatch.ElapsedMilliseconds);
-                    }
-                }else{
-                    canLoad = false;
-                }
+            _event.WaitOne();
+            if(!centerQueue.IsEmpty && centerQueue.TryDequeue(out pos)){
+                stopwatch.Start();
+                LoadArea((int) pos.x / 8, (int) pos.y / 8, (int) pos.z / 8);
+                stopwatch.Stop();
+            }
+            //chunkSpeed.Add(stopwatch.ElapsedMilliseconds)
         }
     }
  
@@ -205,6 +208,10 @@ public class Foreman
     }
 
     public void Stop(){
+        runThread = false;
+       for(int t = 0; t < generationThreads; t++){
+           threads[t].Abort();
+        }
         localCenters.Clear();
     }
 
