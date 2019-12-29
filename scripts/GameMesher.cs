@@ -1,3 +1,4 @@
+using System.Linq;
 using Godot;
 using System.Buffers;
 
@@ -5,21 +6,20 @@ public class GameMesher
 {
     private SplatterMesher splatterMesher;
     private volatile Registry reg;
-   public GameMesher(Registry reg, bool profile)
+    private volatile Node parent;
+   public GameMesher(Registry reg, Node parent, bool profile)
     {
         this.reg = reg;
+        this.parent = parent;
         ShaderMaterial shaderMat = new ShaderMaterial();
         shaderMat.Shader = (GD.Load("res://assets/shaders/splatvoxel.shader") as Shader);
         splatterMesher = new SplatterMesher(shaderMat, reg);
     }
 
-public RawChunk MeshChunk(Chunk chunk){
-    RawChunk rawChunk = new RawChunk();
-    rawChunk.x = chunk.x;
-    rawChunk.y = chunk.y;
-    rawChunk.z = chunk.z;
+public void MeshChunk(Chunk chunk){
+         RawChunk rawChunk = new RawChunk();
 
-            rawChunk.arrays = new Godot.Collections.Array[chunk.materials - 1];
+                     rawChunk.arrays = new Godot.Collections.Array[chunk.materials - 1];
             rawChunk.textures = new Texture[chunk.materials - 1];
             rawChunk.colliderFaces = new Vector3[chunk.materials - 1][];
 
@@ -604,6 +604,35 @@ public RawChunk MeshChunk(Chunk chunk){
                     rawChunk.colliderFaces[0] = vertice; 
         }
 
-        return rawChunk;
+                   MeshInstance meshInstance = new MeshInstance();
+                ArrayMesh mesh = new ArrayMesh();
+                StaticBody body = new StaticBody();
+                
+                for(int t = 0; t < rawChunk.arrays.Count(); t ++){
+                    Texture texture = rawChunk.textures[t];
+                    Vector3[] vertice = rawChunk.colliderFaces[t];
+                    Godot.Collections.Array godotArray = rawChunk.arrays[t];
+
+                    SpatialMaterial material = new SpatialMaterial();
+                    texture.Flags = 2;
+                    material.AlbedoTexture = texture;
+
+                    ConcavePolygonShape shape = new ConcavePolygonShape();
+                    shape.SetFaces(vertice);
+
+                    mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, godotArray);
+                    mesh.SurfaceSetMaterial(mesh.GetSurfaceCount() - 1, material);
+                    CollisionShape colShape = new CollisionShape();
+                    colShape.SetShape(shape);
+                    body.AddChild(colShape);
+                }
+
+                meshInstance.AddChild(body);
+                 meshInstance.Mesh = mesh;
+
+                    meshInstance.Name = "chunk:" + chunk.x + "," + chunk.y + "," + chunk.z;
+            meshInstance.Translation = new Vector3(chunk.x, chunk.y, chunk.z);
+
+        parent.CallDeferred("add_child", meshInstance);
     }
 }

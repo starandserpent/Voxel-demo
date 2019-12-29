@@ -24,12 +24,11 @@ public class Foreman
     private volatile List<Vector3> localCenters;
     private volatile bool runThread = true;
     private volatile ConcurrentQueue<GodotVector3> centerQueue;
-    private volatile ConcurrentQueue<RawChunk> rawChunks;
     private volatile List<long> chunkSpeed;
     private volatile Threading[] threads;
     private volatile ManualResetEvent _event;
     public Foreman(Weltschmerz weltschmerz, Terra terra, Registry registry, GameMesher mesher,
-        int viewDistance, float fov, int generationThreads, ConcurrentQueue<RawChunk> rawChunks)
+        int viewDistance, float fov, int generationThreads)
     {
         this.weltschmerz = weltschmerz;
         this.terra = terra;
@@ -38,7 +37,6 @@ public class Foreman
         this.viewDistance = viewDistance;
         this.fov = fov;
         this.mesher = mesher;
-        this.rawChunks = rawChunks;
         this.generationThreads = generationThreads;
         localCenters = new List<Vector3>();
         centerQueue = new ConcurrentQueue<GodotVector3>();
@@ -67,7 +65,7 @@ public class Foreman
     public void GenerateTerrain(LoadMarker loadMarker)
     {
             _event.Set();
-            
+
             SortedList<float, List<GodotVector3>> priority = new SortedList<float, List<GodotVector3>>();
             List<Vector3> topPriority = new List<Vector3>();
 
@@ -201,8 +199,7 @@ public class Foreman
 
                     terra.PlaceChunk(x, y, z, chunk);
                     if(!chunk.isEmpty){
-                        RawChunk rawChunk = mesher.MeshChunk(chunk);
-                        rawChunks.Enqueue(rawChunk);
+                        mesher.MeshChunk(chunk);
                     }
                 }
 
