@@ -33,7 +33,7 @@ public class Foreman
     {
         this.weltschmerz = weltschmerz;
         this.terra = terra;
-        _event = new ManualResetEvent(false);
+        _event = new ManualResetEvent(true);
         this.octree = terra.GetOctree();
         this.viewDistance = viewDistance;
         this.fov = fov;
@@ -66,6 +66,8 @@ public class Foreman
     //Initial generation
     public void GenerateTerrain(LoadMarker loadMarker)
     {
+            _event.Set();
+            
             SortedList<float, List<GodotVector3>> priority = new SortedList<float, List<GodotVector3>>();
             List<Vector3> topPriority = new List<Vector3>();
 
@@ -122,19 +124,32 @@ public class Foreman
                 }
             }
             
-            _event.Set();
-            centerQueue = new ConcurrentQueue<GodotVector3>();
+            _event.Reset();
+                    centerQueue = new ConcurrentQueue<GodotVector3>();
+
             foreach (float key in priority.Keys.ToArray())
             {
-                foreach (GodotVector3 pos in priority[key])
+                for (int i = 0; i < priority[key].Count; i++)
                 {
-                    centerQueue.Enqueue(pos);
+                    GodotVector3 pos = priority[key][i]/8;
+                    int x = (int)pos.x;
+                    int y = (int)pos.y;
+                    int z = (int)pos.z;
+
+                            if (x >= 0 && z >= 0 && y >= 0)
+        {
+            int lolong = (int) Morton3D.encode(x, y, z);
+            Octree octree = terra.GetOctree();
+            int size =  octree.sizeX * octree.sizeY * octree.sizeZ;
+
+            if (lolong < size && terra.TraverseOctree(x, y, z, 0).chunk == null){
+                     centerQueue.Enqueue(pos);
+            }
+        }
                 }
 
                 priority.Remove(key);
             }
-            
-            _event.Reset();
 
             priority.Clear();
     }
@@ -148,7 +163,7 @@ public class Foreman
             _event.WaitOne();
             if(!centerQueue.IsEmpty && centerQueue.TryDequeue(out pos)){
                 stopwatch.Start();
-                LoadArea((int) pos.x / 8, (int) pos.y / 8, (int) pos.z / 8);
+                LoadArea((int) pos.x, (int) pos.y, (int) pos.z);
                 stopwatch.Stop();
             }
             //chunkSpeed.Add(stopwatch.ElapsedMilliseconds)
@@ -158,14 +173,6 @@ public class Foreman
     //Loads chunks
     private void LoadArea(int x, int y, int z)
     {
-        if (x >= 0 && z >= 0 && y >= 0)
-        {
-            int lolong = (int) Morton3D.encode(x, y, z);
-            Octree octree = terra.GetOctree();
-            int size =  octree.sizeX * octree.sizeY * octree.sizeZ;
-
-            if (lolong < size && terra.TraverseOctree(x, y, z, 0).chunk == null && lolong < size)
-                {
                     OctreeNode childNode = new OctreeNode();
 
                     Chunk chunk;
@@ -198,8 +205,6 @@ public class Foreman
                         rawChunks.Enqueue(rawChunk);
                     }
                 }
-            }
-        }
 
     public void SetMaterials(Registry registry)
     {

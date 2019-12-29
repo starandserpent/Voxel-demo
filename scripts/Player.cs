@@ -135,8 +135,6 @@ public class Player : LoadMarker
 
     public override void _PhysicsProcess(float delta)
     {
-        gameController.Generate(this);
-
         if (ray.IsColliding())
         {
             picker.Pick(ray.GetCollisionPoint(), ray.GetCollisionNormal());
@@ -150,6 +148,8 @@ public class Player : LoadMarker
 
     public override void _Process(float delta)
     {
+        gameController.Generate(this);
+
         chunks.SetText("Chunks: " + gameController.GetChunkCount());
         vertices.SetText("Vertices: " + Performance.GetMonitor(Performance.Monitor.RenderVerticesInFrame));
         fps.SetText("FPS: " + Performance.GetMonitor(Performance.Monitor.TimeFps));
