@@ -132,13 +132,13 @@ public class Foreman
                     int y = (int)pos.y;
                     int z = (int)pos.z;
 
-                            if (x >= 0 && z >= 0 && y >= 0)
+                            if (x >= 0 && z >= 0 && y >= 0 && x * 8 < octree.sizeX
+                            && y * 8 < octree.sizeY && z * 8 < octree.sizeZ)
         {
-            int posSize = y + x + z;
             Octree octree = terra.GetOctree();
             int size =  octree.sizeX * octree.sizeY * octree.sizeZ;
 
-            if (posSize < size && terra.TraverseOctree(x, y, z, 0).chunk == null){
+            if (terra.TraverseOctree(x, y, z, 0).chunk == null){
                      centerQueue.Enqueue(pos);
             }
         }

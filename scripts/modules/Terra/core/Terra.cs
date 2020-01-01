@@ -36,7 +36,7 @@ public class Terra
     {
         if (posX >= 0 && posY >= 0 && posZ >= 0 && layer < octree.layers)
         {
-            int currentLayer = octree.layers + 1;
+            int currentLayer = octree.layers;
             OctreeNode currentNode = octree.mainNode;
             while (currentLayer > layer)
             {
