@@ -23,6 +23,7 @@ public class Player : LoadMarker
     private Label vertices;
     private Vector3 lastPosition;
     private bool wireframe = false;
+
     public override void _Input(InputEvent @event)
     {
         if (Input.IsActionPressed("toggle_mouse_capture"))
@@ -30,25 +31,32 @@ public class Player : LoadMarker
             Input.SetMouseMode(Input.GetMouseMode() == Input.MouseMode.Captured
                 ? Input.MouseMode.Visible
                 : Input.MouseMode.Captured);
-        }else if (Input.IsActionPressed("toggle_wireframe_mode"))
+        }
+        else if (Input.IsActionPressed("toggle_wireframe_mode"))
         {
-            if(wireframe){
-                GetViewport().DebugDraw = Viewport.DebugDrawEnum.Wireframe; 
-            }else{
-                GetViewport().DebugDraw = Viewport.DebugDrawEnum.Disabled; 
+            if (wireframe)
+            {
+                GetViewport().DebugDraw = Viewport.DebugDrawEnum.Wireframe;
             }
+            else
+            {
+                GetViewport().DebugDraw = Viewport.DebugDrawEnum.Disabled;
+            }
+
             wireframe = !wireframe;
-        } else if (Input.IsActionPressed("ui_cancel"))
+        }
+        else if (Input.IsActionPressed("ui_cancel"))
         {
             gameController.Clear();
             List<long> measures = gameController.GetMeasures();
             GD.Print("Min chunk generation: " + measures.Min() + " ms");
-            GD.Print("Max chunk generation: " + measures.Max()+ " ms");
+            GD.Print("Max chunk generation: " + measures.Max() + " ms");
             GD.Print("Average chunk generation: " + measures.Average() + " ms");
             GD.Print("Chunk amount generated: " + gameController.GetChunkCount() + " ms");
             measures.Clear();
             GetTree().Quit();
-        }else if (@event is InputEventMouseMotion eventKey)
+        }
+        else if (@event is InputEventMouseMotion eventKey)
         {
             if (Input.GetMouseMode() == Input.MouseMode.Captured)
             {
@@ -117,7 +125,8 @@ public class Player : LoadMarker
             else if (child.Name.Equals("Chunks"))
             {
                 chunks = (Label) child;
-            } else if (child.Name.Equals("Vertices"))
+            }
+            else if (child.Name.Equals("Vertices"))
             {
                 vertices = (Label) child;
             }
@@ -141,6 +150,7 @@ public class Player : LoadMarker
             ray.Enabled = false;
         }
     }
+
     public override void _ExitTree()
     {
         Input.SetMouseMode(Input.MouseMode.Visible);

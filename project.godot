@@ -16,7 +16,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Rituals of the Old"
-run/main_scene="res://assets/shaders/scenes/Game.tscn"
+run/main_scene="res://assets/scenes/Game.tscn"
 config/icon="res://icon.png"
 
 [editor_plugins]

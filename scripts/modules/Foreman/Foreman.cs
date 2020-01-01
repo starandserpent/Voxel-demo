@@ -27,6 +27,7 @@ public class Foreman
     private volatile List<long> chunkSpeed;
     private volatile Threading[] threads;
     private volatile ManualResetEvent _event;
+
     public Foreman(Weltschmerz weltschmerz, Terra terra, Registry registry, GameMesher mesher,
         int viewDistance, float fov, int generationThreads)
     {
@@ -43,7 +44,8 @@ public class Foreman
         chunkSpeed = new List<long>();
         threads = new Threading[generationThreads];
 
-        for(int t = 0; t < generationThreads; t++){
+        for (int t = 0; t < generationThreads; t++)
+        {
             threads[t] = new Threading(() => Process());
             threads[t].Start();
         }
@@ -64,29 +66,51 @@ public class Foreman
     //Initial generation
     public void GenerateTerrain(LoadMarker loadMarker)
     {
-            _event.Set();
+        _event.Set();
 
-            SortedList<float, List<GodotVector3>> priority = new SortedList<float, List<GodotVector3>>();
-            List<Vector3> topPriority = new List<Vector3>();
+        SortedList<float, List<GodotVector3>> priority = new SortedList<float, List<GodotVector3>>();
+        List<Vector3> topPriority = new List<Vector3>();
 
-            for (int y = (loadMarker.loadRadius / 2) * 8; y >= -(loadMarker.loadRadius / 2) * 8; y -= 8)
+        for (int y = (loadMarker.loadRadius / 2) * 8; y >= -(loadMarker.loadRadius / 2) * 8; y -= 8)
+        {
+            for (int z = (loadMarker.loadRadius / 2) * 8; z >= -(loadMarker.loadRadius / 2) * 8; z -= 8)
             {
-                for (int z = (loadMarker.loadRadius / 2) * 8; z >= -(loadMarker.loadRadius / 2) * 8; z -= 8)
+                for (int x = (loadMarker.loadRadius / 2) * 8; x >= -(loadMarker.loadRadius / 2) * 8; x -= 8)
                 {
-                    for (int x = (loadMarker.loadRadius / 2) * 8; x >= -(loadMarker.loadRadius / 2) * 8; x -= 8)
-                    {
-                        Vector3 center = new Vector3(x, y, z);
-                        topPriority.Add(center);
-                    }
+                    Vector3 center = new Vector3(x, y, z);
+                    topPriority.Add(center);
                 }
             }
+        }
 
-            for (int c = 0; c < topPriority.Count; c++)
+        for (int c = 0; c < topPriority.Count; c++)
+        {
+            Vector3 center = topPriority[c];
+            GodotVector3 newPos = loadMarker.ToGlobal(new GodotVector3(center.X, center.Y, center.Z));
+            float distance = loadMarker.Translation.DistanceTo(newPos);
+
+            if (priority.ContainsKey(distance))
             {
-                Vector3 center = topPriority[c];
-                GodotVector3 newPos = loadMarker.ToGlobal(new GodotVector3(center.X, center.Y, center.Z));
-                float distance = loadMarker.Translation.DistanceTo(newPos);
+                priority[distance].Add(newPos);
+            }
+            else
+            {
+                List<GodotVector3> list = new List<GodotVector3>();
+                list.Add(newPos);
+                priority.Add(distance, list);
+            }
+        }
 
+        topPriority.Clear();
+
+        for (int c = 0; c < localCenters.Count; c++)
+        {
+            Vector3 center = localCenters[c];
+            GodotVector3 newPos = loadMarker.ToGlobal(new GodotVector3(center.X, center.Y, center.Z));
+            float distance = loadMarker.Translation.DistanceTo(newPos);
+
+            if (distance < viewDistance)
+            {
                 if (priority.ContainsKey(distance))
                 {
                     priority[distance].Add(newPos);
@@ -98,56 +122,33 @@ public class Foreman
                     priority.Add(distance, list);
                 }
             }
-
-            topPriority.Clear();
-
-            for (int c = 0; c < localCenters.Count; c++)
-            {
-                Vector3 center = localCenters[c];
-                GodotVector3 newPos = loadMarker.ToGlobal(new GodotVector3(center.X, center.Y, center.Z));
-                float distance = loadMarker.Translation.DistanceTo(newPos);
-
-                if (distance < viewDistance)
-                {
-                    if (priority.ContainsKey(distance))
-                    {
-                        priority[distance].Add(newPos);
-                    }
-                    else
-                    {
-                        List<GodotVector3> list = new List<GodotVector3>();
-                        list.Add(newPos);
-                        priority.Add(distance, list);
-                    }
-                }
-            }
-            centerQueue = new ConcurrentQueue<GodotVector3>();
-
-            foreach (float key in priority.Keys.ToArray())
-            {
-                for (int i = 0; i < priority[key].Count; i++)
-                {
-                    GodotVector3 pos = priority[key][i]/8;
-                    int x = (int)pos.x;
-                    int y = (int)pos.y;
-                    int z = (int)pos.z;
-
-                            if (x >= 0 && z >= 0 && y >= 0 && x * 8 < octree.sizeX
-                            && y * 8 < octree.sizeY && z * 8 < octree.sizeZ)
-        {
-            Octree octree = terra.GetOctree();
-            int size =  octree.sizeX * octree.sizeY * octree.sizeZ;
-
-            if (terra.TraverseOctree(x, y, z, 0).chunk == null){
-                     centerQueue.Enqueue(pos);
-            }
         }
-                }
 
-                priority.Remove(key);
+        centerQueue = new ConcurrentQueue<GodotVector3>();
+
+        foreach (float key in priority.Keys.ToArray())
+        {
+            for (int i = 0; i < priority[key].Count; i++)
+            {
+                GodotVector3 pos = priority[key][i] / 8;
+                int x = (int) pos.x;
+                int y = (int) pos.y;
+                int z = (int) pos.z;
+
+                if (x >= 0 && z >= 0 && y >= 0 && x * 8 <= octree.sizeX
+                    && y * 8 <= octree.sizeY && z * 8 <= octree.sizeZ)
+                {
+                    if (terra.TraverseOctree(x, y, z, 0).chunk == null)
+                    {
+                        centerQueue.Enqueue(pos);
+                    }
+                }
             }
 
-            priority.Clear();
+            priority.Remove(key);
+        }
+
+        priority.Clear();
     }
 
     public void Process()
@@ -157,52 +158,57 @@ public class Foreman
         while (runThread)
         {
             _event.WaitOne();
-            if(!centerQueue.IsEmpty){
-                if(centerQueue.TryDequeue(out pos)){
+            if (!centerQueue.IsEmpty)
+            {
+                if (centerQueue.TryDequeue(out pos))
+                {
                     stopwatch.Start();
                     LoadArea((int) pos.x, (int) pos.y, (int) pos.z);
                     stopwatch.Stop();
                 }
-            }else{
+            }
+            else
+            {
                 _event.Reset();
             }
         }
     }
- 
-     //Loads chunks
+
+    //Loads chunks
     private void LoadArea(int x, int y, int z)
     {
-                    OctreeNode childNode = new OctreeNode();
+        OctreeNode childNode = new OctreeNode();
 
-                    Chunk chunk;
-                    if (y << Constants.CHUNK_EXPONENT > weltschmerz.GetMaxElevation())
-                    {
-                        chunk = new Chunk();
-                        chunk.isEmpty = true;
-                        chunk.x = (uint) x << Constants.CHUNK_EXPONENT;
-                        chunk.y = (uint) y << Constants.CHUNK_EXPONENT;
-                        chunk.z = (uint) z << Constants.CHUNK_EXPONENT;
-                    }
-                    else
-                    {
-                        chunk = GenerateChunk(x << Constants.CHUNK_EXPONENT, y << Constants.CHUNK_EXPONENT,
-                            z << Constants.CHUNK_EXPONENT, weltschmerz);
-                        if (!chunk.isSurface)
-                        {
-                            childNode.materialID = (int) chunk.voxels[0];
-                            chunk.voxels = new uint[1];
-                            chunk.voxels[0] = (uint) childNode.materialID;
-                            chunk.x = (uint) x << Constants.CHUNK_EXPONENT;
-                            chunk.y = (uint) y << Constants.CHUNK_EXPONENT;
-                            chunk.z = (uint) z << Constants.CHUNK_EXPONENT;
-                        }
-                    }
+        Chunk chunk;
+        if (y << Constants.CHUNK_EXPONENT > weltschmerz.GetMaxElevation())
+        {
+            chunk = new Chunk();
+            chunk.isEmpty = true;
+            chunk.x = (uint) x << Constants.CHUNK_EXPONENT;
+            chunk.y = (uint) y << Constants.CHUNK_EXPONENT;
+            chunk.z = (uint) z << Constants.CHUNK_EXPONENT;
+        }
+        else
+        {
+            chunk = GenerateChunk(x << Constants.CHUNK_EXPONENT, y << Constants.CHUNK_EXPONENT,
+                z << Constants.CHUNK_EXPONENT, weltschmerz);
+            if (!chunk.isSurface)
+            {
+                childNode.materialID = (int) chunk.voxels[0];
+                chunk.voxels = new uint[1];
+                chunk.voxels[0] = (uint) childNode.materialID;
+                chunk.x = (uint) x << Constants.CHUNK_EXPONENT;
+                chunk.y = (uint) y << Constants.CHUNK_EXPONENT;
+                chunk.z = (uint) z << Constants.CHUNK_EXPONENT;
+            }
+        }
 
-                    terra.PlaceChunk(x, y, z, chunk);
-                    if(!chunk.isEmpty){
-                        mesher.MeshChunk(chunk);
-                    }
-                }
+        terra.PlaceChunk(x, y, z, chunk);
+        if (!chunk.isEmpty)
+        {
+            mesher.MeshChunk(chunk);
+        }
+    }
 
     public void SetMaterials(Registry registry)
     {
@@ -210,11 +216,14 @@ public class Foreman
         grassID = registry.SelectByName("grass").worldID;
     }
 
-    public void Stop(){
+    public void Stop()
+    {
         runThread = false;
-       for(int t = 0; t < generationThreads; t++){
-           threads[t].Abort();
+        for (int t = 0; t < generationThreads; t++)
+        {
+            threads[t].Abort();
         }
+
         localCenters.Clear();
     }
 
@@ -303,7 +312,8 @@ public class Foreman
         return chunk;
     }
 
-    public List<long> GetMeasures(){
+    public List<long> GetMeasures()
+    {
         return chunkSpeed;
     }
 }

@@ -10,16 +10,15 @@ public class GameController : Spatial
     private Picker picker;
     private volatile Terra terra;
     private Foreman foreman;
-    [Export] public bool Profiling = false;
     [Export] public int SEED = 19083;
     [Export] public int AVERAGE_TERRAIN_HIGHT = 130;
     [Export] public int TERRAIN_GENERATION_MULTIPLIER = 10;
     [Export] public int MAX_ELEVATION = 100;
     [Export] public float NOISE_FREQUENCY = 0.45F;
     [Export] public int VIEW_DISTANCE = 100;
-    [Export] public int WORLD_SIZE_X = 32;
-    [Export] public int WORLD_SIZE_Y = 32;
-    [Export] public int WORLD_SIZE_Z = 32;
+    [Export] public int WORLD_SIZE_X = 1000;
+    [Export] public int WORLD_SIZE_Y = 1000;
+    [Export] public int WORLD_SIZE_Z = 1000;
     [Export] public int GENERATION_THREADS = 4;
     private GameMesher mesher;
     private Weltschmerz weltschmerz;
@@ -34,7 +33,7 @@ public class GameController : Spatial
         PrimitiveResources.register(registry);
         weltschmerz = new Weltschmerz(SEED, TERRAIN_GENERATION_MULTIPLIER, AVERAGE_TERRAIN_HIGHT, MAX_ELEVATION,
             NOISE_FREQUENCY);
-        mesher = new GameMesher(registry,this, false);
+        mesher = new GameMesher(registry, this, false);
         terra = new Terra(WORLD_SIZE_X, WORLD_SIZE_Y, WORLD_SIZE_Z, this);
         picker = new Picker(terra, mesher);
     }
@@ -59,15 +58,18 @@ public class GameController : Spatial
         return picker;
     }
 
-    public int GetChunkCount(){
+    public int GetChunkCount()
+    {
         return chunkCount;
     }
 
-    public void Clear(){
+    public void Clear()
+    {
         foreman.Stop();
     }
 
-    public List<long> GetMeasures(){
+    public List<long> GetMeasures()
+    {
         return foreman.GetMeasures();
     }
 }

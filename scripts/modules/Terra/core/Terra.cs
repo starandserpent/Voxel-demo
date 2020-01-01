@@ -8,6 +8,7 @@ public class Terra
     private volatile Octree octree;
     private volatile Node parent;
     private volatile Dictionary<string, MeshInstance> meshes;
+
     public Terra(int sizeX, int sizeY, int sizeZ, Node parent)
     {
         this.parent = parent;
@@ -56,18 +57,22 @@ public class Terra
 
                 currentNode = childNode;
 
-               /* string name =  "layer: " + currentLayer + " "+ nodePosX * 16 * (float) Math.Pow(2, currentLayer) + " " + nodePosY * 16 * (float) Math.Pow(2, currentLayer) +
-                             " " + nodePosZ * 16 * (float) Math.Pow(2, currentLayer);
-                if(!meshes.ContainsKey(name)){
-             MeshInstance instance = DebugMesh();
-             instance.Scale = new Vector3(32 * (float) Math.Pow(2, currentLayer - 2), 32 * (float) Math.Pow(2, currentLayer - 2),
-                 32 * (float) Math.Pow(2, currentLayer - 2));
-             instance.Name = name;
-             instance.Translation = new Vector3(nodePosX * 16 * (float) Math.Pow(2, currentLayer - 1),
-                 nodePosY * 16 * (float) Math.Pow(2, currentLayer - 1), nodePosZ * 16 * (float) Math.Pow(2, currentLayer - 1));
-             parent.CallDeferred("add_child", instance);
-                meshes.Add(name, instance);
-             }*/
+               /* string name = "layer: " + currentLayer + " " + nodePosX * 16 * (float) Math.Pow(2, currentLayer) + " " +
+                              nodePosY * 16 * (float) Math.Pow(2, currentLayer) +
+                              " " + nodePosZ * 16 * (float) Math.Pow(2, currentLayer);
+                if (!meshes.ContainsKey(name))
+                {
+                    MeshInstance instance = DebugMesh();
+                    instance.Scale = new Vector3(32 * (float) Math.Pow(2, currentLayer - 2),
+                        32 * (float) Math.Pow(2, currentLayer - 2),
+                        32 * (float) Math.Pow(2, currentLayer - 2));
+                    instance.Name = name;
+                    instance.Translation = new Vector3(nodePosX * 16 * (float) Math.Pow(2, currentLayer - 1),
+                        nodePosY * 16 * (float) Math.Pow(2, currentLayer - 1),
+                        nodePosZ * 16 * (float) Math.Pow(2, currentLayer - 1));
+                    parent.CallDeferred("add_child", instance);
+                    meshes.Add(name, instance);
+                }*/
             }
 
             if (currentLayer == 0)
