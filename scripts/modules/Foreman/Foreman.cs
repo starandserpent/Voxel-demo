@@ -121,9 +121,7 @@ public class Foreman
                     }
                 }
             }
-            
-            _event.Reset();
-                    centerQueue = new ConcurrentQueue<GodotVector3>();
+            centerQueue = new ConcurrentQueue<GodotVector3>();
 
             foreach (float key in priority.Keys.ToArray())
             {
@@ -136,11 +134,11 @@ public class Foreman
 
                             if (x >= 0 && z >= 0 && y >= 0)
         {
-            int lolong = (int) Morton3D.encode(x, y, z);
+            int posSize = y + x + z;
             Octree octree = terra.GetOctree();
             int size =  octree.sizeX * octree.sizeY * octree.sizeZ;
 
-            if (lolong < size && terra.TraverseOctree(x, y, z, 0).chunk == null){
+            if (posSize < size && terra.TraverseOctree(x, y, z, 0).chunk == null){
                      centerQueue.Enqueue(pos);
             }
         }
@@ -159,16 +157,19 @@ public class Foreman
         while (runThread)
         {
             _event.WaitOne();
-            if(!centerQueue.IsEmpty && centerQueue.TryDequeue(out pos)){
-                stopwatch.Start();
-                LoadArea((int) pos.x, (int) pos.y, (int) pos.z);
-                stopwatch.Stop();
+            if(!centerQueue.IsEmpty){
+                if(centerQueue.TryDequeue(out pos)){
+                    stopwatch.Start();
+                    LoadArea((int) pos.x, (int) pos.y, (int) pos.z);
+                    stopwatch.Stop();
+                }
+            }else{
+                _event.Reset();
             }
-            //chunkSpeed.Add(stopwatch.ElapsedMilliseconds)
         }
     }
  
-    //Loads chunks
+     //Loads chunks
     private void LoadArea(int x, int y, int z)
     {
                     OctreeNode childNode = new OctreeNode();

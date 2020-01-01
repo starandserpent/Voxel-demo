@@ -35,7 +35,7 @@ public class GameController : Spatial
         weltschmerz = new Weltschmerz(SEED, TERRAIN_GENERATION_MULTIPLIER, AVERAGE_TERRAIN_HIGHT, MAX_ELEVATION,
             NOISE_FREQUENCY);
         mesher = new GameMesher(registry,this, false);
-        terra = new Terra(WORLD_SIZE_X, WORLD_SIZE_Y, WORLD_SIZE_Z);
+        terra = new Terra(WORLD_SIZE_X, WORLD_SIZE_Y, WORLD_SIZE_Z, this);
         picker = new Picker(terra, mesher);
     }
 

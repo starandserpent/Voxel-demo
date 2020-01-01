@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System;
 using Godot;
 
@@ -5,8 +6,11 @@ public class Terra
 {
     // Declare member variables here. Examples:
     private volatile Octree octree;
-    public Terra(int sizeX, int sizeY, int sizeZ)
+    private volatile Node parent;
+    private volatile Dictionary<string, MeshInstance> meshes;
+    public Terra(int sizeX, int sizeY, int sizeZ, Node parent)
     {
+        this.parent = parent;
         octree = new Octree();
         octree.sizeX = sizeX;
         octree.sizeY = sizeY;
@@ -19,6 +23,8 @@ public class Terra
         octreeNode.children = new OctreeNode[8];
 
         octree.mainNode = octreeNode;
+
+        meshes = new Dictionary<string, MeshInstance>();
     }
 
     public Octree GetOctree()
@@ -30,7 +36,7 @@ public class Terra
     {
         if (posX >= 0 && posY >= 0 && posZ >= 0 && layer < octree.layers)
         {
-            int currentLayer = octree.layers;
+            int currentLayer = octree.layers + 1;
             OctreeNode currentNode = octree.mainNode;
             while (currentLayer > layer)
             {
@@ -50,16 +56,17 @@ public class Terra
 
                 currentNode = childNode;
 
-                /* string name =  "layer: " + currentLayer + " "+ nodePosX * 16 * (float) Math.Pow(2, currentLayer) + " " + nodePosY * 16 * (float) Math.Pow(2, currentLayer) +
+               /* string name =  "layer: " + currentLayer + " "+ nodePosX * 16 * (float) Math.Pow(2, currentLayer) + " " + nodePosY * 16 * (float) Math.Pow(2, currentLayer) +
                              " " + nodePosZ * 16 * (float) Math.Pow(2, currentLayer);
-             if(parent.FindNode(name) == null){
+                if(!meshes.ContainsKey(name)){
              MeshInstance instance = DebugMesh();
              instance.Scale = new Vector3(32 * (float) Math.Pow(2, currentLayer - 2), 32 * (float) Math.Pow(2, currentLayer - 2),
                  32 * (float) Math.Pow(2, currentLayer - 2));
              instance.Name = name;
              instance.Translation = new Vector3(nodePosX * 16 * (float) Math.Pow(2, currentLayer - 1),
                  nodePosY * 16 * (float) Math.Pow(2, currentLayer - 1), nodePosZ * 16 * (float) Math.Pow(2, currentLayer - 1));
-             parent.AddChild(instance);
+             parent.CallDeferred("add_child", instance);
+                meshes.Add(name, instance);
              }*/
             }
 
