@@ -112,7 +112,7 @@ public void MeshChunk(Chunk chunk){
                         pos = (int) -vectors[pos].x;
                     }
 
-                    if (vectors[index + 2].y <= vectors[pos].y)
+                    if (vectors[index + 2].y <= vectors[pos].y && vectors[pos].x == sx)
                     {
                         for (int s = 0; s < 6; s++)
                         {
