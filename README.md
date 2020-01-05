@@ -1,12 +1,20 @@
-# Rituals-Godot
-Rituals of the old Godot port, experimental.
+# Terra-demo
+Demo implementation of Terra using Weltschmerz and Foreman.
 
-Exploring the possibility of porting our code over to Godot and continuing development there.
+The purpose of Terra-demo is to demonstrate the capabilities of the voxel engine. Generates a voxel world for you to fool around with.
+
+Written in C# using Godot game engine.
+
+# Contact us
+https://discord.starandserpent.com/
 
 # How to install
 
+```
+1) git clone git@github.com:starandserpent/Terra-demo.git --recursive
+2) cd Terra-demo
+3) dotnet restore
+4) Finally copy the assets to the assets folder
+```
+TODO: Add instructions how to actually do 4)
 
-git clone git@github.com:starandserpent/Rituals-Godot.git --recursive
-cd Rituals-Godot
-dotnet restore
-copy the assets to assets folder
