@@ -110,7 +110,7 @@ public class GameMesher
                         pos = (int) -vectors[pos].x;
                     }
 
-                    if (vectors[index + 2].y <= vectors[pos].y && vectors[pos].x == sx)
+                    if (vectors[index + 2].y <= vectors[pos].y && vectors[pos].x == ax)
                     {
                         for (int s = 0; s < 6; s++)
                         {

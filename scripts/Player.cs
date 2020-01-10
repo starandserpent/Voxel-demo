@@ -219,7 +219,7 @@ public class Player : LoadMarker
 
         velocity = new Vector3(velocity.x * 0.9f, velocity.y * 0.9f, velocity.z * 0.9f);
 
-        Translation = new Vector3(Translation.x + (velocity.x * delta), Translation.y + (velocity.y * delta),
-            Translation.z + (velocity.z * delta));
+        Translation = new Vector3(Translation.x + (velocity.x), Translation.y + (velocity.y),
+            Translation.z + (velocity.z));
     }
 }
