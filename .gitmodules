@@ -1,0 +1,3 @@
+[submodule "modules/Foreman"]
+	path = modules/Foreman
+	url = git@github.com:starandserpent/Foreman.git
