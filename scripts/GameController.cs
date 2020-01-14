@@ -31,8 +31,17 @@ public class GameController : Spatial
         //Has to be devidable by 16
         registry = new Registry();
         PrimitiveResources.register(registry);
-        weltschmerz = new Weltschmerz(SEED, TERRAIN_GENERATION_MULTIPLIER, AVERAGE_TERRAIN_HIGHT, MAX_ELEVATION,
-            NOISE_FREQUENCY);
+
+        Config config = new Config();
+        config.seed = SEED;
+        config.terrainMP = TERRAIN_GENERATION_MULTIPLIER;
+        config.avgTerrain = AVERAGE_TERRAIN_HIGHT;
+        config.maxElevation = MAX_ELEVATION;
+        config.frequency = NOISE_FREQUENCY;
+        config.longitude = WORLD_SIZE_X;
+        config.latitude = WORLD_SIZE_Z;
+
+        weltschmerz = new Weltschmerz(config);
         mesher = new GameMesher(registry, this, false);
         terra = new Terra(WORLD_SIZE_X, WORLD_SIZE_Y, WORLD_SIZE_Z, this);
         picker = new Picker(terra, mesher);

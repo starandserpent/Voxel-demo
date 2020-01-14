@@ -66,6 +66,9 @@
     <PackageReference Include="xunit.runner.visualstudio">
       <Version>2.4.1</Version>
     </PackageReference>
+    <PackageReference Include="Hocon">
+      <Version>1.2.1</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" />
