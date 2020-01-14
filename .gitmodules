@@ -1,6 +1,0 @@
-[submodule "FastNoise_CSharp"]
-	path = FastNoise_CSharp
-	url = https://github.com/Auburns/FastNoise_CSharp.git
-[submodule "Foreman"]
-	path = Foreman
-	url = git@github.com:starandserpent/Foreman.git

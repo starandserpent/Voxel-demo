@@ -22,6 +22,7 @@ public class Player : LoadMarker
     private Label chunks;
     private Label vertices;
     private Vector3 lastPosition;
+    private Timer timer;
     private bool wireframe = false;
 
     public override void _Input(InputEvent @event)
@@ -83,6 +84,10 @@ public class Player : LoadMarker
     {
         loadRadius = LOAD_RADIUS;
         VisualServer.SetDebugGenerateWireframes(true);
+        timer = new Timer();
+        timer.OneShot = true;
+        timer.Start(1F);
+        AddChild(timer);
 
         foreach (Node child in GetParent().GetChildren())
         {
@@ -158,7 +163,10 @@ public class Player : LoadMarker
 
     public override void _Process(float delta)
     {
-        gameController.Generate(this);
+        if(timer.IsStopped()){
+            gameController.Generate(this);
+            timer.Start(0.2F);
+        }
 
         chunks.SetText("Chunks: " + gameController.GetChunkCount());
         vertices.SetText("Vertices: " + Performance.GetMonitor(Performance.Monitor.RenderVerticesInFrame));
