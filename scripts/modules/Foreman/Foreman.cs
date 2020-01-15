@@ -71,7 +71,7 @@ public class Foreman
                 }
             }
         }
-        localCenters.OrderBy(p => p.DistanceTo(GodotVector3.Zero));
+        localCenters = localCenters.OrderBy(p => p.DistanceTo(GodotVector3.Zero)).ToList();
     }
 
     void GenerateProcess()
