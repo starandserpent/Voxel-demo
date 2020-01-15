@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using GodotVector3 = Godot.Vector3;
 using System.Collections.Generic;
 using Threading = System.Threading.Thread;
+using System;
 
 public class Foreman
 {
@@ -17,7 +18,9 @@ public class Foreman
     private int grassMeshID;
     private volatile Weltschmerz weltschmerz;
     private volatile Terra terra;
-    private int viewDistance;
+    int viewDistance = 0;
+    int maxViewDistance;
+
     private float fov;
     private int generationThreads;
     private List<GodotVector3> localCenters;
@@ -26,6 +29,11 @@ public class Foreman
     private volatile List<long> chunkSpeed;
     private Threading[] threads;
     private volatile ManualResetEvent _event;
+    private volatile bool newData = false;
+    LoadMarker marker = null;
+    public Thread GenerateThread;
+    
+    
 
     public Foreman(Weltschmerz weltschmerz, Terra terra, Registry registry, GameMesher mesher,
         int viewDistance, float fov, int generationThreads)
@@ -34,7 +42,7 @@ public class Foreman
         this.terra = terra;
         _event = new ManualResetEvent(true);
         this.octree = terra.GetOctree();
-        this.viewDistance = viewDistance;
+        maxViewDistance = viewDistance;
         this.fov = fov;
         this.mesher = mesher;
         this.generationThreads = generationThreads;
@@ -49,7 +57,10 @@ public class Foreman
             threads[t].Start();
         }
 
-        for (int l = -viewDistance; l < viewDistance; l += 8)
+        GenerateThread = new Threading(() => GenerateProcess());
+        GenerateThread.Start();
+
+        for (int l = -maxViewDistance; l < maxViewDistance; l += 8)
         {
             for (int y = -Utils.GetPosFromFOV(fov, l); y < Utils.GetPosFromFOV(fov, l); y += 8)
             {
@@ -62,97 +73,44 @@ public class Foreman
         }
     }
 
-    //Initial generation
+    void GenerateProcess()
+    {
+        LoadMarker thisMarker = null;
+        while (runThread)
+        {
+            lock (this)
+            {
+                if (marker != null)
+                {
+                    thisMarker = marker;
+                }
+            }
+            if (thisMarker != null)
+                generateTerrain(thisMarker);
+            lock (this)
+            {
+                marker = null;
+            }
+            thisMarker = null; 
+            
+        }
+    }
+
     public void GenerateTerrain(LoadMarker loadMarker)
     {
-        _event.Set();
-        
-        /*
-        SortedList<float, List<GodotVector3>> priority = new SortedList<float, List<GodotVector3>>();
-        List<GodotVector3> topPriority = new List<GodotVector3>();
-        GodotVector3 center;
-        GodotVector3 newPos;
-        float distance;
-        
-        for (int y = (loadMarker.loadRadius / 2) * 8; y >= -(loadMarker.loadRadius / 2) * 8; y -= 8)
+        lock (this)
         {
-            for (int z = (loadMarker.loadRadius / 2) * 8; z >= -(loadMarker.loadRadius / 2) * 8; z -= 8)
+            if (marker == null)
             {
-                for (int x = (loadMarker.loadRadius / 2) * 8; x >= -(loadMarker.loadRadius / 2) * 8; x -= 8)
-                {
-                    center = new GodotVector3(x, y, z);
-                    topPriority.Add(center);
-                }
+                marker = loadMarker;
             }
         }
-        
-        for (int c = 0; c < topPriority.Count; c++)
-        {
-            center = topPriority[c];
-            newPos = loadMarker.ToGlobal(center);
-            distance = loadMarker.Translation.DistanceTo(newPos);
+    }
 
-            if (priority.ContainsKey(distance))
-            {
-                priority[distance].Add(newPos);
-            }
-            else
-            {
-                List<GodotVector3> list = new List<GodotVector3>();
-                list.Add(newPos);
-                priority.Add(distance, list);
-            }
-        }
-        
-        topPriority.Clear();
-        
-        
-        for (int c = 0; c < localCenters.Count; c++)
-        {
-            center = localCenters[c];
-            newPos = loadMarker.ToGlobal(center);
-            distance = loadMarker.Translation.DistanceTo(newPos);
-
-            if (distance < viewDistance)
-            {
-                if (priority.ContainsKey(distance))
-                {
-                    priority[distance].Add(newPos);
-                }
-                else
-                {
-                    List<GodotVector3> list = new List<GodotVector3>();
-                    list.Add(newPos);
-                    priority.Add(distance, list);
-                }
-            }
-        }
-        centerQueue = new ConcurrentQueue<GodotVector3>();
-        foreach (float key in priority.Keys.ToArray())
-        {
-            for (int i = 0; i < priority[key].Count; i++)
-            {
-                GodotVector3 pos = priority[key][i] / 8;
-                int x = (int) pos.x;
-                int y = (int) pos.y;
-                int z = (int) pos.z;
-
-                if (x >= 0 && z >= 0 && y >= 0 && x * 8 <= octree.sizeX
-                    && y * 8 <= octree.sizeY && z * 8 <= octree.sizeZ)
-                {
-                    if (terra.TraverseOctree(x, y, z, 0).chunk == null)
-                    {
-                        centerQueue.Enqueue(pos);
-                    }
-                }
-            }
-
-            priority.Remove(key);
-        }
-
-        priority.Clear();
-        
-        */
+    //Initial generation
+    void generateTerrain(LoadMarker loadMarker)
+    {
+        viewDistance = Math.Max(viewDistance + 100, maxViewDistance);
         var inViewDistance = localCenters.Where(p => loadMarker.Translation.DistanceTo(loadMarker.ToGlobal(p)) < viewDistance);
         centerQueue = new ConcurrentQueue<GodotVector3>();
         foreach (var p in inViewDistance)
@@ -161,20 +119,19 @@ public class Foreman
             int x = (int) pos.x;
             int y = (int) pos.y;
             int z = (int) pos.z;
-
+            
             if (x >= 0 && z >= 0 && y >= 0 && x * 8 <= octree.sizeX
                 && y * 8 <= octree.sizeY && z * 8 <= octree.sizeZ)
             {
-                
+                    
                 if (terra.TraverseOctree(x, y, z, 0).chunk == null)
                 {
                     centerQueue.Enqueue(pos);
                 }
-                
+                            
             }
         }
-        
-        
+        _event.Set();
     }
 
     public void Process()

@@ -5,10 +5,10 @@ using Godot;
 public class Terra
 {
     // Declare member variables here. Examples:
-    private volatile Octree octree;
+    private Octree octree;
     private volatile Node parent;
     private volatile Dictionary<string, MeshInstance> meshes;
-
+    
     public Terra(int sizeX, int sizeY, int sizeZ, Node parent)
     {
         this.parent = parent;
@@ -110,38 +110,8 @@ public class Terra
 
     private int SelectChildOctant(int posX, int posY, int posZ)
     {
-        if (posX % 2 == 0 && posY % 2 == 0 && posZ % 2 == 0)
-        {
-            return 0;
-        }
-        else if (posX % 2 == 1 && posY % 2 == 0 && posZ % 2 == 0)
-        {
-            return 1;
-        }
-        else if (posX % 2 == 0 && posY % 2 == 0 && posZ % 2 == 1)
-        {
-            return 2;
-        }
-        else if (posX % 2 == 1 && posY % 2 == 0 && posZ % 2 == 1)
-        {
-            return 3;
-        }
-        else if (posX % 2 == 0 && posY % 2 == 1 && posZ % 2 == 0)
-        {
-            return 4;
-        }
-        else if (posX % 2 == 1 && posY % 2 == 1 && posZ % 2 == 0)
-        {
-            return 5;
-        }
-        else if (posX % 2 == 0 && posY % 2 == 1 && posZ % 2 == 1)
-        {
-            return 6;
-        }
-        else
-        {
-            return 7;
-        }
+        int ret = (posY % 2) * 4 | (posZ % 2) * 2 | (posX % 2);
+        return ret;
     }
 
     private static MeshInstance DebugMesh()

@@ -6,6 +6,16 @@ public class GameMesher
 {
     private volatile Registry reg;
     private volatile Node parent;
+    private static volatile int chunks_processed;
+    public static int ChunksMeshed
+    {
+        get {
+            int temp = chunks_processed;
+            chunks_processed = 0;
+            return temp;
+        }
+    }
+    
 
     public GameMesher(Registry reg, Node parent, bool profile)
     {
@@ -16,7 +26,7 @@ public class GameMesher
     public void MeshChunk(Chunk chunk)
     {
         RawChunk rawChunk = new RawChunk();
-
+        chunks_processed++;
         rawChunk.arrays = new Godot.Collections.Array[chunk.materials - 1];
         rawChunk.textures = new Texture[chunk.materials - 1];
         rawChunk.colliderFaces = new Vector3[chunk.materials - 1][];

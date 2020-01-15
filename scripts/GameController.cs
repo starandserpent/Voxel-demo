@@ -58,9 +58,9 @@ public class GameController : Spatial
         return picker;
     }
 
-    public int GetChunkCount()
+    public long GetChunkCount()
     {
-        return chunkCount;
+        return GameMesher.ChunksMeshed;
     }
 
     public void Clear()
