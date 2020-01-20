@@ -15,7 +15,7 @@ _global_script_class_icons={
 
 [application]
 
-config/name="Rituals of the Old"
+config/name="Voxel-demo"
 run/main_scene="res://assets/scenes/Game.tscn"
 config/icon="res://icon.png"
 
