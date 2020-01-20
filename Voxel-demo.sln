@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.902
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rituals of the Old", "Rituals of the Old.csproj", "{4C82CEAC-C9EF-4D4E-9EFE-F99D44116E23}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Voxel-demo", "Voxel-demo.csproj", "{4C82CEAC-C9EF-4D4E-9EFE-F99D44116E23}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
