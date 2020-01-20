@@ -8,8 +8,6 @@
 *.exe
 *.pck
 *.import
-*.png
-*.png.import
 *.x86_64
 /data_Rituals of the Old/
 *.cfg
@@ -17,4 +15,3 @@
 *.fbx
 *.blend
 *.dae
-**/assets/
