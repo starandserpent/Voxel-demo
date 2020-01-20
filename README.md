@@ -32,7 +32,9 @@ In case there are any problems - let us know.
 # Contact us
 
 **Discord chat:**
+
 https://discord.starandserpent.com/
 
 **Email:**
+
 info@starandserpent.com
