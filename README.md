@@ -14,7 +14,5 @@ https://discord.starandserpent.com/
 1) git clone git@github.com:starandserpent/Voxel-demo.git --recursive
 2) cd Voxel-demo
 3) dotnet restore
-4) Finally copy the assets to the assets folder
 ```
-TODO: Add instructions how to actually do 4)
 
