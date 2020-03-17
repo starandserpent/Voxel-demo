@@ -1,84 +1,71 @@
 using System.Collections.Generic;
-using System;
-using System.Linq;
-using Godot.Collections;
-using System.Collections.Concurrent;
 using Godot;
 
 public class GameController : Spatial
 {
-    private Picker picker;
-    private volatile Terra terra;
-    private Foreman foreman;
-    [Export] public int SEED = 19083;
-    [Export] public int AVERAGE_TERRAIN_HIGHT = 130;
-    [Export] public int TERRAIN_GENERATION_MULTIPLIER = 10;
-    [Export] public int MAX_ELEVATION = 100;
-    [Export] public float NOISE_FREQUENCY = 0.45F;
-    [Export] public int VIEW_DISTANCE = 100;
-    [Export] public int WORLD_SIZE_X = 1000;
-    [Export] public int WORLD_SIZE_Y = 1000;
-    [Export] public int WORLD_SIZE_Z = 1000;
-    [Export] public int GENERATION_THREADS = 4;
-    private GameMesher mesher;
-    private Weltschmerz weltschmerz;
-    private Registry registry;
-    private int chunkCount;
+	private Picker picker;
+	private volatile Terra terra;
+	private Foreman foreman;
+	[Export] public int SEED = 19083;
+	[Export] public int VIEW_DISTANCE = 100;
+	[Export] public int LONGITUDE = 1000;
+	[Export] public int LATITUDE = 1000;
+	[Export] public int ELEVATION = 1000;
+	[Export] public int GENERATION_THREADS = 4;
+	private GameMesher mesher;
+	private Weltschmerz weltschmerz;
+	private Registry registry;
+	private int chunkCount;
 
-    // Called when the node enters the scene tree for the first time.
-    public override void _Ready()
-    {
-        //Has to be devidable by 16
-        registry = new Registry();
-        PrimitiveResources.register(registry);
+	// Called when the node enters the scene tree for the first time.
+	public override void _Ready()
+	{
+		//Has to be devidable by 16
+		registry = new Registry();
+		PrimitiveResources.register(registry);
+		weltschmerz = new Weltschmerz();
+		Config config  = weltschmerz.GetConfig();
+		config.elevation.max_elevation = ELEVATION;
+		config.elevation.min_elevation = 0;
+		config.map.latitude = LATITUDE;
+		config.map.longitude = LONGITUDE;
+		mesher = new GameMesher(registry, this, false);
+		terra = new Terra(LONGITUDE, LATITUDE, ELEVATION, this);
+		picker = new Picker(terra, mesher);
+	}
 
-        Config config = new Config();
-        config.seed = SEED;
-        config.terrainMP = TERRAIN_GENERATION_MULTIPLIER;
-        config.avgTerrain = AVERAGE_TERRAIN_HIGHT;
-        config.maxElevation = MAX_ELEVATION;
-        config.frequency = NOISE_FREQUENCY;
-        config.longitude = WORLD_SIZE_X;
-        config.latitude = WORLD_SIZE_Z;
+	public override void _PhysicsProcess(float delta)
+	{
+	}
 
-        weltschmerz = new Weltschmerz(config);
-        mesher = new GameMesher(registry, this, false);
-        terra = new Terra(WORLD_SIZE_X, WORLD_SIZE_Y, WORLD_SIZE_Z, this);
-        picker = new Picker(terra, mesher);
-    }
+	public void Prepare(Camera camera)
+	{
+		foreman = new Foreman(weltschmerz, terra, registry, mesher, VIEW_DISTANCE, camera.Fov, GENERATION_THREADS);
+		foreman.SetMaterials(registry);
+	}
 
-    public override void _PhysicsProcess(float delta)
-    {
-    }
+	public void Generate(LoadMarker marker)
+	{
+		foreman.GenerateTerrain(marker);
+	}
 
-    public void Prepare(Camera camera)
-    {
-        foreman = new Foreman(weltschmerz, terra, registry, mesher, VIEW_DISTANCE, camera.Fov, GENERATION_THREADS);
-        foreman.SetMaterials(registry);
-    }
+	public Picker GetPicker()
+	{
+		return picker;
+	}
 
-    public void Generate(LoadMarker marker)
-    {
-        foreman.GenerateTerrain(marker);
-    }
+	public int GetChunkCount()
+	{
+		return chunkCount;
+	}
 
-    public Picker GetPicker()
-    {
-        return picker;
-    }
+	public void Clear()
+	{
+		foreman.Stop();
+	}
 
-    public int GetChunkCount()
-    {
-        return chunkCount;
-    }
-
-    public void Clear()
-    {
-        foreman.Stop();
-    }
-
-    public List<long> GetMeasures()
-    {
-        return foreman.GetMeasures();
-    }
+	public List<long> GetMeasures()
+	{
+		return foreman.GetMeasures();
+	}
 }

@@ -618,12 +618,12 @@ public class GameMesher
             material.AlbedoTexture = texture;
 
             ConcavePolygonShape shape = new ConcavePolygonShape();
-            shape.SetFaces(vertice);
+            shape.Data = vertice;
 
             mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, godotArray);
             mesh.SurfaceSetMaterial(mesh.GetSurfaceCount() - 1, material);
             CollisionShape colShape = new CollisionShape();
-            colShape.SetShape(shape);
+            colShape.Shape = shape;
             body.AddChild(colShape);
         }
 

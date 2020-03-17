@@ -61,11 +61,11 @@ public class Player : LoadMarker
         {
             if (Input.GetMouseMode() == Input.MouseMode.Captured)
             {
-                this.SetRotation(new Vector3(
+                this.Rotation = (new Vector3(
                     (float) Math.Max(
-                        Math.Min(this.GetRotation().x - eventKey.Relative.y * MOUSE_SENSITIVITY, Math.PI / 2),
-                        -Math.PI / 2), GetRotation().y - eventKey.Relative.x * MOUSE_SENSITIVITY,
-                    this.GetRotation().z));
+                        Math.Min(this.Rotation.x - eventKey.Relative.y * MOUSE_SENSITIVITY, Math.PI / 2),
+                        -Math.PI / 2), Rotation.y - eventKey.Relative.x * MOUSE_SENSITIVITY,
+                    this.Rotation.z));
             }
         }
         else if (@event is InputEventMouseButton eventMouseButton && eventMouseButton.Pressed &&
@@ -74,8 +74,8 @@ public class Player : LoadMarker
             Vector3 from = camera.ProjectRayOrigin(eventMouseButton.Position);
             Vector3 to = camera.ProjectRayNormal(eventMouseButton.Position) * RAY_LENGHT;
             GD.Print(to);
-            ray.SetTranslation(from);
-            ray.SetCastTo(to);
+            ray.Translation = from;
+            ray.CastTo = to;
             ray.Enabled = true;
         }
     }
@@ -168,10 +168,10 @@ public class Player : LoadMarker
             timer.Start(0.2F);
         }
 
-        chunks.SetText("Chunks: " + gameController.GetChunkCount());
-        vertices.SetText("Vertices: " + Performance.GetMonitor(Performance.Monitor.RenderVerticesInFrame));
-        fps.SetText("FPS: " + Performance.GetMonitor(Performance.Monitor.TimeFps));
-        memory.SetText("Memory: " + Performance.GetMonitor(Performance.Monitor.MemoryStatic) / (1024 * 1024) + " MB");
+        chunks.Text = "Chunks: " + gameController.GetChunkCount();
+        vertices.Text = "Vertices: " + Performance.GetMonitor(Performance.Monitor.RenderVerticesInFrame);
+        fps.Text = "FPS: " + Performance.GetMonitor(Performance.Monitor.TimeFps);
+        memory.Text = "Memory: " + Performance.GetMonitor(Performance.Monitor.MemoryStatic) / (1024 * 1024) + " MB";
 
         if (Input.IsActionPressed("walk_left"))
         {
@@ -219,9 +219,9 @@ public class Player : LoadMarker
             motion *= 2;
         }
 
-        motion = motion.Rotated(new Vector3(0, 1, 0), GetRotation().y - initialRotation.y)
-            .Rotated(new Vector3(1, 0, 0), (float) Math.Cos(GetRotation().y) * GetRotation().x)
-            .Rotated(new Vector3(0, 0, 1), -(float) Math.Sin(GetRotation().y) * GetRotation().x);
+        motion = motion.Rotated(new Vector3(0, 1, 0), Rotation.y - initialRotation.y)
+            .Rotated(new Vector3(1, 0, 0), (float) Math.Cos(Rotation.y) * Rotation.x)
+            .Rotated(new Vector3(0, 0, 1), -(float) Math.Sin(Rotation.y) * Rotation.x);
 
         velocity += motion * MOVE_SPEED;
 
