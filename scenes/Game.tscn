@@ -8,8 +8,6 @@
 
 [node name="GameController" type="Spatial" parent="."]
 script = ExtResource( 1 )
-TERRAIN_GENERATION_MULTIPLIER = 200
-MAX_ELEVATION = 400
 VIEW_DISTANCE = 200
 GENERATION_THREADS = 1
 

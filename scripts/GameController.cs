@@ -30,6 +30,19 @@ public class GameController : Spatial
 		config.map.latitude = LATITUDE;
 		config.map.longitude = LONGITUDE;
 		mesher = new GameMesher(registry, this, false);
+		
+		if(LONGITUDE < 2){
+			LONGITUDE = 2;
+		}
+		
+		if(LATITUDE < 2){
+			LATITUDE = 2;
+		}
+	
+		if(ELEVATION < 2){
+			ELEVATION = 2;
+		}
+
 		terra = new Terra(LONGITUDE, LATITUDE, ELEVATION, this);
 		picker = new Picker(terra, mesher);
 	}
