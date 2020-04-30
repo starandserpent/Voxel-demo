@@ -16,7 +16,6 @@ public class Player : LoadMarker
     private GameController gameController;
     private Camera camera;
     private Picker picker;
-    private CanvasLayer GUI;
     private Label fps;
     private Label memory;
     private Label chunks;
@@ -84,58 +83,14 @@ public class Player : LoadMarker
     {
         loadRadius = LOAD_RADIUS;
         VisualServer.SetDebugGenerateWireframes(true);
-        timer = new Timer();
-        timer.OneShot = true;
-        timer.Start(1F);
-        AddChild(timer);
-
-        foreach (Node child in GetParent().GetChildren())
-        {
-            if (child.Name.Equals("GameController"))
-            {
-                gameController = (GameController) child;
-            }
-            else if (child.Name.Equals("Picker"))
-            {
-                ray = (RayCast) child;
-            }
-        }
-
-        foreach (Node child in GetChildren())
-        {
-            if (child.Name.Equals("Camera"))
-            {
-                camera = (Camera) child;
-            }
-        }
-
-        foreach (Node child in camera.GetChildren())
-        {
-            if (child.Name.Equals("GUI"))
-            {
-                GUI = (CanvasLayer) child;
-            }
-        }
-
-        foreach (Node child in GUI.GetChildren())
-        {
-            if (child.Name.Equals("FPS"))
-            {
-                fps = (Label) child;
-            }
-            else if (child.Name.Equals("Memory"))
-            {
-                memory = (Label) child;
-            }
-            else if (child.Name.Equals("Chunks"))
-            {
-                chunks = (Label) child;
-            }
-            else if (child.Name.Equals("Vertices"))
-            {
-                vertices = (Label) child;
-            }
-        }
+        gameController = (GameController) FindParent("GameController");
+        ray = (RayCast) gameController.FindNode("Picker");
+        camera = (Camera) FindNode("Camera");
+        gameController.Prepare(camera);
+        fps = (Label) camera.FindNode("FPS");
+        memory = (Label)  camera.FindNode("Memory");
+        chunks = (Label)  camera.FindNode("Chunks");
+        vertices = (Label)  camera.FindNode("Vertices");
 
         initialRotation = new Vector3();
 
@@ -143,12 +98,12 @@ public class Player : LoadMarker
 
         Input.SetMouseMode(Input.MouseMode.Captured);
 
-        gameController.Prepare(camera);
         lastPosition = this.Translation;
     }
 
     public override void _PhysicsProcess(float delta)
     {
+        gameController.Generate(this);
         if (ray.IsColliding())
         {
             picker.Pick(ray.GetCollisionPoint(), ray.GetCollisionNormal());
@@ -163,11 +118,6 @@ public class Player : LoadMarker
 
     public override void _Process(float delta)
     {
-        if(timer.IsStopped()){
-            gameController.Generate(this);
-            timer.Start(0.2F);
-        }
-
         chunks.Text = "Chunks: " + gameController.GetChunkCount();
         vertices.Text = "Vertices: " + Performance.GetMonitor(Performance.Monitor.RenderVerticesInFrame);
         fps.Text = "FPS: " + Performance.GetMonitor(Performance.Monitor.TimeFps);

@@ -20,7 +20,14 @@ public class GameController : Spatial
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		//Has to be devidable by 16
+	}
+
+	public override void _PhysicsProcess(float delta)
+	{
+	}
+
+	public void Prepare(Camera camera)
+	{
 		registry = new Registry();
 		PrimitiveResources.register(registry);
 		weltschmerz = new Weltschmerz();
@@ -45,14 +52,6 @@ public class GameController : Spatial
 
 		terra = new Terra(LONGITUDE, LATITUDE, ELEVATION, this);
 		picker = new Picker(terra, mesher);
-	}
-
-	public override void _PhysicsProcess(float delta)
-	{
-	}
-
-	public void Prepare(Camera camera)
-	{
 		foreman = new Foreman(weltschmerz, terra, registry, mesher, VIEW_DISTANCE, camera.Fov, GENERATION_THREADS);
 		foreman.SetMaterials(registry);
 	}
