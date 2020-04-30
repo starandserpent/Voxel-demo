@@ -4,12 +4,18 @@ public class PrimitiveResources
 {
     public static void register(Registry registry)
     {
+        SpatialMaterial material = new SpatialMaterial();
         Texture nativeTexture = (Texture) GD.Load("res://assets/textures/blocks/NorthenForestDirt256px.png");
-        TerraObject dirt = new TerraObject("dirt", nativeTexture);
+        nativeTexture.Flags = 2;
+        material.AlbedoTexture = nativeTexture;
+        TerraObject dirt = new TerraObject("dirt", material);
         registry.RegisterObject(dirt);
 
+        material = new SpatialMaterial();
         nativeTexture = (Texture) GD.Load("res://assets/textures/blocks/NorthenForestGrass256px.png");
-        TerraObject grass = new TerraObject("grass", nativeTexture);
+        nativeTexture.Flags = 2;
+        material.AlbedoTexture = nativeTexture;
+        TerraObject grass = new TerraObject("grass", material);
         registry.RegisterObject(grass);
     }
 }

@@ -8,7 +8,7 @@ public class SolidCameraPoint : LoadMarker
         VisualServer.SetDebugGenerateWireframes(true);
         gameController = (GameController) FindParent("SceneController");
         camera = (Camera) FindNode("Camera");
-        gameController.Prepare(camera);
+        gameController.Prepare(camera, GetWorld().Scenario);
         Input.SetMouseMode(Input.MouseMode.Captured);
     }
 

@@ -26,7 +26,7 @@ public class GameController : Spatial
 	{
 	}
 
-	public void Prepare(Camera camera)
+	public void Prepare(Camera camera, RID scenario)
 	{
 		registry = new Registry();
 		PrimitiveResources.register(registry);
@@ -36,7 +36,8 @@ public class GameController : Spatial
 		config.elevation.min_elevation = 0;
 		config.map.latitude = LATITUDE;
 		config.map.longitude = LONGITUDE;
-		mesher = new GameMesher(registry, this, false);
+		mesher = (GameMesher) FindNode("GameMesher");
+		mesher.Set(registry);
 		
 		if(LONGITUDE < 2){
 			LONGITUDE = 2;

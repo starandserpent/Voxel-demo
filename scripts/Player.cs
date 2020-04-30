@@ -86,7 +86,7 @@ public class Player : LoadMarker
         gameController = (GameController) FindParent("GameController");
         ray = (RayCast) gameController.FindNode("Picker");
         camera = (Camera) FindNode("Camera");
-        gameController.Prepare(camera);
+        gameController.Prepare(camera, GetWorld().Scenario);
         fps = (Label) camera.FindNode("FPS");
         memory = (Label)  camera.FindNode("Memory");
         chunks = (Label)  camera.FindNode("Chunks");

@@ -1,13 +1,11 @@
 using System.Linq;
 using Godot;
 
-public class GameMesher {
+public class GameMesher : Spatial {
     private volatile Registry reg;
-    private volatile Node parent;
 
-    public GameMesher (Registry reg, Node parent, bool profile) {
+    public void Set(Registry reg){
         this.reg = reg;
-        this.parent = parent;
     }
 
     public void MeshChunk (Chunk chunk) {
@@ -15,7 +13,7 @@ public class GameMesher {
         RawChunk rawChunk = new RawChunk ();
 
         rawChunk.arrays = new Godot.Collections.Array[chunk.materials - 1];
-        rawChunk.textures = new Texture[chunk.materials - 1];
+        rawChunk.materials = new SpatialMaterial[chunk.materials - 1];
         rawChunk.colliderFaces = new Vector3[chunk.materials - 1][];
 
         long a = 16777215 << 8;
@@ -358,13 +356,13 @@ public class GameMesher {
             for (int t = 0; t < chunk.materials - 1; t++) {
                 int maxSize = indice[t];
 
-                Texture texture = reg.SelectByID (t + 1).texture;
+                SpatialMaterial material = reg.SelectByID (t + 1).material;
                 Vector3[] vertice = new Vector3[maxSize];
                 int[] indices = new int[maxSize];
                 Vector3[] normals = new Vector3[maxSize];
                 Vector2[] uvs = new Vector2[maxSize];
-                float textureWidth = 2048f / texture.GetWidth ();
-                float textureHeight = 2048f / texture.GetHeight ();
+                float textureWidth = 2048f / material.AlbedoTexture.GetWidth ();
+                float textureHeight = 2048f / material.AlbedoTexture.GetHeight ();
 
                 if (maxSize > 0) {
 
@@ -449,23 +447,22 @@ public class GameMesher {
                 godotArray[8] = indices;
 
                 rawChunk.arrays[t] = godotArray;
-                rawChunk.textures[t] = texture;
+                rawChunk.materials[t] = material;
                 rawChunk.colliderFaces[t] = vertice;
             }
         } else {
             Godot.Collections.Array godotArray = new Godot.Collections.Array ();
             godotArray.Resize (9);
             rawChunk.arrays = new Godot.Collections.Array[1];
-            rawChunk.textures = new Texture[1];
+            rawChunk.materials = new SpatialMaterial[1];
             rawChunk.colliderFaces = new Vector3[1][];
             uint bytes = chunk.voxels[0];
             int objectID = (int) (bytes & b);
 
-            Texture texture = reg.SelectByID (objectID).texture;
-            SpatialMaterial material = new SpatialMaterial ();
+            SpatialMaterial material =  reg.SelectByID (objectID).material;
 
-            float textureWidth = 2048f / texture.GetWidth ();
-            float textureHeight = 2048f / texture.GetHeight ();
+            float textureWidth = 2048f / material.AlbedoTexture.GetWidth ();
+            float textureHeight = 2048f / material.AlbedoTexture.GetHeight ();
 
             Vector3[] vertice = new Vector3[36];
             Vector3[] normals = new Vector3[36];
@@ -560,39 +557,30 @@ public class GameMesher {
             godotArray[4] = uvs;
 
             rawChunk.arrays[0] = godotArray;
-            rawChunk.textures[0] = texture;
+            rawChunk.materials[0] = material;
             rawChunk.colliderFaces[0] = vertice;
         }
 
-        MeshInstance meshInstance = new MeshInstance ();
-        ArrayMesh mesh = new ArrayMesh ();
-        StaticBody body = new StaticBody ();
-
+        RID meshID = VisualServer.MeshCreate();
         for (int t = 0; t < rawChunk.arrays.Count (); t++) {
-            Texture texture = rawChunk.textures[t];
+            SpatialMaterial material = rawChunk.materials[t];
+            
             Vector3[] vertice = rawChunk.colliderFaces[t];
             Godot.Collections.Array godotArray = rawChunk.arrays[t];
 
-            SpatialMaterial material = new SpatialMaterial ();
-            texture.Flags = 2;
-            material.AlbedoTexture = texture;
-
-            ConcavePolygonShape shape = new ConcavePolygonShape ();
+          /*  ConcavePolygonShape shape = new ConcavePolygonShape ();
             shape.Data = vertice;
 
-            mesh.AddSurfaceFromArrays (Mesh.PrimitiveType.Triangles, godotArray);
-            mesh.SurfaceSetMaterial (mesh.GetSurfaceCount () - 1, material);
             CollisionShape colShape = new CollisionShape ();
             colShape.Shape = shape;
-            body.AddChild (colShape);
+    
+            VisualServer.InstanceAttachObjectInstanceId(instance, colShape.GetInstanceId());
+*/
+            VisualServer.MeshAddSurfaceFromArrays(meshID, VisualServer.PrimitiveType.Triangles, godotArray);
+            VisualServer.MeshSurfaceSetMaterial(meshID, VisualServer.MeshGetSurfaceCount(meshID) - 1, material.GetRid());
         }
 
-        meshInstance.AddChild (body);
-        meshInstance.Mesh = mesh;
-
-        meshInstance.Name = "chunk:" + chunk.x + "," + chunk.y + "," + chunk.z;
-        meshInstance.Translation = new Vector3 (chunk.x, chunk.y, chunk.z);
-
-        parent.CallDeferred ("add_child", meshInstance);
+        RID instance = VisualServer.InstanceCreate2(meshID, GetWorld().Scenario);
+        VisualServer.InstanceSetTransform(instance, new Transform(Transform.basis, new Vector3 (chunk.x, chunk.y, chunk.z)));
     }
 }
