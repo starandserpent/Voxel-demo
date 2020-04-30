@@ -1,11 +1,17 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://scripts/GameController.cs" type="Script" id=1]
 [ext_resource path="res://scripts/SolidCameraPoint.cs" type="Script" id=2]
+[ext_resource path="res://default_env.tres" type="Environment" id=3]
 
-[node name="SceneControler" type="Spatial"]
+[node name="SceneController" type="Spatial"]
 script = ExtResource( 1 )
+VIEW_DISTANCE = 150
 
-[node name="Camera" type="Camera" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -200, 0, -100 )
+[node name="SolidPoint" type="Spatial" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 100, 10, 200 )
 script = ExtResource( 2 )
+
+[node name="Camera" type="Camera" parent="SolidPoint"]
+environment = ExtResource( 3 )
+current = true
