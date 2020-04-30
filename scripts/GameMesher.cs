@@ -193,7 +193,7 @@ public class GameMesher {
                 vectors[x, z, 5, 2] = z;
 
                 if (x > 0 && vectors[x - 1, z, 2, 1] > 0) {
-                    if (vectors[x - 1, z, 2, 1] > ay && vectors[x - 1, z, 0, 1] >= y) {
+                    if (vectors[x - 1, z, 2, 1] > ay && vectors[x - 1, z, 0, 1] <= y) {
                         vectors[x - 1, z, 0, 1] = ay;
                         vectors[x - 1, z, 1, 1] = ay;
                         vectors[x - 1, z, 5, 1] = ay;
