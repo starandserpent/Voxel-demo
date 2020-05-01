@@ -124,8 +124,6 @@ limits/message_queue/max_size_kb=4096
 
 [mono]
 
-profiler/enabled=true
-export/include_scripts_content=true
 project/auto_update_project=false
 
 [rendering]
