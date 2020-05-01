@@ -56,8 +56,8 @@
     <Reference Include="System" />
     <Reference Include="System.Buffers" />
     <Reference Include="System.Numerics" />
-     <PackageReference Include="Akka.Hocon" >
-      <Version>0.3.0</Version>
+     <PackageReference Include="Hocon.Configuration">
+      <Version>2.0.3</Version>
     </PackageReference>
     <PackageReference Include="System.Memory">
       <Version>4.5.3</Version>
