@@ -8,7 +8,7 @@
 
 [node name="GameController" type="Spatial"]
 script = ExtResource( 1 )
-GENERATION_THREADS = 1
+GENERATION_THREADS = 8
 
 [node name="Player" type="Spatial" parent="."]
 transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0 )

@@ -23,6 +23,7 @@ public class SolidCameraPoint : LoadMarker
     {
         if (Input.IsActionPressed("ui_cancel"))
         {
+			gameController.Clear();
             GetTree().Quit();
         }
     }

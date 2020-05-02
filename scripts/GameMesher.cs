@@ -586,7 +586,9 @@ public class GameMesher : Spatial {
             VisualServer.MeshSurfaceSetMaterial(meshID, VisualServer.MeshGetSurfaceCount(meshID) - 1, material.GetRid());
         }
 
-        RID instance = VisualServer.InstanceCreate2(meshID, GetWorld().Scenario);
+        RID instance = VisualServer.InstanceCreate();
+        VisualServer.InstanceSetBase(instance, meshID);
         VisualServer.InstanceSetTransform(instance, new Transform(Transform.basis, new Vector3 (chunk.x, chunk.y, chunk.z)));
+        VisualServer.InstanceSetScenario(instance, GetWorld().Scenario);
     }
 }
