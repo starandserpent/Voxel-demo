@@ -4,7 +4,7 @@ public class SolidCameraPoint : LoadMarker
 {
 	private GameController gameController;
 	private Camera camera;
-    private Transform lastPosition;
+    private Spatial lastPosition;
     private Threading GenerateThread;
 	public override void _Ready()
 	{
@@ -13,8 +13,10 @@ public class SolidCameraPoint : LoadMarker
 		camera = (Camera) FindNode("Camera");
 		gameController.Prepare(camera);
 		Input.SetMouseMode(Input.MouseMode.Captured);
-        lastPosition = this.Transform;
-        gameController.Generate(this);
+
+		lastPosition = (Spatial) gameController.FindNode("Shadow");
+        lastPosition.GlobalTransform = new Transform(this.GlobalTransform.basis, this.GlobalTransform.origin);
+        gameController.Generate(lastPosition);
 	}
 
     public override void _Input(InputEvent @event)
@@ -25,13 +27,6 @@ public class SolidCameraPoint : LoadMarker
         }
     }
 
-	public override void _PhysicsProcess(float delta)
-	{
-        if(!lastPosition.Equals(this.Transform)){
-            lastPosition = this.Transform;
-            gameController.Generate(this);
-        }
-	}
 	public override void _Process(float delta)
 	{
 	}

@@ -30,4 +30,6 @@ collide_with_areas = true
 [node name="GameMesher" type="Spatial" parent="."]
 script = ExtResource( 4 )
 
+[node name="Shadow" type="Spatial" parent="."]
+
 [editable path="Player/Camera/GUI"]

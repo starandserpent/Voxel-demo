@@ -57,7 +57,7 @@ public class GameController : Spatial
 		foreman.SetMaterials(registry);
 	}
 
-	public void Generate(LoadMarker marker)
+	public void Generate(Spatial marker)
 	{
 		foreman.GenerateTerrain(marker);
 	}

@@ -20,8 +20,7 @@ public class Player : LoadMarker
     private Label memory;
     private Label chunks;
     private Label vertices;
-    private Transform lastPosition;
-    private Timer timer;
+    private Spatial lastPosition;
     private bool wireframe = false;
 
     public override void _Input(InputEvent @event)
@@ -48,12 +47,6 @@ public class Player : LoadMarker
         else if (Input.IsActionPressed("ui_cancel"))
         {
             gameController.Clear();
-            List<long> measures = gameController.GetMeasures();
-            GD.Print("Min chunk generation: " + measures.Min() + " ms");
-            GD.Print("Max chunk generation: " + measures.Max() + " ms");
-            GD.Print("Average chunk generation: " + measures.Average() + " ms");
-            GD.Print("Chunk amount generated: " + gameController.GetChunkCount() + " ms");
-            measures.Clear();
             GetTree().Quit();
         }
         else if (@event is InputEventMouseMotion eventKey)
@@ -98,15 +91,16 @@ public class Player : LoadMarker
 
         Input.SetMouseMode(Input.MouseMode.Captured);
 
-        lastPosition = this.Transform;
-        gameController.Generate(this);
+        lastPosition = (Spatial) gameController.FindNode("Shadow");
+        lastPosition.GlobalTransform = new Transform(this.GlobalTransform.basis, this.GlobalTransform.origin);
+        gameController.Generate(lastPosition);
     }
 
     public override void _PhysicsProcess(float delta)
     {
-        if(!lastPosition.Equals(this.Transform)){
-            lastPosition = this.Transform;
-            gameController.Generate(this);
+        if(!lastPosition.GlobalTransform.Equals(this.GlobalTransform)){
+            lastPosition.GlobalTransform = new Transform(this.GlobalTransform.basis, this.GlobalTransform.origin);
+            gameController.Generate(lastPosition);
         }
 
         if (ray.IsColliding())
