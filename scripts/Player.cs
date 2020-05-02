@@ -100,7 +100,6 @@ public class Player : LoadMarker
     {
         if(!lastPosition.GlobalTransform.Equals(this.GlobalTransform)){
             lastPosition.GlobalTransform = new Transform(this.GlobalTransform.basis, this.GlobalTransform.origin);
-            gameController.Generate(lastPosition);
         }
 
         if (ray.IsColliding())

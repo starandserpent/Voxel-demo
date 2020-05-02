@@ -59,7 +59,7 @@ public class GameController : Spatial
 
 	public void Generate(Spatial marker)
 	{
-		foreman.GenerateTerrain(marker);
+		foreman.AddLoadMarker(marker);
 	}
 
 	public Picker GetPicker()
