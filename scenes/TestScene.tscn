@@ -19,3 +19,5 @@ current = true
 
 [node name="GameMesher" type="Spatial" parent="."]
 script = ExtResource( 4 )
+
+[node name="Shadow" type="Spatial" parent="."]
