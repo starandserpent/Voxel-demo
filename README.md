@@ -15,7 +15,7 @@ Written in C# using Godot game engine.
 2) Launch an operating system console/terminal.
 3) Run `git clone git@github.com:starandserpent/Voxel-demo.git --recursive` in a folder of your choice created for the purpose. If you get "command not found" error you need to install git command line client.
 4) `cd Voxel-demo` to switch to the freshly cloned folder.
-5) Run `dotnet restore` to make sure you have all dependencies. If you get "command not found" error, you have not setup your C# development environment properly. Setting it up is outside the scope of these instructions and you need to figure it out yourself.
+5) Run `nuget restore` to make sure you have all dependencies. If you get "command not found" error, you have not setup your C# development environment properly. Setting it up is outside the scope of these instructions and you need to figure it out yourself.
 6) Launch Godot Editor.
 7) Click "Import" and select the folder where you cloned the Voxel-demo.
 

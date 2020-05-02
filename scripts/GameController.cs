@@ -26,7 +26,7 @@ public class GameController : Spatial
 	{
 	}
 
-	public void Prepare(Camera camera, RID scenario)
+	public void Prepare(Camera camera)
 	{
 		registry = new Registry();
 		PrimitiveResources.register(registry);

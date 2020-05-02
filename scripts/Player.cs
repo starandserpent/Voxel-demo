@@ -20,7 +20,7 @@ public class Player : LoadMarker
     private Label memory;
     private Label chunks;
     private Label vertices;
-    private Vector3 lastPosition;
+    private Transform lastPosition;
     private Timer timer;
     private bool wireframe = false;
 
@@ -86,7 +86,7 @@ public class Player : LoadMarker
         gameController = (GameController) FindParent("GameController");
         ray = (RayCast) gameController.FindNode("Picker");
         camera = (Camera) FindNode("Camera");
-        gameController.Prepare(camera, GetWorld().Scenario);
+        gameController.Prepare(camera);
         fps = (Label) camera.FindNode("FPS");
         memory = (Label)  camera.FindNode("Memory");
         chunks = (Label)  camera.FindNode("Chunks");
@@ -98,12 +98,17 @@ public class Player : LoadMarker
 
         Input.SetMouseMode(Input.MouseMode.Captured);
 
-        lastPosition = this.Translation;
+        lastPosition = this.Transform;
+        gameController.Generate(this);
     }
 
     public override void _PhysicsProcess(float delta)
     {
-        gameController.Generate(this);
+        if(!lastPosition.Equals(this.Transform)){
+            lastPosition = this.Transform;
+            gameController.Generate(this);
+        }
+
         if (ray.IsColliding())
         {
             picker.Pick(ray.GetCollisionPoint(), ray.GetCollisionNormal());

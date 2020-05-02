@@ -385,6 +385,7 @@ public class GameMesher : Spatial {
 
                                             switch (side) {
                                                 case 0:
+                                                //Front
                                                     normals[pos].x = 0f;
                                                     normals[pos].y = 0f;
                                                     normals[pos].z = -1f;
@@ -392,6 +393,7 @@ public class GameMesher : Spatial {
                                                     uvs[pos].y = vertice[pos].y * textureHeight;
                                                     break;
                                                 case 1:
+                                                    //Back
                                                     normals[pos].x = 0f;
                                                     normals[pos].y = 0f;
                                                     normals[pos].z = 1f;
@@ -399,6 +401,7 @@ public class GameMesher : Spatial {
                                                     uvs[pos].y = vertice[pos].y * textureHeight;
                                                     break;
                                                 case 2:
+                                                //Right
                                                     normals[pos].x = -1f;
                                                     normals[pos].y = 0f;
                                                     normals[pos].z = 0f;
@@ -406,6 +409,7 @@ public class GameMesher : Spatial {
                                                     uvs[pos].y = vertice[pos].y * textureHeight;
                                                     break;
                                                 case 3:
+                                                //Left
                                                     normals[pos].x = 1f;
                                                     normals[pos].y = 0f;
                                                     normals[pos].z = 0f;
@@ -413,6 +417,7 @@ public class GameMesher : Spatial {
                                                     uvs[pos].y = vertice[pos].y * textureHeight;
                                                     break;
                                                 case 4:
+                                                //Top
                                                     normals[pos].x = 0f;
                                                     normals[pos].y = 1f;
                                                     normals[pos].z = 0f;
@@ -420,6 +425,7 @@ public class GameMesher : Spatial {
                                                     uvs[pos].y = vertice[pos].z * textureHeight;
                                                     break;
                                                 case 5:
+                                                //Bottom
                                                     normals[pos].x = 0f;
                                                     normals[pos].y = -1f;
                                                     normals[pos].z = 0f;
