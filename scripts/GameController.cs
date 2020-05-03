@@ -11,7 +11,7 @@ public class GameController : Spatial
 	[Export] public int LONGITUDE = 1000;
 	[Export] public int LATITUDE = 1000;
 	[Export] public int ELEVATION = 1000;
-	[Export] public int GENERATION_THREADS = 4;
+	[Export] public int GENERATION_THREADS = 1;
 	private GameMesher mesher;
 	private Weltschmerz weltschmerz;
 	private Registry registry;

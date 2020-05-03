@@ -4,7 +4,7 @@ using Godot;
 public class GameMesher : Spatial {
     private volatile Registry reg;
 
-    public void Set(Registry reg){
+    public void Set (Registry reg) {
         this.reg = reg;
     }
 
@@ -385,7 +385,7 @@ public class GameMesher : Spatial {
 
                                             switch (side) {
                                                 case 0:
-                                                //Front
+                                                    //Front
                                                     normals[pos].x = 0f;
                                                     normals[pos].y = 0f;
                                                     normals[pos].z = -1f;
@@ -401,7 +401,7 @@ public class GameMesher : Spatial {
                                                     uvs[pos].y = vertice[pos].y * textureHeight;
                                                     break;
                                                 case 2:
-                                                //Right
+                                                    //Right
                                                     normals[pos].x = -1f;
                                                     normals[pos].y = 0f;
                                                     normals[pos].z = 0f;
@@ -409,7 +409,7 @@ public class GameMesher : Spatial {
                                                     uvs[pos].y = vertice[pos].y * textureHeight;
                                                     break;
                                                 case 3:
-                                                //Left
+                                                    //Left
                                                     normals[pos].x = 1f;
                                                     normals[pos].y = 0f;
                                                     normals[pos].z = 0f;
@@ -417,7 +417,7 @@ public class GameMesher : Spatial {
                                                     uvs[pos].y = vertice[pos].y * textureHeight;
                                                     break;
                                                 case 4:
-                                                //Top
+                                                    //Top
                                                     normals[pos].x = 0f;
                                                     normals[pos].y = 1f;
                                                     normals[pos].z = 0f;
@@ -425,7 +425,7 @@ public class GameMesher : Spatial {
                                                     uvs[pos].y = vertice[pos].z * textureHeight;
                                                     break;
                                                 case 5:
-                                                //Bottom
+                                                    //Bottom
                                                     normals[pos].x = 0f;
                                                     normals[pos].y = -1f;
                                                     normals[pos].z = 0f;
@@ -465,7 +465,7 @@ public class GameMesher : Spatial {
             uint bytes = chunk.voxels[0];
             int objectID = (int) (bytes & b);
 
-            SpatialMaterial material =  reg.SelectByID (objectID).material;
+            SpatialMaterial material = reg.SelectByID (objectID).material;
 
             float textureWidth = 2048f / material.AlbedoTexture.GetWidth ();
             float textureHeight = 2048f / material.AlbedoTexture.GetHeight ();
@@ -567,28 +567,28 @@ public class GameMesher : Spatial {
             rawChunk.colliderFaces[0] = vertice;
         }
 
-        RID meshID = VisualServer.MeshCreate();
+        RID meshID = VisualServer.MeshCreate ();
+        RID body = PhysicsServer.BodyCreate (PhysicsServer.BodyMode.Static);
+
         for (int t = 0; t < rawChunk.arrays.Count (); t++) {
             SpatialMaterial material = rawChunk.materials[t];
-            
+
             Vector3[] vertice = rawChunk.colliderFaces[t];
             Godot.Collections.Array godotArray = rawChunk.arrays[t];
 
-          /*  ConcavePolygonShape shape = new ConcavePolygonShape ();
-            shape.Data = vertice;
+            RID shape = PhysicsServer.ShapeCreate (PhysicsServer.ShapeType.ConcavePolygon);
+            PhysicsServer.ShapeSetData (shape, vertice);
 
-            CollisionShape colShape = new CollisionShape ();
-            colShape.Shape = shape;
-    
-            VisualServer.InstanceAttachObjectInstanceId(instance, colShape.GetInstanceId());
-*/
-            VisualServer.MeshAddSurfaceFromArrays(meshID, VisualServer.PrimitiveType.Triangles, godotArray);
-            VisualServer.MeshSurfaceSetMaterial(meshID, VisualServer.MeshGetSurfaceCount(meshID) - 1, material.GetRid());
+            PhysicsServer.BodyAddShape (body, shape, new Transform (Transform.basis, new Vector3 (chunk.x, chunk.y, chunk.z)));
+
+            VisualServer.MeshAddSurfaceFromArrays (meshID, VisualServer.PrimitiveType.TriangleStrip, godotArray);
+            VisualServer.MeshSurfaceSetMaterial (meshID, VisualServer.MeshGetSurfaceCount (meshID) - 1, material.GetRid ());
         }
 
-        RID instance = VisualServer.InstanceCreate();
-        VisualServer.InstanceSetBase(instance, meshID);
-        VisualServer.InstanceSetTransform(instance, new Transform(Transform.basis, new Vector3 (chunk.x, chunk.y, chunk.z)));
-        VisualServer.InstanceSetScenario(instance, GetWorld().Scenario);
+        RID instance = VisualServer.InstanceCreate ();
+        VisualServer.InstanceSetBase (instance, meshID);
+        VisualServer.InstanceSetTransform (instance, new Transform (Transform.basis, new Vector3 (chunk.x, chunk.y, chunk.z)));
+        VisualServer.InstanceSetScenario (instance, GetWorld ().Scenario);
+        PhysicsServer.BodySetSpace (body, GetWorld ().Space);
     }
 }

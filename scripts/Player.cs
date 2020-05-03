@@ -1,9 +1,8 @@
 using System.Linq;
 using System;
 using Godot;
-using System.Collections.Generic;
 
-public class Player : LoadMarker
+public class Player : Spatial
 {
     [Export] public float MOUSE_SENSITIVITY = 0.002F;
     [Export] public float MOVE_SPEED = 0.9F;
@@ -74,7 +73,6 @@ public class Player : LoadMarker
 
     public override void _Ready()
     {
-        loadRadius = LOAD_RADIUS;
         VisualServer.SetDebugGenerateWireframes(true);
         gameController = (GameController) FindParent("GameController");
         ray = (RayCast) gameController.FindNode("Picker");
@@ -107,16 +105,8 @@ public class Player : LoadMarker
             picker.Pick(ray.GetCollisionPoint(), ray.GetCollisionNormal());
             ray.Enabled = false;
         }
-    }
 
-    public override void _ExitTree()
-    {
-        Input.SetMouseMode(Input.MouseMode.Visible);
-    }
-
-    public override void _Process(float delta)
-    {
-        chunks.Text = "Chunks: " + gameController.GetChunkCount();
+          chunks.Text = "Chunks: " + gameController.GetChunkCount();
         vertices.Text = "Vertices: " + Performance.GetMonitor(Performance.Monitor.RenderVerticesInFrame);
         fps.Text = "FPS: " + Performance.GetMonitor(Performance.Monitor.TimeFps);
         memory.Text = "Memory: " + Performance.GetMonitor(Performance.Monitor.MemoryStatic) / (1024 * 1024) + " MB";
@@ -174,8 +164,22 @@ public class Player : LoadMarker
         velocity += motion * MOVE_SPEED;
 
         velocity = new Vector3(velocity.x * 0.9f, velocity.y * 0.9f, velocity.z * 0.9f);
+    
+        RID rid = VisualServer.InstanceCreate();
+
+        VisualServer.InstanceAttachObjectInstanceId(rid, this.GetInstanceId());
 
         Translation = new Vector3(Translation.x + (velocity.x), Translation.y + (velocity.y),
             Translation.z + (velocity.z));
+    }
+
+    public override void _ExitTree()
+    {
+        Input.SetMouseMode(Input.MouseMode.Visible);
+    }
+
+    public override void _Process(float delta)
+    {
+      
     }
 }
