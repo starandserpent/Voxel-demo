@@ -42,7 +42,7 @@ public class GameMesher : Spatial {
                 if (vertices[objectID - 1] == null) {
                     vertices[objectID - 1] = new int[6][, , , ];
                     for (int s = 0; s < 6; s++) {
-                        vertices[objectID - 1][s] = new int[Constants.CHUNK_SIZE1D, Constants.CHUNK_SIZE1D, 6, 3];
+                        vertices[objectID - 1][s] = new int[Constants.CHUNK_SIZE1D, Constants.CHUNK_SIZE1D, 4, 3];
                     }
                 }
 
@@ -73,19 +73,10 @@ public class GameMesher : Spatial {
                 vectors[x, z, 2, 2] = z;
 
                 //4
-                vectors[x, z, 3, 0] = ax;
+                vectors[x, z, 3, 0] = x;
                 vectors[x, z, 3, 1] = ay;
                 vectors[x, z, 3, 2] = z;
 
-                //5
-                vectors[x, z, 4, 0] = x;
-                vectors[x, z, 4, 1] = ay;
-                vectors[x, z, 4, 2] = z;
-
-                //6
-                vectors[x, z, 5, 0] = x;
-                vectors[x, z, 5, 1] = y;
-                vectors[x, z, 5, 2] = z;
 
                 int pos = 1;
                 if (z > 0 && vectors[x, z - pos, 2, 1] > 0) {
@@ -95,18 +86,17 @@ public class GameMesher : Spatial {
                     }
 
                     if (vectors[x, z - pos, 2, 1] >= ay) {
-                        for (int s = 0; s < 6; s++) {
+                        for (int s = 0; s < 4; s++) {
                             vectors[x, z, s, 0] = -pos;
                         }
-                        indice[objectID - 1] -= 6;
+                        indice[objectID - 1] -= 4;
                     } else if (vectors[x, z - pos, 2, 1] < ay && vectors[x, z - pos, 0, 1] >= y) {
                         vectors[x, z, 0, 1] = vectors[x, z - pos, 2, 1];
                         vectors[x, z, 1, 1] = vectors[x, z - pos, 2, 1];
-                        vectors[x, z, 5, 1] = vectors[x, z - pos, 2, 1];
                     }
                 }
 
-                indice[objectID - 1] += 6;
+                indice[objectID - 1] += 5;
 
                 //Back
                 vectors = vertices[objectID - 1][1];
@@ -126,36 +116,25 @@ public class GameMesher : Spatial {
                 vectors[x, z, 2, 1] = ay;
                 vectors[x, z, 2, 2] = az;
 
-                //4
-                vectors[x, z, 3, 0] = x;
+                //5
+                vectors[x, z, 3, 0] = ax;
                 vectors[x, z, 3, 1] = ay;
                 vectors[x, z, 3, 2] = az;
-
-                //5
-                vectors[x, z, 4, 0] = ax;
-                vectors[x, z, 4, 1] = ay;
-                vectors[x, z, 4, 2] = az;
-
-                //6
-                vectors[x, z, 5, 0] = ax;
-                vectors[x, z, 5, 1] = y;
-                vectors[x, z, 5, 2] = az;
 
                 if (z > 0 && vectors[x, z - 1, 2, 1] > 0) {
                     if (vectors[x, z - 1, 2, 1] > ay && vectors[x, z - 1, 0, 1] <= y) {
                         vectors[x, z - 1, 0, 1] = ay;
                         vectors[x, z - 1, 1, 1] = ay;
-                        vectors[x, z - 1, 5, 1] = ay;
                     } else if (vectors[x, z - 1, 2, 1] <= ay) {
-                        for (int s = 0; s < 6; s++) {
+                        for (int s = 0; s < 4; s++) {
                             vectors[x, z - 1, s, 0] = -147457;
                         }
 
-                        indice[objectID - 1] -= 6;
+                        indice[objectID - 1] -= 4;
                     }
                 }
 
-                indice[objectID - 1] += 6;
+                indice[objectID - 1] += 4;
 
                 //Right
                 vectors = vertices[objectID - 1][2];
@@ -178,33 +157,22 @@ public class GameMesher : Spatial {
                 //4
                 vectors[x, z, 3, 0] = ax;
                 vectors[x, z, 3, 1] = ay;
-                vectors[x, z, 3, 2] = az;
-
-                //5
-                vectors[x, z, 4, 0] = ax;
-                vectors[x, z, 4, 1] = ay;
-                vectors[x, z, 4, 2] = z;
-
-                //6
-                vectors[x, z, 5, 0] = ax;
-                vectors[x, z, 5, 1] = y;
-                vectors[x, z, 5, 2] = z;
+                vectors[x, z, 3, 2] = z;
 
                 if (x > 0 && vectors[x - 1, z, 2, 1] > 0) {
                     if (vectors[x - 1, z, 2, 1] > ay && vectors[x - 1, z, 0, 1] <= y) {
                         vectors[x - 1, z, 0, 1] = ay;
                         vectors[x - 1, z, 1, 1] = ay;
-                        vectors[x - 1, z, 5, 1] = ay;
                     } else if (vectors[x - 1, z, 2, 1] <= ay) {
-                        for (int s = 0; s < 6; s++) {
+                        for (int s = 0; s < 4; s++) {
                             vectors[x - 1, z, s, 0] = -147457;
                         }
 
-                        indice[objectID - 1] -= 6;
+                        indice[objectID - 1] -= 4;
                     }
                 }
 
-                indice[objectID - 1] += 6;
+                indice[objectID - 1] += 4;
 
                 //Left
                 vectors = vertices[objectID - 1][3];
@@ -227,17 +195,7 @@ public class GameMesher : Spatial {
                 //4
                 vectors[x, z, 3, 0] = x;
                 vectors[x, z, 3, 1] = ay;
-                vectors[x, z, 3, 2] = z;
-
-                //5
-                vectors[x, z, 4, 0] = x;
-                vectors[x, z, 4, 1] = ay;
-                vectors[x, z, 4, 2] = az;
-
-                //6
-                vectors[x, z, 5, 0] = x;
-                vectors[x, z, 5, 1] = y;
-                vectors[x, z, 5, 2] = az;
+                vectors[x, z, 3, 2] = az;
 
                 pos = 1;
                 if (x > 0 && vectors[x - pos, z, 2, 1] > 0) {
@@ -246,19 +204,18 @@ public class GameMesher : Spatial {
                     }
 
                     if (vectors[x - pos, z, 2, 1] >= ay) {
-                        for (int s = 0; s < 6; s++) {
+                        for (int s = 0; s < 4; s++) {
                             vectors[x, z, s, 0] = -pos;
                         }
 
-                        indice[objectID - 1] -= 6;
+                        indice[objectID - 1] -= 4;
                     } else if (vectors[x - pos, z, 2, 1] < ay && vectors[x - pos, z, 0, 1] >= y) {
                         vectors[x, z, 0, 1] = vectors[x - pos, z, 2, 1];
                         vectors[x, z, 1, 1] = vectors[x - pos, z, 2, 1];
-                        vectors[x, z, 5, 1] = vectors[x - pos, z, 2, 1];
                     }
                 }
 
-                indice[objectID - 1] += 6;
+                indice[objectID - 1] += 4;
 
                 //Top
                 vectors = vertices[objectID - 1][4];
@@ -266,11 +223,11 @@ public class GameMesher : Spatial {
                 int tx = x;
                 if (x > 0 && vectors[x - 1, z, 0, 1] == ay) {
                     tx = vectors[x - 1, z, 0, 0];
-                    for (int s = 0; s < 6; s++) {
+                    for (int s = 0; s < 4; s++) {
                         vectors[x - 1, z, s, 0] = -147457;
                     }
 
-                    indice[objectID - 1] -= 6;
+                    indice[objectID - 1] -= 4;
                 }
 
                 //1
@@ -288,22 +245,12 @@ public class GameMesher : Spatial {
                 vectors[x, z, 2, 1] = ay;
                 vectors[x, z, 2, 2] = az;
 
-                //4 
-                vectors[x, z, 3, 0] = ax;
+                //5
+                vectors[x, z, 3, 0] = tx;
                 vectors[x, z, 3, 1] = ay;
                 vectors[x, z, 3, 2] = az;
 
-                //5
-                vectors[x, z, 4, 0] = tx;
-                vectors[x, z, 4, 1] = ay;
-                vectors[x, z, 4, 2] = az;
-
-                //6
-                vectors[x, z, 5, 0] = tx;
-                vectors[x, z, 5, 1] = ay;
-                vectors[x, z, 5, 2] = z;
-
-                indice[objectID - 1] += 6;
+                indice[objectID - 1] += 4;
 
                 //Bottom
                 vectors = vertices[objectID - 1][5];
@@ -311,11 +258,11 @@ public class GameMesher : Spatial {
                 tx = x;
                 if (x > 0 && vectors[x - 1, z, 0, 1] == y) {
                     tx = vectors[x - 1, z, 1, 0];
-                    for (int s = 0; s < 6; s++) {
+                    for (int s = 0; s < 4; s++) {
                         vectors[x - 1, z, s, 0] = -147457;
                     }
 
-                    indice[objectID - 1] -= 6;
+                    indice[objectID - 1] -= 4;
                 }
 
                 //1
@@ -333,22 +280,12 @@ public class GameMesher : Spatial {
                 vectors[x, z, 2, 1] = y;
                 vectors[x, z, 2, 2] = az;
 
-                //4
-                vectors[x, z, 3, 0] = tx;
+                //5
+                vectors[x, z, 3, 0] = ax;
                 vectors[x, z, 3, 1] = y;
                 vectors[x, z, 3, 2] = az;
 
-                //5
-                vectors[x, z, 4, 0] = ax;
-                vectors[x, z, 4, 1] = y;
-                vectors[x, z, 4, 2] = az;
-
-                //6
-                vectors[x, z, 5, 0] = ax;
-                vectors[x, z, 5, 1] = y;
-                vectors[x, z, 5, 2] = z;
-
-                indice[objectID - 1] += 6;
+                indice[objectID - 1] += 4;
 
                 count += lenght;
             }
@@ -358,7 +295,7 @@ public class GameMesher : Spatial {
 
                 SpatialMaterial material = reg.SelectByID (t + 1).material;
                 Vector3[] vertice = new Vector3[maxSize];
-                int[] indices = new int[maxSize];
+                int[] indices = new int[maxSize + maxSize/2];
                 Vector3[] normals = new Vector3[maxSize];
                 Vector2[] uvs = new Vector2[maxSize];
                 float textureWidth = 2048f / material.AlbedoTexture.GetWidth ();
@@ -367,6 +304,7 @@ public class GameMesher : Spatial {
                 if (maxSize > 0) {
 
                     int pos = 0;
+                    int index = 0;
 
                     for (int side = 0; side < 6; side++) {
                         int[, , , ] primitives = vertices[t][side];
@@ -375,13 +313,20 @@ public class GameMesher : Spatial {
                             for (int z = 0; z < Constants.CHUNK_SIZE1D; z++) {
 
                                 if (primitives[x, z, 2, 1] > 0 && primitives[x, z, 0, 0] >= 0) {
-                                    for (int s = 0; s < 6; s++) {
+                                    indices[index] = pos;
+                                    indices[index + 1] = pos + 1;
+                                    indices[index + 2] = pos + 2;
+                                    indices[index + 3] = pos + 2;
+                                    indices[index + 4] = pos + 3;
+                                    indices[index + 5] = pos;
+
+                                    index += 6;
+
+                                    for (int s = 0; s < 4; s++) {
                                         if (pos < maxSize) {
                                             vertice[pos].x = primitives[x, z, s, 0] * Constants.VOXEL_SIZE;
                                             vertice[pos].y = primitives[x, z, s, 1] * Constants.VOXEL_SIZE;
                                             vertice[pos].z = primitives[x, z, s, 2] * Constants.VOXEL_SIZE;
-
-                                            indices[pos] = pos;
 
                                             switch (side) {
                                                 case 0:
@@ -568,7 +513,7 @@ public class GameMesher : Spatial {
         }
 
         RID meshID = VisualServer.MeshCreate ();
-        RID body = PhysicsServer.BodyCreate (PhysicsServer.BodyMode.Static);
+        //RID body = PhysicsServer.BodyCreate (PhysicsServer.BodyMode.Static);
 
         for (int t = 0; t < rawChunk.arrays.Count (); t++) {
             SpatialMaterial material = rawChunk.materials[t];
@@ -576,12 +521,12 @@ public class GameMesher : Spatial {
             Vector3[] vertice = rawChunk.colliderFaces[t];
             Godot.Collections.Array godotArray = rawChunk.arrays[t];
 
-            RID shape = PhysicsServer.ShapeCreate (PhysicsServer.ShapeType.ConcavePolygon);
-            PhysicsServer.ShapeSetData (shape, vertice);
+          /*  RID shape = PhysicsServer.ShapeCreate (PhysicsServer.ShapeType.ConcavePolygon);
+//            PhysicsServer.ShapeSetData (shape, vertice);
 
             PhysicsServer.BodyAddShape (body, shape, new Transform (Transform.basis, new Vector3 (chunk.x, chunk.y, chunk.z)));
-
-            VisualServer.MeshAddSurfaceFromArrays (meshID, VisualServer.PrimitiveType.TriangleStrip, godotArray);
+*/
+            VisualServer.MeshAddSurfaceFromArrays (meshID, VisualServer.PrimitiveType.Triangles, godotArray);
             VisualServer.MeshSurfaceSetMaterial (meshID, VisualServer.MeshGetSurfaceCount (meshID) - 1, material.GetRid ());
         }
 
@@ -589,6 +534,6 @@ public class GameMesher : Spatial {
         VisualServer.InstanceSetBase (instance, meshID);
         VisualServer.InstanceSetTransform (instance, new Transform (Transform.basis, new Vector3 (chunk.x, chunk.y, chunk.z)));
         VisualServer.InstanceSetScenario (instance, GetWorld ().Scenario);
-        PhysicsServer.BodySetSpace (body, GetWorld ().Space);
+     //   PhysicsServer.BodySetSpace (body, GetWorld ().Space);
     }
 }
