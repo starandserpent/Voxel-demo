@@ -124,7 +124,6 @@ limits/message_queue/max_size_kb=4096
 
 [mono]
 
-debugger_agent/wait_for_debugger=true
 project/auto_update_project=false
 
 [rendering]

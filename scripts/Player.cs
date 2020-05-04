@@ -96,7 +96,7 @@ public class Player : Spatial
 
     public override void _PhysicsProcess(float delta)
     {
-        if(lastPosition.Translation.DistanceTo(Translation) > Constants.CHUNK_SIZE1D || lastPosition.GlobalTransform.basis != GlobalTransform.basis){
+        if(lastPosition.Translation.DistanceTo(Translation) > Constants.CHUNK_SIZE1D * Constants.CHUNK_LENGHT || lastPosition.GlobalTransform.basis != GlobalTransform.basis){
             lastPosition.GlobalTransform = new Transform(this.GlobalTransform.basis, this.GlobalTransform.origin);
         }
 

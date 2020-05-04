@@ -55,7 +55,12 @@ public class GameController : Spatial
 		
 		GD.Print("Using " + GENERATION_THREADS + " threads");
 
-		terra = new Terra(LONGITUDE, LATITUDE, MAX_ELEVATION, this);
+		Position boundries = new Position();
+		boundries.x = LONGITUDE;
+		boundries.y = MAX_ELEVATION;
+		boundries.z = LATITUDE;
+
+		terra = new Terra(boundries, this);
 		picker = new Picker(terra, mesher);
 		foreman = new Foreman(weltschmerz, terra, registry, mesher, VIEW_DISTANCE, camera.Fov, GENERATION_THREADS);
 		foreman.SetMaterials(registry);

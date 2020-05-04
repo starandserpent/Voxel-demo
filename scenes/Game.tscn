@@ -8,6 +8,7 @@
 
 [node name="GameController" type="Spatial"]
 script = ExtResource( 1 )
+MAX_ELEVATION = 25
 GENERATION_THREADS = 8
 
 [node name="Player" type="Spatial" parent="."]
