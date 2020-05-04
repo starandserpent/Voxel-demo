@@ -53,7 +53,6 @@
       <HintPath>$(ProjectDir)/.mono/assemblies/$(ApiConfiguration)/GodotSharpEditor.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System" />
     <Reference Include="System.Buffers" />
     <Reference Include="System.Numerics" />
      <PackageReference Include="Hocon.Configuration">

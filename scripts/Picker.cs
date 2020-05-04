@@ -5,10 +5,10 @@ using System.Collections.Generic;
 public class Picker
 {
     private Terra terra;
-    private GameMesher mesher;
+    private GodotMesher mesher;
     private volatile List<Chunk> chunksToProccess;
 
-    public Picker(Terra terra, GameMesher mesher)
+    public Picker(Terra terra, GodotMesher mesher)
     {
         this.terra = terra;
         this.mesher = mesher;

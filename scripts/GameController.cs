@@ -12,7 +12,7 @@ public class GameController : Spatial
 	[Export] public int LATITUDE = 1000;
 	[Export] public int ELEVATION = 1000;
 	[Export] public int GENERATION_THREADS = 1;
-	private GameMesher mesher;
+	private GodotMesher mesher;
 	private Weltschmerz weltschmerz;
 	private Registry registry;
 	private int chunkCount;
@@ -36,7 +36,7 @@ public class GameController : Spatial
 		config.elevation.min_elevation = 0;
 		config.map.latitude = LATITUDE;
 		config.map.longitude = LONGITUDE;
-		mesher = (GameMesher) FindNode("GameMesher");
+		mesher = (GodotMesher) FindNode("GameMesher");
 		mesher.Set(registry);
 		
 		if(LONGITUDE < 2){
@@ -50,6 +50,8 @@ public class GameController : Spatial
 		if(ELEVATION < 2){
 			ELEVATION = 2;
 		}
+		
+		GD.Print("Using " + GENERATION_THREADS + " threads");
 
 		terra = new Terra(LONGITUDE, LATITUDE, ELEVATION, this);
 		picker = new Picker(terra, mesher);

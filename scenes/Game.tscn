@@ -3,12 +3,12 @@
 [ext_resource path="res://scripts/GameController.cs" type="Script" id=1]
 [ext_resource path="res://scripts/Player.cs" type="Script" id=2]
 [ext_resource path="res://scenes/reusable/GUI.tscn" type="PackedScene" id=3]
-[ext_resource path="res://scripts/GameMesher.cs" type="Script" id=4]
+[ext_resource path="res://scripts/GodotMesher.cs" type="Script" id=4]
 [ext_resource path="res://default_env.tres" type="Environment" id=5]
 
 [node name="GameController" type="Spatial"]
 script = ExtResource( 1 )
-GENERATION_THREADS = 4
+GENERATION_THREADS = 8
 
 [node name="Player" type="Spatial" parent="."]
 transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0 )
