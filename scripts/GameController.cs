@@ -10,7 +10,9 @@ public class GameController : Spatial
 	[Export] public int VIEW_DISTANCE = 100;
 	[Export] public int LONGITUDE = 1000;
 	[Export] public int LATITUDE = 1000;
-	[Export] public int ELEVATION = 1000;
+	[Export] public int MAX_ELEVATION = 1000;
+	[Export] public int MIN_ELEVATION = 1;
+
 	[Export] public int GENERATION_THREADS = 1;
 	private GodotMesher mesher;
 	private Weltschmerz weltschmerz;
@@ -32,8 +34,8 @@ public class GameController : Spatial
 		PrimitiveResources.register(registry);
 		weltschmerz = new Weltschmerz();
 		Config config  = weltschmerz.GetConfig();
-		config.elevation.max_elevation = ELEVATION;
-		config.elevation.min_elevation = 0;
+		config.elevation.max_elevation = MAX_ELEVATION;
+		config.elevation.min_elevation = MIN_ELEVATION;
 		config.map.latitude = LATITUDE;
 		config.map.longitude = LONGITUDE;
 		mesher = (GodotMesher) FindNode("GameMesher");
@@ -47,13 +49,13 @@ public class GameController : Spatial
 			LATITUDE = 2;
 		}
 	
-		if(ELEVATION < 2){
-			ELEVATION = 2;
+		if(MAX_ELEVATION < 2){
+			MAX_ELEVATION = 2;
 		}
 		
 		GD.Print("Using " + GENERATION_THREADS + " threads");
 
-		terra = new Terra(LONGITUDE, LATITUDE, ELEVATION, this);
+		terra = new Terra(LONGITUDE, LATITUDE, MAX_ELEVATION, this);
 		picker = new Picker(terra, mesher);
 		foreman = new Foreman(weltschmerz, terra, registry, mesher, VIEW_DISTANCE, camera.Fov, GENERATION_THREADS);
 		foreman.SetMaterials(registry);
