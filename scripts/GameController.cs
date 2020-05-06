@@ -1,8 +1,9 @@
 using System.Collections.Generic;
+using System.Threading;
+using Threading = System.Threading.Thread;
 using Godot;
 
-public class GameController : Spatial
-{
+public class GameController : Spatial {
 	private Picker picker;
 	private volatile Terra terra;
 	private Foreman foreman;
@@ -18,76 +19,76 @@ public class GameController : Spatial
 	private Weltschmerz weltschmerz;
 	private Registry registry;
 	private int chunkCount;
+	private Spatial lastPosition;
+	private Spatial newPosition;
+	private bool prepared = false;
+	private Threading  threading;
 
 	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
-	{
+	public override void _Ready () { }
+
+	public override void _PhysicsProcess (float delta) {
+		if (!lastPosition.GlobalTransform.Equals(newPosition.GlobalTransform) && prepared) {
+			lastPosition.GlobalTransform = new Transform (newPosition.GlobalTransform.basis, newPosition.GlobalTransform.origin);
+			foreman.Release();
+		}
 	}
 
-	public override void _PhysicsProcess(float delta)
-	{
-	}
-
-	public void Prepare(Camera camera)
-	{
-		registry = new Registry();
-		PrimitiveResources.register(registry);
-		weltschmerz = new Weltschmerz();
-		Config config  = weltschmerz.GetConfig();
+	public void Prepare (Camera camera, Spatial lastPosition, Spatial newPosition) {
+		this.lastPosition = lastPosition;
+		this.newPosition = newPosition;
+		registry = new Registry ();
+		PrimitiveResources.register (registry);
+		weltschmerz = new Weltschmerz ();
+		Config config = weltschmerz.GetConfig ();
 		config.elevation.max_elevation = MAX_ELEVATION;
 		config.elevation.min_elevation = MIN_ELEVATION;
 		config.map.latitude = LATITUDE;
 		config.map.longitude = LONGITUDE;
-		mesher = (GodotMesher) FindNode("GameMesher");
-		mesher.Set(registry);
-		
-		if(LONGITUDE < 2){
+		mesher = (GodotMesher) FindNode ("GameMesher");
+		mesher.Set (registry);
+
+		if (LONGITUDE < 2) {
 			LONGITUDE = 2;
 		}
-		
-		if(LATITUDE < 2){
+
+		if (LATITUDE < 2) {
 			LATITUDE = 2;
 		}
-	
-		if(MAX_ELEVATION < 2){
+
+		if (MAX_ELEVATION < 2) {
 			MAX_ELEVATION = 2;
 		}
-		
-		GD.Print("Using " + GENERATION_THREADS + " threads");
 
-		Position boundries = new Position();
+		GD.Print ("Using " + GENERATION_THREADS + " threads");
+
+		Position boundries = new Position ();
 		boundries.x = LONGITUDE;
 		boundries.y = MAX_ELEVATION;
 		boundries.z = LATITUDE;
 
-		terra = new Terra(boundries, this);
-		picker = new Picker(terra, mesher);
-		foreman = new Foreman(weltschmerz, terra, registry, mesher, VIEW_DISTANCE, camera.Fov, GENERATION_THREADS);
-		foreman.SetMaterials(registry);
+
+		terra = new Terra (boundries, this);
+		picker = new Picker (terra, mesher);
+		foreman = new Foreman (weltschmerz, terra, registry, mesher, VIEW_DISTANCE, camera.Fov, GENERATION_THREADS);
+		foreman.SetMaterials (registry);
+		foreman.AddLoadMarker(lastPosition);
+		this.prepared = true;
 	}
 
-	public void Generate(Spatial marker)
-	{
-		foreman.AddLoadMarker(marker);
-	}
-
-	public Picker GetPicker()
-	{
+	public Picker GetPicker () {
 		return picker;
 	}
 
-	public int GetChunkCount()
-	{
+	public int GetChunkCount () {
 		return chunkCount;
 	}
 
-	public void Clear()
-	{
-		foreman.Stop();
+	public void Clear () {
+		foreman.Stop ();
 	}
 
-	public List<long> GetMeasures()
-	{
-		return foreman.GetMeasures();
+	public List<long> GetMeasures () {
+		return foreman.GetMeasures ();
 	}
 }

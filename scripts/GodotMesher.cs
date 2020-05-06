@@ -16,123 +16,7 @@ public class GodotMesher : Spatial {
         rawChunk.colliderFaces = new Vector3[chunk.materials - 1][];
 
         if (chunk.materials > 1) {
-            MeshedValues values = Mesher.Mesh (chunk);
-            for (int t = 0; t < chunk.materials - 1; t++) {
-                int maxSize = values.indices[t];
-
-                SpatialMaterial material = reg.SelectByID (t + 1).material;
-                Vector3[] vertice = new Vector3[maxSize];
-                int[] indices = new int[maxSize + (maxSize / 2)];
-                Vector3[] normals = new Vector3[maxSize];
-                Vector2[] uvs = new Vector2[maxSize];
-                float textureWidth = 2048f / material.AlbedoTexture.GetWidth ();
-                float textureHeight = 2048f / material.AlbedoTexture.GetHeight ();
-
-                if (maxSize > 0) {
-
-                    int pos = 0;
-                    int index = 0;
-
-                    for (int side = 0; side < 6; side++) {
-                        int[, , , ] primitives = values.vertices[t][side];
-
-                        for (int x = 0; x < Constants.CHUNK_SIZE1D; x++) {
-                            for (int z = 0; z < Constants.CHUNK_SIZE1D; z++) {
-                                int prevPos = pos;
-
-                                if (primitives[x, z, 2, 1] > 0 && primitives[x, z, 0, 0] >= 0 || primitives[x, z, 0, 0] > 0) {
-                                    for (int s = 0; s < 4; s++) {
-                                        if (pos < maxSize) {
-                                            vertice[pos].x = primitives[x, z, s, 0] * Constants.VOXEL_SIZE;
-                                            vertice[pos].y = primitives[x, z, s, 1] * Constants.VOXEL_SIZE;
-                                            vertice[pos].z = primitives[x, z, s, 2] * Constants.VOXEL_SIZE;
-
-                                            switch (side) {
-                                                case 0:
-                                                    //Front
-                                                    normals[pos].x = 0f;
-                                                    normals[pos].y = 0f;
-                                                    normals[pos].z = -1f;
-                                                    uvs[pos].x = vertice[pos].x * textureWidth;
-                                                    uvs[pos].y = vertice[pos].y * textureHeight;
-                                                    break;
-                                                case 1:
-                                                    //Back
-                                                    normals[pos].x = 0f;
-                                                    normals[pos].y = 0f;
-                                                    normals[pos].z = 1f;
-                                                    uvs[pos].x = vertice[pos].x * textureWidth;
-                                                    uvs[pos].y = vertice[pos].y * textureHeight;
-                                                    break;
-                                                case 2:
-                                                    //Right
-                                                    normals[pos].x = -1f;
-                                                    normals[pos].y = 0f;
-                                                    normals[pos].z = 0f;
-                                                    uvs[pos].x = vertice[pos].z * textureWidth;
-                                                    uvs[pos].y = vertice[pos].y * textureHeight;
-                                                    break;
-                                                case 3:
-                                                    //Left
-                                                    normals[pos].x = 1f;
-                                                    normals[pos].y = 0f;
-                                                    normals[pos].z = 0f;
-                                                    uvs[pos].x = vertice[pos].z * textureWidth;
-                                                    uvs[pos].y = vertice[pos].y * textureHeight;
-                                                    break;
-                                                case 4:
-                                                    //Top
-                                                    normals[pos].x = 0f;
-                                                    normals[pos].y = 1f;
-                                                    normals[pos].z = 0f;
-                                                    uvs[pos].x = vertice[pos].x * textureWidth;
-                                                    uvs[pos].y = vertice[pos].z * textureHeight;
-                                                    break;
-                                                case 5:
-                                                    //Bottom
-                                                    normals[pos].x = 0f;
-                                                    normals[pos].y = 0f;
-                                                    normals[pos].z = 0f;
-                                                    uvs[pos].x = vertice[pos].x * textureWidth;
-                                                    uvs[pos].y = vertice[pos].z * textureHeight;
-                                                    break;
-                                            }
-                                            pos++;
-                                        } else {
-                                            break;
-                                        }
-                                    }
-                                } else {
-                                    continue;
-                                }
-
-                                if (index < maxSize + maxSize/2) {
-                                    indices[index] = prevPos;
-                                    indices[index + 1] = prevPos + 1;
-                                    indices[index + 2] = prevPos + 2;
-                                    indices[index + 3] = prevPos + 2;
-                                    indices[index + 4] = prevPos + 3;
-                                    indices[index + 5] = prevPos;
-
-                                    index += 6;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                Godot.Collections.Array godotArray = new Godot.Collections.Array ();
-                godotArray.Resize (9);
-
-                godotArray[0] = vertice;
-                godotArray[1] = normals;
-                godotArray[4] = uvs;
-                godotArray[8] = indices;
-
-                rawChunk.arrays[t] = godotArray;
-                rawChunk.materials[t] = material;
-                rawChunk.colliderFaces[t] = vertice;
-            }
+            rawChunk = NaiveGreedyMesher (chunk, rawChunk);
         } else {
             rawChunk = FastGodotCube (chunk, rawChunk);
         }
@@ -161,6 +45,247 @@ public class GodotMesher : Spatial {
         VisualServer.InstanceSetScenario (instance, GetWorld ().Scenario);
         //   PhysicsServer.BodySetSpace (body, GetWorld ().Space);
     }
+
+    public RawChunk NaiveGreedyMesher (Chunk chunk, RawChunk rawChunk) {
+        MeshedValues values = Mesher.NaiveGreedyMeshing (chunk);
+        for (int t = 0; t < chunk.materials - 1; t++) {
+            int maxSize = values.indices[t];
+
+            SpatialMaterial material = reg.SelectByID (t + 1).material;
+            Vector3[] vertice = new Vector3[maxSize];
+            int[] indices = new int[maxSize + (maxSize / 2)];
+            Vector3[] normals = new Vector3[maxSize];
+            Vector2[] uvs = new Vector2[maxSize];
+            float textureWidth = 2048f / material.AlbedoTexture.GetWidth ();
+            float textureHeight = 2048f / material.AlbedoTexture.GetHeight ();
+
+            if (maxSize > 0) {
+
+                int pos = 0;
+                int index = 0;
+
+                for (int side = 0; side < 6; side++) {
+                    int[, , , ] primitives = values.vertices[t][side];
+
+                    for (int x = 0; x < Constants.CHUNK_SIZE1D; x++) {
+                        for (int z = 0; z < Constants.CHUNK_SIZE1D; z++) {
+                            int prevPos = pos;
+
+                            if (primitives[x, z, 2, 1] > 0 && primitives[x, z, 0, 0] >= 0 || primitives[x, z, 0, 0] > 0) {
+                                for (int s = 0; s < 4; s++) {
+                                    if (pos < maxSize) {
+                                        vertice[pos].x = primitives[x, z, s, 0] * Constants.VOXEL_SIZE;
+                                        vertice[pos].y = primitives[x, z, s, 1] * Constants.VOXEL_SIZE;
+                                        vertice[pos].z = primitives[x, z, s, 2] * Constants.VOXEL_SIZE;
+
+                                        switch (side) {
+                                            case 0:
+                                                //Front
+                                                normals[pos].x = 0f;
+                                                normals[pos].y = 0f;
+                                                normals[pos].z = -1f;
+                                                uvs[pos].x = vertice[pos].x * textureWidth;
+                                                uvs[pos].y = vertice[pos].y * textureHeight;
+                                                break;
+                                            case 1:
+                                                //Back
+                                                normals[pos].x = 0f;
+                                                normals[pos].y = 0f;
+                                                normals[pos].z = 1f;
+                                                uvs[pos].x = vertice[pos].x * textureWidth;
+                                                uvs[pos].y = vertice[pos].y * textureHeight;
+                                                break;
+                                            case 2:
+                                                //Right
+                                                normals[pos].x = -1f;
+                                                normals[pos].y = 0f;
+                                                normals[pos].z = 0f;
+                                                uvs[pos].x = vertice[pos].z * textureWidth;
+                                                uvs[pos].y = vertice[pos].y * textureHeight;
+                                                break;
+                                            case 3:
+                                                //Left
+                                                normals[pos].x = 1f;
+                                                normals[pos].y = 0f;
+                                                normals[pos].z = 0f;
+                                                uvs[pos].x = vertice[pos].z * textureWidth;
+                                                uvs[pos].y = vertice[pos].y * textureHeight;
+                                                break;
+                                            case 4:
+                                                //Top
+                                                normals[pos].x = 0f;
+                                                normals[pos].y = 1f;
+                                                normals[pos].z = 0f;
+                                                uvs[pos].x = vertice[pos].x * textureWidth;
+                                                uvs[pos].y = vertice[pos].z * textureHeight;
+                                                break;
+                                            case 5:
+                                                //Bottom
+                                                normals[pos].x = 0f;
+                                                normals[pos].y = 0f;
+                                                normals[pos].z = 0f;
+                                                uvs[pos].x = vertice[pos].x * textureWidth;
+                                                uvs[pos].y = vertice[pos].z * textureHeight;
+                                                break;
+                                        }
+                                        pos++;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            } else {
+                                continue;
+                            }
+
+                            if (index < maxSize + maxSize / 2) {
+                                indices[index] = prevPos;
+                                indices[index + 1] = prevPos + 1;
+                                indices[index + 2] = prevPos + 2;
+                                indices[index + 3] = prevPos + 2;
+                                indices[index + 4] = prevPos + 3;
+                                indices[index + 5] = prevPos;
+
+                                index += 6;
+                            }
+                        }
+                    }
+                }
+            }
+
+            Godot.Collections.Array godotArray = new Godot.Collections.Array ();
+            godotArray.Resize (9);
+
+            godotArray[0] = vertice;
+            godotArray[1] = normals;
+            godotArray[4] = uvs;
+            godotArray[8] = indices;
+
+            rawChunk.arrays[t] = godotArray;
+            rawChunk.materials[t] = material;
+            rawChunk.colliderFaces[t] = vertice;
+        }
+        return rawChunk;
+    }
+
+    /*public RawChunk  (Chunk chunk, RawChunk rawChunk) {
+        MeshedValues values = Mesher.Mesh (chunk);
+        for (int t = 0; t < chunk.materials - 1; t++) {
+            int maxSize = values.indices[t];
+
+            SpatialMaterial material = reg.SelectByID (t + 1).material;
+            Vector3[] vertice = new Vector3[maxSize];
+            int[] indices = new int[maxSize + (maxSize / 2)];
+            Vector3[] normals = new Vector3[maxSize];
+            Vector2[] uvs = new Vector2[maxSize];
+            float textureWidth = 2048f / material.AlbedoTexture.GetWidth ();
+            float textureHeight = 2048f / material.AlbedoTexture.GetHeight ();
+
+            if (maxSize > 0) {
+
+                int pos = 0;
+                int index = 0;
+
+                for (int side = 0; side < 6; side++) {
+                    int[, , , ] primitives = values.vertices[t][side];
+
+                    for (int x = 0; x < Constants.CHUNK_SIZE1D; x++) {
+                        for (int z = 0; z < Constants.CHUNK_SIZE1D; z++) {
+                            int prevPos = pos;
+
+                                for (int s = 0; s < 4; s++) {
+                                        vertice[pos].x = primitives[x, z, s, 0] * Constants.VOXEL_SIZE;
+                                        vertice[pos].y = primitives[x, z, s, 1] * Constants.VOXEL_SIZE;
+                                        vertice[pos].z = primitives[x, z, s, 2] * Constants.VOXEL_SIZE;
+
+                                        switch (side) {
+                                            case 0:
+                                                //Front
+                                                normals[pos].x = 0f;
+                                                normals[pos].y = 0f;
+                                                normals[pos].z = -1f;
+                                                uvs[pos].x = vertice[pos].x * textureWidth;
+                                                uvs[pos].y = vertice[pos].y * textureHeight;
+                                                break;
+                                            case 1:
+                                                //Back
+                                                normals[pos].x = 0f;
+                                                normals[pos].y = 0f;
+                                                normals[pos].z = 1f;
+                                                uvs[pos].x = vertice[pos].x * textureWidth;
+                                                uvs[pos].y = vertice[pos].y * textureHeight;
+                                                break;
+                                            case 2:
+                                                //Right
+                                                normals[pos].x = -1f;
+                                                normals[pos].y = 0f;
+                                                normals[pos].z = 0f;
+                                                uvs[pos].x = vertice[pos].z * textureWidth;
+                                                uvs[pos].y = vertice[pos].y * textureHeight;
+                                                break;
+                                            case 3:
+                                                //Left
+                                                normals[pos].x = 1f;
+                                                normals[pos].y = 0f;
+                                                normals[pos].z = 0f;
+                                                uvs[pos].x = vertice[pos].z * textureWidth;
+                                                uvs[pos].y = vertice[pos].y * textureHeight;
+                                                break;
+                                            case 4:
+                                                //Top
+                                                normals[pos].x = 0f;
+                                                normals[pos].y = 1f;
+                                                normals[pos].z = 0f;
+                                                uvs[pos].x = vertice[pos].x * textureWidth;
+                                                uvs[pos].y = vertice[pos].z * textureHeight;
+                                                break;
+                                            case 5:
+                                                //Bottom
+                                                normals[pos].x = 0f;
+                                                normals[pos].y = 0f;
+                                                normals[pos].z = 0f;
+                                                uvs[pos].x = vertice[pos].x * textureWidth;
+                                                uvs[pos].y = vertice[pos].z * textureHeight;
+                                                break;
+                                        }
+                                        pos++;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            } else {
+                                continue;
+                            }
+
+                            if (index < maxSize + maxSize / 2) {
+                                indices[index] = prevPos;
+                                indices[index + 1] = prevPos + 1;
+                                indices[index + 2] = prevPos + 2;
+                                indices[index + 3] = prevPos + 2;
+                                indices[index + 4] = prevPos + 3;
+                                indices[index + 5] = prevPos;
+
+                                index += 6;
+                            }
+                        }
+                    }
+                }
+            }
+
+            Godot.Collections.Array godotArray = new Godot.Collections.Array ();
+            godotArray.Resize (9);
+
+            godotArray[0] = vertice;
+            godotArray[1] = normals;
+            godotArray[4] = uvs;
+            godotArray[8] = indices;
+
+            rawChunk.arrays[t] = godotArray;
+            rawChunk.materials[t] = material;
+            rawChunk.colliderFaces[t] = vertice;
+        }
+
+        return rawChunk;
+    }*/
 
     public RawChunk FastGodotCube (Chunk chunk, RawChunk rawChunk) {
         Godot.Collections.Array godotArray = new Godot.Collections.Array ();

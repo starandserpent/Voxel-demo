@@ -11,12 +11,11 @@ public class SolidCameraPoint : LoadMarker
 		VisualServer.SetDebugGenerateWireframes(true);
 		gameController = (GameController) FindParent("SceneController");
 		camera = (Camera) FindNode("Camera");
-		gameController.Prepare(camera);
+		lastPosition = (Spatial) gameController.FindNode("Shadow");
 		Input.SetMouseMode(Input.MouseMode.Captured);
 
-		lastPosition = (Spatial) gameController.FindNode("Shadow");
         lastPosition.GlobalTransform = new Transform(this.GlobalTransform.basis, this.GlobalTransform.origin);
-        gameController.Generate(lastPosition);
+		gameController.Prepare(camera, lastPosition, this);
 	}
 
     public override void _Input(InputEvent @event)
