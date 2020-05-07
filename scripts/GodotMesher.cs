@@ -65,18 +65,18 @@ public class GodotMesher : Spatial {
                 int index = 0;
 
                 for (int side = 0; side < 6; side++) {
-                    int[, , , ] primitives = values.vertices[t][side];
+                    Position[, ][] primitives = values.vertices[t][side];
 
                     for (int x = 0; x < Constants.CHUNK_SIZE1D; x++) {
                         for (int z = 0; z < Constants.CHUNK_SIZE1D; z++) {
                             int prevPos = pos;
 
-                            if (primitives[x, z, 2, 1] > 0 && primitives[x, z, 0, 0] >= 0 || primitives[x, z, 0, 0] > 0) {
+                            if (primitives[x, z] != null && !primitives[x, z][0].delete) {
                                 for (int s = 0; s < 4; s++) {
                                     if (pos < maxSize) {
-                                        vertice[pos].x = primitives[x, z, s, 0] * Constants.VOXEL_SIZE;
-                                        vertice[pos].y = primitives[x, z, s, 1] * Constants.VOXEL_SIZE;
-                                        vertice[pos].z = primitives[x, z, s, 2] * Constants.VOXEL_SIZE;
+                                        vertice[pos].x = primitives[x, z][s].x * Constants.VOXEL_SIZE;
+                                        vertice[pos].y = primitives[x, z][s].y * Constants.VOXEL_SIZE;
+                                        vertice[pos].z = primitives[x, z][s].z * Constants.VOXEL_SIZE;
 
                                         switch (side) {
                                             case 0:
