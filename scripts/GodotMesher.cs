@@ -52,6 +52,7 @@ public class GodotMesher : Spatial {
         for (int t = 0; t < chunk.materials - 1; t++) {
             int maxSize = values.indices[t];
 
+            Stack<Position[]> vertices = new Stack<Position[]> (maxSize);
             SpatialMaterial material = reg.SelectByID (t + 1).material;
             Stack<Vector3> vertice = new Stack<Vector3> (maxSize);
             Stack<int> indices = new Stack<int> (maxSize + (maxSize / 2));
@@ -63,7 +64,7 @@ public class GodotMesher : Spatial {
             if (maxSize > 0) {
                 for (int side = 0; side < 6; side++) {
                     Position[, ][] primitives = values.vertices[t][side];
-                    Stack<Position[]> stack = Mesher.GreedyMeshing (side, primitives);
+                    Stack<Position[]> stack = Mesher.GreedyMeshing (side, primitives, vertices);
                     int size = stack.Count;
                     for (int i = 0; i < size; i++) {
                         Position[] position = stack.Pop ();
