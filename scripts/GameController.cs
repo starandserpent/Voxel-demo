@@ -18,11 +18,9 @@ public class GameController : Spatial {
 	private GodotMesher mesher;
 	private Weltschmerz weltschmerz;
 	private Registry registry;
-	private int chunkCount;
 	private Spatial lastPosition;
 	private Spatial newPosition;
 	private bool prepared = false;
-	private Threading  threading;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready () { }
@@ -78,10 +76,6 @@ public class GameController : Spatial {
 
 	public Picker GetPicker () {
 		return picker;
-	}
-
-	public int GetChunkCount () {
-		return chunkCount;
 	}
 
 	public void Clear () {

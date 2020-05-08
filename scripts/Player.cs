@@ -14,7 +14,7 @@ public class Player : Spatial {
     private Camera camera;
     private Picker picker;
     private Label fps;
-    private Label memory;
+    private Label position;
     private Label chunks;
     private Label vertices;
     private Spatial lastPosition;
@@ -61,7 +61,7 @@ public class Player : Spatial {
         camera = (Camera) FindNode ("Camera");
         lastPosition = (Spatial) gameController.FindNode ("Shadow");
         fps = (Label) camera.FindNode ("FPS");
-        memory = (Label) camera.FindNode ("Memory");
+        position = (Label) camera.FindNode ("Position");
         chunks = (Label) camera.FindNode ("Chunks");
         vertices = (Label) camera.FindNode ("Vertices");
 
@@ -81,10 +81,11 @@ public class Player : Spatial {
             ray.Enabled = false;
         }
 
-        chunks.Text = "Chunks: " + gameController.GetChunkCount ();
+        chunks.Text = "Chunks: " + Foreman.chunksPlaced;
         vertices.Text = "Vertices: " + Performance.GetMonitor (Performance.Monitor.RenderVerticesInFrame);
         fps.Text = "FPS: " + Performance.GetMonitor (Performance.Monitor.TimeFps);
-        memory.Text = "Memory: " + Performance.GetMonitor (Performance.Monitor.MemoryStatic) / (1024 * 1024) + " MB";
+        position.Text = "X: " + lastPosition.GlobalTransform.origin.x + "Y: " +
+        lastPosition.GlobalTransform.origin.y + "Z:" + lastPosition.GlobalTransform.origin.z;
 
         if (Input.IsActionPressed ("walk_left")) {
             motion.x = 1;

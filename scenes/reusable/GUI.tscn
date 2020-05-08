@@ -12,12 +12,12 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Memory" type="Label" parent="."]
+[node name="Position" type="Label" parent="."]
 margin_left = 4.2634
 margin_top = 26.6463
 margin_right = 44.2634
 margin_bottom = 40.6463
-text = "Memory:"
+text = "Position: "
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -34,6 +34,9 @@ margin_top = 105.812
 margin_right = 60.0
 margin_bottom = 119.812
 text = "Vertices: "
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="Crosshair" type="TextureRect" parent="."]
 anchor_left = 0.5
