@@ -63,8 +63,7 @@ public class GodotMesher : Spatial {
 
             if (maxSize > 0) {
                 for (int side = 0; side < 6; side++) {
-                    Position[, ][] primitives = values.vertices[t][side];
-                    Stack<Position[]> stack = Mesher.GreedyMeshing (side, primitives, vertices);
+                    Stack<Position[]> stack = Mesher.GreedyMeshing (side, values.vertices[t][side], vertices);
                     int size = stack.Count;
                     for (int i = 0; i < size; i++) {
                         Position[] position = stack.Pop ();
