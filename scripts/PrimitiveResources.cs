@@ -2,7 +2,7 @@ using Godot;
 
 public class PrimitiveResources
 {
-    public static void register(Registry registry)
+    public static void Register(Registry registry)
     {
         SpatialMaterial material = new SpatialMaterial();
         Texture nativeTexture = (Texture) GD.Load("res://assets/textures/blocks/NorthenForestDirt256px.png");

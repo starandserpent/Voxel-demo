@@ -12,12 +12,12 @@ public class GodotMesher : Spatial {
 
         RawChunk rawChunk = new RawChunk ();
 
-        rawChunk.arrays = new Godot.Collections.Array[chunk.materials - 1];
-        rawChunk.materials = new SpatialMaterial[chunk.materials - 1];
-        rawChunk.colliderFaces = new Vector3[chunk.materials - 1][];
+        rawChunk.arrays = new Godot.Collections.Array[chunk.Materials - 1];
+        rawChunk.materials = new SpatialMaterial[chunk.Materials - 1];
+        rawChunk.colliderFaces = new Vector3[chunk.Materials - 1][];
 
-        if (chunk.materials > 1) {
-            rawChunk = NaiveGreedyMesher (chunk, rawChunk);
+        if (chunk.Materials > 1) {
+            rawChunk = Meshing (chunk, rawChunk);
         } else {
             rawChunk = FastGodotCube (chunk, rawChunk);
         }
@@ -47,112 +47,130 @@ public class GodotMesher : Spatial {
         //   PhysicsServer.BodySetSpace (body, GetWorld ().Space);
     }
 
-    public RawChunk NaiveGreedyMesher (Chunk chunk, RawChunk rawChunk) {
-        MeshedValues values = Mesher.NaiveGreedyMeshing (chunk);
-        for (int t = 0; t < chunk.materials - 1; t++) {
-            int maxSize = values.indices[t];
+    public RawChunk Meshing (Chunk chunk, RawChunk rawChunk) {
+        var values = Mesher.NaiveGreedyMeshing (chunk);
+        Stack<Position[]>[][] stacks = new Stack<Position[]>[6][];
+        int[] size = new int[chunk.Materials - 1];
 
-            Stack<Position[]> vertices = new Stack<Position[]> (maxSize);
+        for (int side = 0; side < 6; side++) {
+            stacks[side] = new Stack<Position[]>[chunk.Materials - 1];
+            for (int t = 0; t < chunk.Materials - 1; t++) {
+                stacks[side][t] = new Stack<Position[]> ();
+            }
+
+            Mesher.GreedyMeshing (values, side, stacks[side]);
+            for (int t = 0; t < chunk.Materials - 1; t++) {
+                size[t] += stacks[side][t].Count;
+            }
+        }
+
+        for (int t = 0; t < chunk.Materials - 1; t++) {
+            size[t] *= 4;
             SpatialMaterial material = reg.SelectByID (t + 1).material;
-            Stack<Vector3> vertice = new Stack<Vector3> (maxSize);
-            Stack<int> indices = new Stack<int> (maxSize + (maxSize / 2));
-            Stack<Vector3> normals = new Stack<Vector3> (maxSize);
-            Stack<Vector2> uvs = new Stack<Vector2> (maxSize);
+            Vector3[] vertice = new Vector3[size[t]];
+            int[] indices = new int[size[t] + (size[t] / 2)];
+            Vector3[] normals = new Vector3[size[t]];
+            Vector2[] uvs = new Vector2[size[t]];
             float textureWidth = 2048f / material.AlbedoTexture.GetWidth ();
             float textureHeight = 2048f / material.AlbedoTexture.GetHeight ();
 
-            if (maxSize > 0) {
+            if (size[t] > 0) {
+                int index = 0;
+                int i = 0;
                 for (int side = 0; side < 6; side++) {
-                    Stack<Position[]> stack = Mesher.GreedyMeshing (side, values.vertices[t][side], vertices);
-                    int size = stack.Count;
-                    for (int i = 0; i < size; i++) {
-                        Position[] position = stack.Pop ();
+                    for (; i < size[t]; i += 4) {
+                        if (stacks[side][t].Count > 0) {
+                            Position[] position = stacks[side][t].Pop ();
 
-                        indices.Push (vertice.Count);
-                        indices.Push (vertice.Count + 1);
-                        indices.Push (vertice.Count + 2);
-                        indices.Push (vertice.Count + 2);
-                        indices.Push (vertice.Count + 3);
-                        indices.Push (vertice.Count);
+                            indices[index] = i;
+                            indices[index + 1] = i + 1;
+                            indices[index + 2] = i + 2;
+                            indices[index + 3] = i + 2;
+                            indices[index + 4] = i + 3;
+                            indices[index + 5] = i;
+                            index += 6;
 
-                        for (int s = 0; s < 4; s++) {
-                            Vector3 vector = new Vector3 ();
-                            vector.x = position[s].x * Constants.VOXEL_SIZE;
-                            vector.y = position[s].y * Constants.VOXEL_SIZE;
-                            vector.z = position[s].z * Constants.VOXEL_SIZE;
+                            for (int s = 0; s < 4; s++) {
+                                Vector3 vector = new Vector3 ();
+                                vector.x = position[s].x * Constants.VOXEL_SIZE;
+                                vector.y = position[s].y * Constants.VOXEL_SIZE;
+                                vector.z = position[s].z * Constants.VOXEL_SIZE;
+                                vertice[i + s] = vector;
 
-                            vertice.Push (vector);
-                            Vector2 uv = new Vector2 ();
-                            Vector3 normal = new Vector3 ();
-                            switch (side) {
-                                case 0:
-                                    //Front
-                                    normal.x = 0f;
-                                    normal.y = 0f;
-                                    normal.z = -1f;
-                                    normals.Push (normal);
+                                Vector2 uv = new Vector2 ();
+                                Vector3 normal = new Vector3 ();
+                                switch (side) {
+                                    case 0:
+                                        //Front
+                                        normal.x = 0f;
+                                        normal.y = 0f;
+                                        normal.z = -1f;
+                                        normals[i + s] = normal;
 
-                                    uv.x = vector.x * textureWidth;
-                                    uv.y = vector.y * textureHeight;
-                                    uvs.Push (uv);
-                                    break;
-                                case 1:
-                                    //Back
-                                    normal.x = 0f;
-                                    normal.y = 0f;
-                                    normal.z = 1f;
-                                    normals.Push (normal);
+                                        uv.x = vector.x * textureWidth;
+                                        uv.y = vector.y * textureHeight;
+                                        uvs[i + s] = uv;
+                                        break;
+                                    case 1:
+                                        //Back
+                                        normal.x = 0f;
+                                        normal.y = 0f;
+                                        normal.z = 1f;
+                                        normals[i + s] = normal;
 
-                                    uv.x = vector.x * textureWidth;
-                                    uv.y = vector.y * textureHeight;
-                                    uvs.Push (uv);
+                                        uv.x = vector.x * textureWidth;
+                                        uv.y = vector.y * textureHeight;
+                                        uvs[i + s] = uv;
 
-                                    break;
-                                case 2:
-                                    //Right
-                                    normal.x = -1f;
-                                    normal.y = 0f;
-                                    normal.z = 0f;
-                                    normals.Push (normal);
+                                        break;
+                                    case 2:
+                                        //Right
+                                        normal.x = -1f;
+                                        normal.y = 0f;
+                                        normal.z = 0f;
+                                        normals[i + s] = normal;
 
-                                    uv.x = vector.z * textureWidth;
-                                    uv.y = vector.y * textureHeight;
-                                    uvs.Push (uv);
-                                    break;
-                                case 3:
-                                    //Left
-                                    normal.x = 1f;
-                                    normal.y = 0f;
-                                    normal.z = 0f;
-                                    normals.Push (normal);
+                                        uv.x = vector.z * textureWidth;
+                                        uv.y = vector.y * textureHeight;
+                                        uvs[i + s] = uv;
+                                        break;
+                                    case 3:
+                                        //Left
+                                        normal.x = 1f;
+                                        normal.y = 0f;
+                                        normal.z = 0f;
+                                        normals[i + s] = normal;
 
-                                    uv.x = vector.z * textureWidth;
-                                    uv.y = vector.y * textureHeight;
-                                    uvs.Push (uv);
-                                    break;
-                                case 4:
-                                    //Top
-                                    normal.x = 0f;
-                                    normal.y = 1f;
-                                    normal.z = 0f;
-                                    normals.Push (normal);
+                                        uv.x = vector.z * textureWidth;
+                                        uv.y = vector.y * textureHeight;
+                                        uvs[i + s] = uv;
+                                        break;
+                                    case 4:
+                                        //Top
+                                        normal.x = 0f;
+                                        normal.y = 1f;
+                                        normal.z = 0f;
+                                        normals[i + s] = normal;
 
-                                    uv.x = vector.x * textureWidth;
-                                    uv.y = vector.z * textureHeight;
-                                    uvs.Push (uv);
-                                    break;
-                                case 5:
-                                    //Bottom
-                                    normal.x = 0f;
-                                    normal.y = 0f;
-                                    normal.z = 0f;
-                                    normals.Push (normal);
+                                        uv.x = vector.x * textureWidth;
+                                        uv.y = vector.z * textureHeight;
+                                        uvs[i + s] = uv;
+                                        break;
+                                    case 5:
+                                        //Bottom
+                                        normal.x = 0f;
+                                        normal.y = 0f;
+                                        normal.z = 0f;
+                                        normals[i + s] = normal;
 
-                                    uv.x = vector.x * textureWidth;
-                                    uv.y = vector.z * textureHeight;
-                                    uvs.Push (uv);
-                                    break;
+                                        uv.x = vector.x * textureWidth;
+                                        uv.y = vector.z * textureHeight;
+                                        uvs[i + s] = uv;
+                                        break;
+                                }
                             }
+                        } else {
+                            break;
                         }
                     }
                 }
@@ -161,10 +179,10 @@ public class GodotMesher : Spatial {
             Godot.Collections.Array godotArray = new Godot.Collections.Array ();
             godotArray.Resize (9);
 
-            godotArray[0] = vertice.ToArray ();
-            godotArray[1] = normals.ToArray ();
-            godotArray[4] = uvs.ToArray ();
-            godotArray[8] = indices.ToArray ();
+            godotArray[0] = vertice;
+            godotArray[1] = normals;
+            godotArray[4] = uvs;
+            godotArray[8] = indices;
 
             rawChunk.arrays[t] = godotArray;
             rawChunk.materials[t] = material;
@@ -179,7 +197,7 @@ public class GodotMesher : Spatial {
         rawChunk.materials = new SpatialMaterial[1];
         rawChunk.colliderFaces = new Vector3[1][];
 
-        int objectID = chunk.voxels[0].value;
+        int objectID = chunk.Voxels[0].value;
 
         SpatialMaterial material = reg.SelectByID (objectID).material;
 

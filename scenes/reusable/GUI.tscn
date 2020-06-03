@@ -5,6 +5,7 @@
 [node name="GUI" type="CanvasLayer"]
 
 [node name="FPS" type="Label" parent="."]
+margin_top = 30.0
 margin_right = 68.0
 margin_bottom = 14.0
 text = "FPS:"
@@ -14,7 +15,7 @@ __meta__ = {
 
 [node name="Position" type="Label" parent="."]
 margin_left = 4.2634
-margin_top = 26.6463
+margin_top = 60.0
 margin_right = 44.2634
 margin_bottom = 40.6463
 text = "Position: "
@@ -24,16 +25,25 @@ __meta__ = {
 
 [node name="Chunks" type="Label" parent="."]
 margin_left = 2.1317
-margin_top = 72.4778
+margin_top = 90.0
 margin_right = 52.1317
 margin_bottom = 86.4778
 text = "Chunks: "
 
 [node name="Vertices" type="Label" parent="."]
-margin_top = 105.812
+margin_top = 120.0
 margin_right = 60.0
 margin_bottom = 119.812
 text = "Vertices: "
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Memory" type="Label" parent="."]
+margin_top = 150.0
+margin_right = 60.0
+margin_bottom = 119.812
+text = "Memory: "
 __meta__ = {
 "_edit_use_anchors_": false
 }

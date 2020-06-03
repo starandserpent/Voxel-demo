@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Threading;
-using Threading = System.Threading.Thread;
 using Godot;
 
 public class GameController : Spatial {
@@ -36,7 +34,7 @@ public class GameController : Spatial {
 		this.lastPosition = lastPosition;
 		this.newPosition = newPosition;
 		registry = new Registry ();
-		PrimitiveResources.register (registry);
+		PrimitiveResources.Register (registry);
 		weltschmerz = new Weltschmerz ();
 		Config config = weltschmerz.GetConfig ();
 		config.elevation.max_elevation = MAX_ELEVATION;

@@ -17,9 +17,10 @@ public class Player : Spatial {
     private Label position;
     private Label chunks;
     private Label vertices;
+    private Label memory;
     private Spatial lastPosition;
     private bool wireframe = false;
-    
+
     public override void _Input (InputEvent @event) {
         if (Input.IsActionPressed ("toggle_mouse_capture")) {
             Input.SetMouseMode (Input.GetMouseMode () == Input.MouseMode.Captured ?
@@ -64,6 +65,7 @@ public class Player : Spatial {
         position = (Label) camera.FindNode ("Position");
         chunks = (Label) camera.FindNode ("Chunks");
         vertices = (Label) camera.FindNode ("Vertices");
+        memory = (Label) camera.FindNode ("Memory");
 
         initialRotation = new Vector3 ();
 
@@ -86,6 +88,7 @@ public class Player : Spatial {
         fps.Text = "FPS: " + Performance.GetMonitor (Performance.Monitor.TimeFps);
         position.Text = "X: " + lastPosition.GlobalTransform.origin.x + "Y: " +
         lastPosition.GlobalTransform.origin.y + "Z:" + lastPosition.GlobalTransform.origin.z;
+        memory.Text = "Memory: " + GC.GetTotalMemory(false)/(1048576) + "MB";
 
         if (Input.IsActionPressed ("walk_left")) {
             motion.x = 1;
