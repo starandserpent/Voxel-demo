@@ -8,14 +8,15 @@
 
 [node name="GameController" type="Spatial"]
 script = ExtResource( 1 )
-VIEW_DISTANCE = 30
+VIEW_DISTANCE = 1000
 MAX_ELEVATION = 300
 GENERATION_THREADS = 8
 
 [node name="Player" type="Spatial" parent="."]
 transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 10, 0 )
 script = ExtResource( 2 )
-MOVE_SPEED = 0.04
+MOVE_SPEED = 1.0
+LOAD_RADIUS = 10
 
 [node name="Camera" type="Camera" parent="Player"]
 environment = ExtResource( 5 )

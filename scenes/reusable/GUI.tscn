@@ -48,6 +48,15 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="Movement Speed" type="Label" parent="."]
+margin_top = 180.0
+margin_right = 61.0
+margin_bottom = 194.0
+text = "Movement Speed:"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="Crosshair" type="TextureRect" parent="."]
 anchor_left = 0.5
 anchor_top = 0.5

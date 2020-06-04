@@ -18,6 +18,8 @@ public class Player : Spatial {
     private Label chunks;
     private Label vertices;
     private Label memory;
+    private Label speed;
+
     private Spatial lastPosition;
     private bool wireframe = false;
 
@@ -66,6 +68,7 @@ public class Player : Spatial {
         chunks = (Label) camera.FindNode ("Chunks");
         vertices = (Label) camera.FindNode ("Vertices");
         memory = (Label) camera.FindNode ("Memory");
+        speed = (Label) camera.FindNode ("Movement Speed");
 
         initialRotation = new Vector3 ();
 
@@ -87,8 +90,8 @@ public class Player : Spatial {
         vertices.Text = "Vertices: " + Performance.GetMonitor (Performance.Monitor.RenderVerticesInFrame);
         fps.Text = "FPS: " + Performance.GetMonitor (Performance.Monitor.TimeFps);
         position.Text = "X: " + lastPosition.GlobalTransform.origin.x + "Y: " +
-        lastPosition.GlobalTransform.origin.y + "Z:" + lastPosition.GlobalTransform.origin.z;
-        memory.Text = "Memory: " + GC.GetTotalMemory(false)/(1048576) + "MB";
+            lastPosition.GlobalTransform.origin.y + "Z:" + lastPosition.GlobalTransform.origin.z;
+        memory.Text = "Memory: " + GC.GetTotalMemory (false) / (1048576) + "MB";
 
         if (Input.IsActionPressed ("walk_left")) {
             motion.x = 1;
@@ -124,16 +127,16 @@ public class Player : Spatial {
             .Rotated (new Vector3 (1, 0, 0), (float) Math.Cos (Rotation.y) * Rotation.x)
             .Rotated (new Vector3 (0, 0, 1), -(float) Math.Sin (Rotation.y) * Rotation.x);
 
-        velocity += motion * MOVE_SPEED;
+        velocity = motion * MOVE_SPEED;
 
-        velocity = new Vector3 (velocity.x * 0.9f, velocity.y * 0.9f, velocity.z * 0.9f);
+        speed.Text = "Movement Speed: " + velocity.Length() + "m/s";
 
         RID rid = VisualServer.InstanceCreate ();
 
         VisualServer.InstanceAttachObjectInstanceId (rid, this.GetInstanceId ());
 
-        Translation = new Vector3 (Translation.x + (velocity.x), Translation.y + (velocity.y),
-            Translation.z + (velocity.z));
+        Translation = new Vector3 (Translation.x + velocity.x, Translation.y + velocity.y,
+            Translation.z + velocity.z);
     }
 
     public override void _ExitTree () {
