@@ -21,3 +21,6 @@ current = true
 script = ExtResource( 4 )
 
 [node name="Shadow" type="Spatial" parent="."]
+
+[node name="Spatial" type="Spatial" parent="."]
+script = ExtResource( 2 )

@@ -67,6 +67,7 @@ public class GameController : Spatial {
 		terra = new Terra (boundries, this);
 		picker = new Picker (terra, mesher);
 		foreman = new Foreman (weltschmerz, terra, registry, mesher, VIEW_DISTANCE, camera.Fov, GENERATION_THREADS);
+		this.CallDeferred("add_child", foreman);
 		foreman.SetMaterials (registry);
 		foreman.AddLoadMarker(lastPosition);
 		this.prepared = true;
