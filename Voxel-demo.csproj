@@ -55,7 +55,8 @@
     <Reference Include="System" />
     <Reference Include="System.Buffers" />
     <Reference Include="System.Numerics" />
-     <PackageReference Include="Hocon.Configuration">
+    <Reference Include="netstandard" />
+    <PackageReference Include="Hocon.Configuration">
       <Version>2.0.3</Version>
     </PackageReference>
     <PackageReference Include="System.Memory">

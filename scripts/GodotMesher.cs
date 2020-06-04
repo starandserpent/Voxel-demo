@@ -1,3 +1,5 @@
+using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -8,7 +10,7 @@ public class GodotMesher : Spatial {
         this.reg = reg;
     }
 
-    public void MeshChunk (Chunk chunk) {
+    public void MeshChunk (Chunk chunk, ArrayPool<Position> pool) {
 
         RawChunk rawChunk = new RawChunk ();
 
@@ -17,7 +19,7 @@ public class GodotMesher : Spatial {
         rawChunk.colliderFaces = new Vector3[chunk.Materials - 1][];
 
         if (chunk.Materials > 1) {
-            rawChunk = Meshing (chunk, rawChunk);
+            rawChunk = Meshing (chunk, rawChunk, pool);
         } else {
             rawChunk = FastGodotCube (chunk, rawChunk);
         }
@@ -28,16 +30,18 @@ public class GodotMesher : Spatial {
         for (int t = 0; t < rawChunk.arrays.Count (); t++) {
             SpatialMaterial material = rawChunk.materials[t];
 
-            Vector3[] vertice = rawChunk.colliderFaces[t];
             Godot.Collections.Array godotArray = rawChunk.arrays[t];
 
-            /*  RID shape = PhysicsServer.ShapeCreate (PhysicsServer.ShapeType.ConcavePolygon);
+            if (godotArray.Count > 0) {
+
+                /*  RID shape = PhysicsServer.ShapeCreate (PhysicsServer.ShapeType.ConcavePolygon);
 //            PhysicsServer.ShapeSetData (shape, vertice);
 
             PhysicsServer.BodyAddShape (body, shape, new Transform (Transform.basis, new Vector3 (chunk.x, chunk.y, chunk.z)));
 */
-            VisualServer.MeshAddSurfaceFromArrays (meshID, VisualServer.PrimitiveType.Triangles, godotArray);
-            VisualServer.MeshSurfaceSetMaterial (meshID, VisualServer.MeshGetSurfaceCount (meshID) - 1, material.GetRid ());
+                VisualServer.MeshAddSurfaceFromArrays (meshID, VisualServer.PrimitiveType.Triangles, godotArray);
+                VisualServer.MeshSurfaceSetMaterial (meshID, VisualServer.MeshGetSurfaceCount (meshID) - 1, material.GetRid ());
+            }
         }
 
         RID instance = VisualServer.InstanceCreate ();
@@ -47,15 +51,15 @@ public class GodotMesher : Spatial {
         //   PhysicsServer.BodySetSpace (body, GetWorld ().Space);
     }
 
-    public RawChunk Meshing (Chunk chunk, RawChunk rawChunk) {
-        var values = Mesher.NaiveGreedyMeshing (chunk);
-        Stack<Position[]>[][] stacks = new Stack<Position[]>[6][];
+    public RawChunk Meshing (Chunk chunk, RawChunk rawChunk, ArrayPool<Position> pool) {
+        Position[] values = Mesher.NaiveGreedyMeshing (chunk, pool);
+        Queue<Position>[][] stacks = new Queue<Position>[6][];
         int[] size = new int[chunk.Materials - 1];
 
         for (int side = 0; side < 6; side++) {
-            stacks[side] = new Stack<Position[]>[chunk.Materials - 1];
+            stacks[side] = new Queue<Position>[chunk.Materials - 1];
             for (int t = 0; t < chunk.Materials - 1; t++) {
-                stacks[side][t] = new Stack<Position[]> ();
+                stacks[side][t] = new Queue<Position> (Constants.CHUNK_SIZE3D);
             }
 
             Mesher.GreedyMeshing (values, side, stacks[side]);
@@ -64,8 +68,9 @@ public class GodotMesher : Spatial {
             }
         }
 
+        pool.Return (values);
+
         for (int t = 0; t < chunk.Materials - 1; t++) {
-            size[t] *= 4;
             SpatialMaterial material = reg.SelectByID (t + 1).material;
             Vector3[] vertice = new Vector3[size[t]];
             int[] indices = new int[size[t] + (size[t] / 2)];
@@ -80,7 +85,6 @@ public class GodotMesher : Spatial {
                 for (int side = 0; side < 6; side++) {
                     for (; i < size[t]; i += 4) {
                         if (stacks[side][t].Count > 0) {
-                            Position[] position = stacks[side][t].Pop ();
 
                             indices[index] = i;
                             indices[index + 1] = i + 1;
@@ -91,10 +95,12 @@ public class GodotMesher : Spatial {
                             index += 6;
 
                             for (int s = 0; s < 4; s++) {
+                                Position position = stacks[side][t].Dequeue ();
+
                                 Vector3 vector = new Vector3 ();
-                                vector.x = position[s].x * Constants.VOXEL_SIZE;
-                                vector.y = position[s].y * Constants.VOXEL_SIZE;
-                                vector.z = position[s].z * Constants.VOXEL_SIZE;
+                                vector.x = position.x * Constants.VOXEL_SIZE;
+                                vector.y = position.y * Constants.VOXEL_SIZE;
+                                vector.z = position.z * Constants.VOXEL_SIZE;
                                 vertice[i + s] = vector;
 
                                 Vector2 uv = new Vector2 ();
@@ -177,13 +183,14 @@ public class GodotMesher : Spatial {
             }
 
             Godot.Collections.Array godotArray = new Godot.Collections.Array ();
-            godotArray.Resize (9);
+            if (vertice.Length > 0) {
+                godotArray.Resize (9);
 
-            godotArray[0] = vertice;
-            godotArray[1] = normals;
-            godotArray[4] = uvs;
-            godotArray[8] = indices;
-
+                godotArray[0] = vertice;
+                godotArray[1] = normals;
+                godotArray[4] = uvs;
+                godotArray[8] = indices;
+            }
             rawChunk.arrays[t] = godotArray;
             rawChunk.materials[t] = material;
         }
