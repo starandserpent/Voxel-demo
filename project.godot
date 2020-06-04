@@ -16,7 +16,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Voxel-demo"
-run/main_scene="res://scenes/Game.tscn"
+run/main_scene="res://scenes/TestScene.tscn"
 config/icon="res://icon.png"
 
 [editor_plugins]
@@ -124,7 +124,6 @@ limits/message_queue/max_size_kb=4096
 
 [mono]
 
-debugger_agent/wait_for_debugger=true
 project/auto_update_project=false
 
 [rendering]

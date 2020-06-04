@@ -1,18 +1,35 @@
 using System.Buffers;
 using System.Diagnostics;
 using Godot;
+using Threading = System.Threading.Thread;
+
 public class SolidCameraPoint : LoadMarker {
+
 	[Export] public int CHUNKS_TO_GENERATE = 10;
+	private ChunkFiller chunkFiller;
+
+	private GodotMesher mesher;
+
+	private Weltschmerz weltschmerz;
 
 	public override void _Ready () {
 		Registry reg = new Registry ();
 		PrimitiveResources.Register (reg);
-		GodotMesher mesher = new GodotMesher ();
-		this.AddChild (mesher);
+		mesher = (GodotMesher) GetParent().FindNode ("GameMesher");
 		mesher.Set (reg);
-		ChunkFiller chunkFiller = new ChunkFiller (1, 2);
-		Weltschmerz weltschmerz = new Weltschmerz ();
+		chunkFiller = new ChunkFiller (1, 2);
+		weltschmerz = new Weltschmerz ();
 
+		new Threading(() => Generate()).Start();
+	}
+
+	public override void _Input (InputEvent @event) {
+		if (Input.IsActionPressed ("ui_cancel")) {
+			GetTree ().Quit ();
+		}
+	}
+
+	private void Generate () {
 		ArrayPool<Position> pool = ArrayPool<Position>.Create (Constants.CHUNK_SIZE3D * 6 * 4, 1);
 		Stopwatch stopwatch = new Stopwatch ();
 		stopwatch.Start ();
@@ -35,15 +52,8 @@ public class SolidCameraPoint : LoadMarker {
 				}
 			}
 		}
-
 		stopwatch.Stop ();
 		Godot.GD.Print (CHUNKS_TO_GENERATE * CHUNKS_TO_GENERATE * CHUNKS_TO_GENERATE + " chunks generated in " + stopwatch.ElapsedMilliseconds);
-	}
-
-	public override void _Input (InputEvent @event) {
-		if (Input.IsActionPressed ("ui_cancel")) {
-			GetTree ().Quit ();
-		}
 	}
 
 	public override void _Process (float delta) { }
