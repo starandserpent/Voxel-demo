@@ -13,20 +13,21 @@ public class GameController : Spatial {
 	[Export] public int MIN_ELEVATION = 1;
 
 	[Export] public int GENERATION_THREADS = 1;
+	[Export] public int PROCESS_THREADS = 1;
 	private GodotMesher mesher;
 	private Weltschmerz weltschmerz;
 	private Registry registry;
 	private Spatial lastPosition;
 	private Spatial newPosition;
 	private bool prepared = false;
-
+	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready () { }
 
 	public override void _PhysicsProcess (float delta) {
-		if (!lastPosition.GlobalTransform.Equals(newPosition.GlobalTransform) && prepared) {
+		if (!lastPosition.GlobalTransform.Equals (newPosition.GlobalTransform) && prepared) {
 			lastPosition.GlobalTransform = new Transform (newPosition.GlobalTransform.basis, newPosition.GlobalTransform.origin);
-			foreman.Release();
+			foreman.Release ();
 		}
 	}
 
@@ -63,14 +64,32 @@ public class GameController : Spatial {
 		boundries.y = MAX_ELEVATION;
 		boundries.z = LATITUDE;
 
-
 		terra = new Terra (boundries, this);
 		picker = new Picker (terra, mesher);
 		foreman = new Foreman (weltschmerz, terra, registry, mesher, VIEW_DISTANCE, camera.Fov, GENERATION_THREADS);
-		this.CallDeferred("add_child", foreman);
+
+		for (int t = 0; t < GENERATION_THREADS; t++) {
+			Thread thread = new Thread ();
+			thread.Start (this, nameof (Generation));
+		}
+
+		for (int t = 0; t < PROCESS_THREADS; t++) {
+			Thread thread = new Thread ();
+			thread.Start (this, nameof (Loading));
+		}
+
 		foreman.SetMaterials (registry);
-		foreman.AddLoadMarker(lastPosition);
+		foreman.AddLoadMarker (lastPosition);
+
 		this.prepared = true;
+	}
+
+	public void Generation (Object empty) {
+		foreman.Generate ();
+	}
+
+	public void Loading (Object empty) {
+		foreman.Process ();
 	}
 
 	public Picker GetPicker () {

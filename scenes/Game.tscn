@@ -10,7 +10,8 @@
 script = ExtResource( 1 )
 VIEW_DISTANCE = 1000
 MAX_ELEVATION = 300
-GENERATION_THREADS = 3
+GENERATION_THREADS = 6
+PROCESS_THREADS = 2
 
 [node name="Player" type="Spatial" parent="."]
 transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 10, 0 )
