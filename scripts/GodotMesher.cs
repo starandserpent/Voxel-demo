@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
-public class GodotMesher : Spatial {
+public class GodotMesher : Spatial, ITerraMesher {
     private volatile Registry reg;
-    public void Set (Registry reg) {
+    public void SetRegistry (Registry reg) {
         this.reg = reg;
     }
 
@@ -50,8 +50,8 @@ public class GodotMesher : Spatial {
         //   PhysicsServer.BodySetSpace (body, GetWorld ().Space);
     }
 
-    public RawChunk Meshing (Chunk chunk, RawChunk rawChunk, ArrayPool<Position> pool) {
-        Position[] values = Mesher.NaiveGreedyMeshing (chunk, pool);
+    private RawChunk Meshing (Chunk chunk, RawChunk rawChunk, ArrayPool<Position> pool) {
+        Position[] values = MeshingUtils.NaiveGreedyMeshing (chunk, pool);
         Queue<Position>[][] stacks = new Queue<Position>[6][];
         int[] size = new int[chunk.Materials - 1];
 
@@ -61,7 +61,7 @@ public class GodotMesher : Spatial {
                 stacks[side][t] = new Queue<Position> (Constants.CHUNK_SIZE3D);
             }
 
-            Mesher.GreedyMeshing (values, side, stacks[side]);
+            MeshingUtils.GreedyMeshing (values, side, stacks[side]);
             for (int t = 0; t < chunk.Materials - 1; t++) {
                 size[t] += stacks[side][t].Count;
             }

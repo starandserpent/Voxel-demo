@@ -1,10 +1,7 @@
 using System.Buffers;
 using System.Diagnostics;
 using Godot;
-using Threading = Godot.Thread;
-using Priority = Godot.Thread.Priority;
-
-public class SolidCameraPoint : LoadMarker {
+public class SolidCameraPoint : Spatial {
 
 	[Export] public int CHUNKS_TO_GENERATE = 10;
 	private ChunkFiller chunkFiller;
@@ -17,7 +14,7 @@ public class SolidCameraPoint : LoadMarker {
 		Registry reg = new Registry ();
 		PrimitiveResources.Register (reg);
 		mesher = (GodotMesher) GetParent ().FindNode ("GameMesher");
-		mesher.Set (reg);
+		mesher.SetRegistry (reg);
 		chunkFiller = new ChunkFiller (1, 2);
 		weltschmerz = new Weltschmerz ();
 	}
