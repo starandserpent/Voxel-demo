@@ -17,6 +17,8 @@ public class SolidCameraPoint : Spatial {
 		mesher.SetRegistry (reg);
 		chunkFiller = new ChunkFiller (1, 2);
 		weltschmerz = new Weltschmerz ();
+		Thread thread = new Thread();
+		thread.Start(this, nameof(Generate));
 	}
 
 	public override void _Input (InputEvent @event) {
@@ -25,7 +27,7 @@ public class SolidCameraPoint : Spatial {
 		}
 	}
 
-	public void Generate () {
+	public void Generate (Object empty) {
 		ArrayPool<Position> pool = ArrayPool<Position>.Create (Constants.CHUNK_SIZE3D * 6 * 4, 1);
 		Stopwatch stopwatch = new Stopwatch ();
 		stopwatch.Start ();
@@ -35,9 +37,6 @@ public class SolidCameraPoint : Spatial {
 					Chunk chunk = chunkFiller.GenerateChunk (x << Constants.CHUNK_EXPONENT, y << Constants.CHUNK_EXPONENT,
 						z << Constants.CHUNK_EXPONENT, weltschmerz);
 					if (!chunk.IsSurface) {
-						var temp = chunk.Voxels[0];
-						chunk.Voxels = new Run[1];
-						chunk.Voxels[0] = temp;
 						chunk.x = (uint) x << Constants.CHUNK_EXPONENT;
 						chunk.y = (uint) y << Constants.CHUNK_EXPONENT;
 						chunk.z = (uint) z << Constants.CHUNK_EXPONENT;

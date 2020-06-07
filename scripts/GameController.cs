@@ -56,7 +56,11 @@ public class GameController : Spatial {
 
 		terra = new Terra (boundries, this);
 		picker = new Picker (terra, mesher);
-		foreman = new Foreman (weltschmerz, terra, registry, mesher, VIEW_DISTANCE, camera.Fov, GENERATION_THREADS);
+		GodotSemaphore semaphore1 = new GodotSemaphore ();
+		GodotSemaphore semaphore2 = new GodotSemaphore ();
+
+		foreman = new Foreman (weltschmerz, terra, registry, mesher, VIEW_DISTANCE, camera.Fov, GENERATION_THREADS,
+		semaphore1, semaphore2);
 
 		for (int t = 0; t < GENERATION_THREADS; t++) {
 			Thread thread = new Thread ();
@@ -71,10 +75,7 @@ public class GameController : Spatial {
 		foreman.SetMaterials (registry);
 		marker.Attach (foreman);
 
-		GodotSemaphore semaphore1 = new GodotSemaphore ();
-		GodotSemaphore semaphore2 = new GodotSemaphore ();
-
-		foreman.AddLoadMarker (marker, semaphore1, semaphore2);
+		foreman.AddLoadMarker (marker);
 	}
 
 	public void Generation (Object empty) {
