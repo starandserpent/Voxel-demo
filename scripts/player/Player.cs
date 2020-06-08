@@ -45,7 +45,7 @@ public class Player : Spatial {
                     (float) Math.Max (Math.Min (Rotation.x - eventKey.Relative.y * MOUSE_SENSITIVITY, Math.PI / 2), -Math.PI / 2),
                     Rotation.y - eventKey.Relative.x * MOUSE_SENSITIVITY,
                     Rotation.z);
-                TerraBasis basis = new TerraBasis(Converter.ConvertVector (rotation));
+                TerraBasis basis = new TerraBasis (Converter.ConvertVector (rotation));
 
                 marker.basis = basis;
 
@@ -65,6 +65,9 @@ public class Player : Spatial {
     }
 
     public override void _Ready () {
+        GD.Print (ConfigManager.BASE_CONFIG_FILE_DIRECTORY_PATH);
+        GD.Print (ConfigManager.BASE_DIRECTORY);
+        GD.Print (ConfigManager.BASE_CONFIG_FILE_PATH);
         VisualServer.SetDebugGenerateWireframes (true);
         gameController = (GameController) FindParent ("GameController");
         ray = (RayCast) gameController.FindNode ("Picker");

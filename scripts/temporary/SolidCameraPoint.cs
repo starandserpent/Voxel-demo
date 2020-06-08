@@ -17,8 +17,8 @@ public class SolidCameraPoint : Spatial {
 		mesher.SetRegistry (reg);
 		chunkFiller = new ChunkFiller (1, 2);
 		weltschmerz = new Weltschmerz ();
-		Thread thread = new Thread();
-		thread.Start(this, nameof(Generate));
+		Thread thread = new Thread ();
+		thread.Start (this, nameof (Generate));
 	}
 
 	public override void _Input (InputEvent @event) {

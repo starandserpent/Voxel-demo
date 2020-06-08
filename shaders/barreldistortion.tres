@@ -1,0 +1,81 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
+
+uniform float rotation=3.0;
+uniform float BarrelPower=2;
+uniform float PI = 3.1415926535;
+
+uniform float strength;
+uniform float height;
+uniform float aspectRatio;
+uniform float cylindricalRatio;
+
+varying vec3 vUV;
+varying vec2 vUVDot;
+void vertex(){
+	UV = vec2(UV.x, 1.0-UV.y);
+	float scaledHeight = strength * height;
+	float cylAspectRatio = aspectRatio * cylindricalRatio;
+	float aspectDiagSq = aspectRatio * aspectRatio + 1.0;
+	float diagSq = scaledHeight * scaledHeight * aspectDiagSq;
+	vec2 signedUV = (2.0 * UV + vec2(-1.0, -1.0));
+	float z = 0.5 * sqrt(diagSq + 1.0) + 0.5;
+	float ny = (z - 1.0) / (cylAspectRatio * cylAspectRatio + 1.0);
+	vUVDot = sqrt(ny) * vec2(cylAspectRatio, 1.0) * signedUV;
+	vUV = vec3(0.5, 0.5, 1.0) * z + vec3(-0.5, -0.5, 0.0);
+	vUV.xy += UV;
+}
+
+vec2 distort(vec2 p) {
+	
+	if(p.x > 0.0){
+		float angle = p.y / p.x;
+		float theta = atan(angle);
+		float radius = length(p);
+		radius = pow(radius, BarrelPower);
+		
+		p.x = radius * cos(theta);
+		p.y = radius * sin(theta);
+	} else {
+		float angle = p.y / p.x;
+		float theta = atan(angle);
+		float radius = length(p);
+		radius = pow(radius, BarrelPower);
+		
+		p.y = radius * sin(-theta);
+		p.x = radius * cos(theta);
+		p.x = - p.x;
+	}
+	
+	
+	return 0.5 * (p + vec2(1.0,1.0));
+}
+
+void fragment() {
+	vec3 uv = dot(vUVDot, vUVDot) * vec3(-0.5, -0.5, -1.0) + vUV;
+	COLOR = textureProj(SCREEN_TEXTURE,uv);
+//vec2 xy = 2.0* SCREEN_UV;
+//xy.x = xy.x-1.0;
+//xy.y = xy.y-1.0;
+//
+//float d = length(xy);
+//if(d < 1.5){
+//	xy = distort(xy);
+//}
+//else{
+//	xy = UV;
+//}
+//COLOR = texture(SCREEN_TEXTURE, xy);
+}"
+
+[resource]
+shader = SubResource( 1 )
+shader_param/rotation = 1.0
+shader_param/BarrelPower = 1.1
+shader_param/PI = 3.14159
+shader_param/strength = null
+shader_param/height = null
+shader_param/aspectRatio = null
+shader_param/cylindricalRatio = null

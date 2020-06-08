@@ -1,23 +1,20 @@
 [gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://scripts/GameController.cs" type="Script" id=1]
-[ext_resource path="res://scripts/Player.cs" type="Script" id=2]
+[ext_resource path="res://scripts/player/Player.cs" type="Script" id=2]
 [ext_resource path="res://scenes/reusable/GUI.tscn" type="PackedScene" id=3]
-[ext_resource path="res://scripts/GodotMesher.cs" type="Script" id=4]
+[ext_resource path="res://scripts/utils/GodotMesher.cs" type="Script" id=4]
 [ext_resource path="res://default_env.tres" type="Environment" id=5]
-[ext_resource path="res://scenes/reusable/Camera.gd" type="Script" id=6]
+[ext_resource path="res://scripts/player/PlayerCamera.cs" type="Script" id=6]
 
 [node name="GameController" type="Spatial"]
 script = ExtResource( 1 )
 VIEW_DISTANCE = 1000
 MAX_ELEVATION = 300
-GENERATION_THREADS = 6
 
 [node name="Player" type="Spatial" parent="."]
 transform = Transform( -1, 0, -3.25841e-07, 0, 1, 0, 3.25841e-07, 0, -1, 0, 10, 0 )
 script = ExtResource( 2 )
-MOVE_SPEED = 1.0
-LOAD_RADIUS = 10
 
 [node name="Camera" type="Camera" parent="Player"]
 environment = ExtResource( 5 )
@@ -36,9 +33,5 @@ collide_with_areas = true
 script = ExtResource( 4 )
 
 [node name="Shadow" type="Spatial" parent="."]
-[connection signal="text_changed" from="Player/Camera/GUI/HUDCanvas/ShaderMenu/BarrelPower" to="Player/Camera" method="_on_BarrelPower_text_changed"]
-[connection signal="value_changed" from="Player/Camera/GUI/HUDCanvas/ShaderMenu/FOVSlider" to="Player/Camera" method="_on_FOVSlider_value_changed"]
-[connection signal="pressed" from="Player/Camera/GUI/HUDCanvas/ShaderMenu/CheckButton" to="Player/Camera" method="_on_CheckButton_pressed"]
-[connection signal="value_changed" from="Player/Camera/GUI/HUDCanvas/ShaderMenu/cylinratio" to="Player/Camera" method="_on_cylinratio_value_changed"]
 
 [editable path="Player/Camera/GUI"]

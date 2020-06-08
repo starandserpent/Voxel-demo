@@ -1,20 +1,21 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://scenes/reusable/GUI.tscn" type="PackedScene" id=1]
 [ext_resource path="res://scripts/SolidCameraPoint.cs" type="Script" id=2]
 [ext_resource path="res://default_env.tres" type="Environment" id=3]
 [ext_resource path="res://scripts/GodotMesher.cs" type="Script" id=4]
+[ext_resource path="res://scripts/player/PlayerCamera.cs" type="Script" id=5]
 
 [node name="SceneController" type="Spatial"]
 
 [node name="SolidPoint" type="Spatial" parent="."]
 transform = Transform( -1, 0, -3.25841e-07, 0, 1, 0, 3.25841e-07, 0, -1, 50, 20, 0 )
 script = ExtResource( 2 )
-CHUNKS_TO_GENERATE = 100
 
 [node name="Camera" type="Camera" parent="SolidPoint"]
 environment = ExtResource( 3 )
 current = true
+script = ExtResource( 5 )
 
 [node name="GUI" parent="SolidPoint/Camera" instance=ExtResource( 1 )]
 
