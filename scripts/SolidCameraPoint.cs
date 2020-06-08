@@ -1,10 +1,7 @@
 using System.Buffers;
 using System.Diagnostics;
 using Godot;
-using Threading = Godot.Thread;
-using Priority = Godot.Thread.Priority;
-
-public class SolidCameraPoint : LoadMarker {
+public class SolidCameraPoint : Spatial {
 
 	[Export] public int CHUNKS_TO_GENERATE = 10;
 	private ChunkFiller chunkFiller;
@@ -17,9 +14,11 @@ public class SolidCameraPoint : LoadMarker {
 		Registry reg = new Registry ();
 		PrimitiveResources.Register (reg);
 		mesher = (GodotMesher) GetParent ().FindNode ("GameMesher");
-		mesher.Set (reg);
+		mesher.SetRegistry (reg);
 		chunkFiller = new ChunkFiller (1, 2);
 		weltschmerz = new Weltschmerz ();
+		Thread thread = new Thread();
+		thread.Start(this, nameof(Generate));
 	}
 
 	public override void _Input (InputEvent @event) {
@@ -28,7 +27,7 @@ public class SolidCameraPoint : LoadMarker {
 		}
 	}
 
-	public void Generate () {
+	public void Generate (Object empty) {
 		ArrayPool<Position> pool = ArrayPool<Position>.Create (Constants.CHUNK_SIZE3D * 6 * 4, 1);
 		Stopwatch stopwatch = new Stopwatch ();
 		stopwatch.Start ();
@@ -38,9 +37,6 @@ public class SolidCameraPoint : LoadMarker {
 					Chunk chunk = chunkFiller.GenerateChunk (x << Constants.CHUNK_EXPONENT, y << Constants.CHUNK_EXPONENT,
 						z << Constants.CHUNK_EXPONENT, weltschmerz);
 					if (!chunk.IsSurface) {
-						var temp = chunk.Voxels[0];
-						chunk.Voxels = new Run[1];
-						chunk.Voxels[0] = temp;
 						chunk.x = (uint) x << Constants.CHUNK_EXPONENT;
 						chunk.y = (uint) y << Constants.CHUNK_EXPONENT;
 						chunk.z = (uint) z << Constants.CHUNK_EXPONENT;

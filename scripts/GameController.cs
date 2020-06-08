@@ -17,23 +17,13 @@ public class GameController : Spatial {
 	private GodotMesher mesher;
 	private Weltschmerz weltschmerz;
 	private Registry registry;
-	private Spatial lastPosition;
-	private Spatial newPosition;
-	private bool prepared = false;
-	
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready () { }
 
-	public override void _PhysicsProcess (float delta) {
-		if (!lastPosition.GlobalTransform.Equals (newPosition.GlobalTransform) && prepared) {
-			lastPosition.GlobalTransform = new Transform (newPosition.GlobalTransform.basis, newPosition.GlobalTransform.origin);
-			foreman.Release ();
-		}
-	}
+	public override void _PhysicsProcess (float delta) { }
 
-	public void Prepare (Camera camera, Spatial lastPosition, Spatial newPosition) {
-		this.lastPosition = lastPosition;
-		this.newPosition = newPosition;
+	public void Prepare (Camera camera, LoadMarker marker) {
 		registry = new Registry ();
 		PrimitiveResources.Register (registry);
 		weltschmerz = new Weltschmerz ();
@@ -43,7 +33,7 @@ public class GameController : Spatial {
 		config.map.latitude = LATITUDE;
 		config.map.longitude = LONGITUDE;
 		mesher = (GodotMesher) FindNode ("GameMesher");
-		mesher.Set (registry);
+		mesher.SetRegistry (registry);
 
 		if (LONGITUDE < 2) {
 			LONGITUDE = 2;
@@ -66,7 +56,11 @@ public class GameController : Spatial {
 
 		terra = new Terra (boundries, this);
 		picker = new Picker (terra, mesher);
-		foreman = new Foreman (weltschmerz, terra, registry, mesher, VIEW_DISTANCE, camera.Fov, GENERATION_THREADS);
+		GodotSemaphore semaphore1 = new GodotSemaphore ();
+		GodotSemaphore semaphore2 = new GodotSemaphore ();
+
+		foreman = new Foreman (weltschmerz, terra, registry, mesher, VIEW_DISTANCE, camera.Fov, GENERATION_THREADS,
+		semaphore1, semaphore2);
 
 		for (int t = 0; t < GENERATION_THREADS; t++) {
 			Thread thread = new Thread ();
@@ -79,9 +73,9 @@ public class GameController : Spatial {
 		}
 
 		foreman.SetMaterials (registry);
-		foreman.AddLoadMarker (lastPosition);
+		marker.Attach (foreman);
 
-		this.prepared = true;
+		foreman.AddLoadMarker (marker);
 	}
 
 	public void Generation (Object empty) {

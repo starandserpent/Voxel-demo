@@ -6,7 +6,6 @@ public class Player : Spatial {
     [Export] public float MOVE_SPEED = 0.9F;
     [Export] public int LOAD_RADIUS = 2;
     private Vector3 motion;
-    private Vector3 velocity;
     private Vector3 initialRotation;
     private const float RAY_LENGHT = 10;
     private RayCast ray;
@@ -19,9 +18,8 @@ public class Player : Spatial {
     private Label vertices;
     private Label memory;
     private Label speed;
-
-    private Spatial lastPosition;
     private bool wireframe = false;
+    private LoadMarker marker;
 
     public override void _Input (InputEvent @event) {
         if (Input.IsActionPressed ("toggle_mouse_capture")) {
@@ -40,14 +38,23 @@ public class Player : Spatial {
             gameController.Clear ();
             GetTree ().Quit ();
         } else if (@event is InputEventMouseMotion eventKey) {
+
             if (Input.GetMouseMode () == Input.MouseMode.Captured) {
-                this.Rotation = (new Vector3 (
-                    (float) Math.Max (
-                        Math.Min (this.Rotation.x - eventKey.Relative.y * MOUSE_SENSITIVITY, Math.PI / 2), -Math.PI / 2), Rotation.y - eventKey.Relative.x * MOUSE_SENSITIVITY,
-                    this.Rotation.z));
+
+                Vector3 rotation = new Vector3 (
+                    (float) Math.Max (Math.Min (Rotation.x - eventKey.Relative.y * MOUSE_SENSITIVITY, Math.PI / 2), -Math.PI / 2),
+                    Rotation.y - eventKey.Relative.x * MOUSE_SENSITIVITY,
+                    Rotation.z);
+                TerraBasis basis = new TerraBasis(Converter.ConvertVector (rotation));
+
+                marker.basis = basis;
+
+                Rotation = rotation;
             }
+
         } else if (@event is InputEventMouseButton eventMouseButton && eventMouseButton.Pressed &&
             eventMouseButton.ButtonIndex == 1) {
+
             Vector3 from = camera.ProjectRayOrigin (eventMouseButton.Position);
             Vector3 to = camera.ProjectRayNormal (eventMouseButton.Position) * RAY_LENGHT;
             GD.Print (to);
@@ -62,7 +69,6 @@ public class Player : Spatial {
         gameController = (GameController) FindParent ("GameController");
         ray = (RayCast) gameController.FindNode ("Picker");
         camera = (Camera) FindNode ("Camera");
-        lastPosition = (Spatial) gameController.FindNode ("Shadow");
         fps = (Label) camera.FindNode ("FPS");
         position = (Label) camera.FindNode ("Position");
         chunks = (Label) camera.FindNode ("Chunks");
@@ -76,8 +82,12 @@ public class Player : Spatial {
 
         Input.SetMouseMode (Input.MouseMode.Captured);
 
-        lastPosition.GlobalTransform = new Transform (this.GlobalTransform.basis, this.GlobalTransform.origin);
-        gameController.Prepare (camera, lastPosition, this);
+        TerraVector3 origin = Converter.ConvertVector (GlobalTransform.origin);
+        TerraBasis basis = Converter.ConvertBasis (GlobalTransform.basis);
+
+        marker = new LoadMarker (origin, basis);
+
+        gameController.Prepare (camera, marker);
     }
 
     public override void _PhysicsProcess (float delta) {
@@ -89,9 +99,11 @@ public class Player : Spatial {
         chunks.Text = "Chunks: " + Foreman.chunksPlaced;
         vertices.Text = "Vertices: " + Performance.GetMonitor (Performance.Monitor.RenderVerticesInFrame);
         fps.Text = "FPS: " + Performance.GetMonitor (Performance.Monitor.TimeFps);
-        position.Text = "X: " + lastPosition.GlobalTransform.origin.x + "Y: " +
-            lastPosition.GlobalTransform.origin.y + "Z:" + lastPosition.GlobalTransform.origin.z;
+        position.Text = "X: " + GlobalTransform.origin.x + "Y: " +
+            GlobalTransform.origin.y + "Z:" + GlobalTransform.origin.z;
         memory.Text = "Memory: " + GC.GetTotalMemory (false) / (1048576) + "MB";
+
+        Vector3 velocity = new Vector3 ();
 
         if (Input.IsActionPressed ("walk_left")) {
             motion.x = 1;
@@ -129,14 +141,15 @@ public class Player : Spatial {
 
         velocity = motion * MOVE_SPEED;
 
-        speed.Text = "Movement Speed: " + velocity.Length() + "m/s";
+        speed.Text = "Movement Speed: " + velocity.Length () + "m/s";
 
-        RID rid = VisualServer.InstanceCreate ();
-
-        VisualServer.InstanceAttachObjectInstanceId (rid, this.GetInstanceId ());
-
-        Translation = new Vector3 (Translation.x + velocity.x, Translation.y + velocity.y,
+        Vector3 translation = new Vector3 (Translation.x + velocity.x, Translation.y + velocity.y,
             Translation.z + velocity.z);
+
+        Translation = translation;
+
+        TerraVector3 origin = Converter.ConvertVector (translation);
+        marker.MoveTo (origin);
     }
 
     public override void _ExitTree () {

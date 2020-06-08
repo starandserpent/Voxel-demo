@@ -10,6 +10,7 @@
 [node name="SolidPoint" type="Spatial" parent="."]
 transform = Transform( -1, 0, -3.25841e-07, 0, 1, 0, 3.25841e-07, 0, -1, 50, 20, 0 )
 script = ExtResource( 2 )
+CHUNKS_TO_GENERATE = 100
 
 [node name="Camera" type="Camera" parent="SolidPoint"]
 environment = ExtResource( 3 )
