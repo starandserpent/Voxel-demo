@@ -1,63 +1,161 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://assets/ui/crosshair.png" type="Texture" id=1]
+[ext_resource path="res://assets/textures/white.png" type="Texture" id=2]
 
-[node name="GUI" type="CanvasLayer"]
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
 
-[node name="FPS" type="Label" parent="."]
+uniform float rotation=3.0;
+uniform float BarrelPower=2;
+uniform float PI = 3.1415926535;
+
+uniform float strength;
+uniform float height;
+uniform float aspectRatio;
+uniform float cylindricalRatio;
+
+varying vec3 vUV;
+varying vec2 vUVDot;
+void vertex(){
+	UV = vec2(UV.x, 1.0-UV.y);
+	float scaledHeight = strength * height;
+	float cylAspectRatio = aspectRatio * cylindricalRatio;
+	float aspectDiagSq = aspectRatio * aspectRatio + 1.0;
+	float diagSq = scaledHeight * scaledHeight * aspectDiagSq;
+	vec2 signedUV = (2.0 * UV + vec2(-1.0, -1.0));
+	float z = 0.5 * sqrt(diagSq + 1.0) + 0.5;
+	float ny = (z - 1.0) / (cylAspectRatio * cylAspectRatio + 1.0);
+	vUVDot = sqrt(ny) * vec2(cylAspectRatio, 1.0) * signedUV;
+	vUV = vec3(0.5, 0.5, 1.0) * z + vec3(-0.5, -0.5, 0.0);
+	vUV.xy += UV;
+}
+
+vec2 distort(vec2 p) {
+	
+	if(p.x > 0.0){
+		float angle = p.y / p.x;
+		float theta = atan(angle);
+		float radius = length(p);
+		radius = pow(radius, BarrelPower);
+		
+		p.x = radius * cos(theta);
+		p.y = radius * sin(theta);
+	} else {
+		float angle = p.y / p.x;
+		float theta = atan(angle);
+		float radius = length(p);
+		radius = pow(radius, BarrelPower);
+		
+		p.y = radius * sin(-theta);
+		p.x = radius * cos(theta);
+		p.x = - p.x;
+	}
+	
+	
+	return 0.5 * (p + vec2(1.0,1.0));
+}
+
+void fragment() {
+	vec3 uv = dot(vUVDot, vUVDot) * vec3(-0.5, -0.5, -1.0) + vUV;
+	COLOR = textureProj(SCREEN_TEXTURE,uv);
+//vec2 xy = 2.0* SCREEN_UV;
+//xy.x = xy.x-1.0;
+//xy.y = xy.y-1.0;
+//
+//float d = length(xy);
+//if(d < 1.5){
+//	xy = distort(xy);
+//}
+//else{
+//	xy = UV;
+//}
+//COLOR = texture(SCREEN_TEXTURE, xy);
+}"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+shader_param/rotation = 1.0
+shader_param/BarrelPower = 1.1
+shader_param/PI = 3.14159
+shader_param/strength = null
+shader_param/height = null
+shader_param/aspectRatio = null
+shader_param/cylindricalRatio = null
+
+[node name="GUI" type="Node"]
+
+[node name="BarrelDist" type="TextureRect" parent="."]
+material = SubResource( 2 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource( 2 )
+expand = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HUDCanvas" type="ReferenceRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="FPS" type="Label" parent="HUDCanvas"]
 margin_top = 30.0
 margin_right = 68.0
-margin_bottom = 14.0
+margin_bottom = 44.0
 text = "FPS:"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Position" type="Label" parent="."]
+[node name="Position" type="Label" parent="HUDCanvas"]
 margin_left = 4.2634
 margin_top = 60.0
-margin_right = 44.2634
-margin_bottom = 40.6463
+margin_right = 64.2634
+margin_bottom = 74.0
 text = "Position: "
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Chunks" type="Label" parent="."]
+[node name="Chunks" type="Label" parent="HUDCanvas"]
 margin_left = 2.1317
 margin_top = 90.0
-margin_right = 52.1317
-margin_bottom = 86.4778
+margin_right = 56.1317
+margin_bottom = 104.0
 text = "Chunks: "
 
-[node name="Vertices" type="Label" parent="."]
+[node name="Vertices" type="Label" parent="HUDCanvas"]
 margin_top = 120.0
 margin_right = 60.0
-margin_bottom = 119.812
+margin_bottom = 134.0
 text = "Vertices: "
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Memory" type="Label" parent="."]
+[node name="Memory" type="Label" parent="HUDCanvas"]
 margin_top = 150.0
-margin_right = 60.0
-margin_bottom = 119.812
+margin_right = 61.0
+margin_bottom = 164.0
 text = "Memory: "
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Movement Speed" type="Label" parent="."]
+[node name="Movement Speed" type="Label" parent="HUDCanvas"]
 margin_top = 180.0
-margin_right = 61.0
+margin_right = 116.0
 margin_bottom = 194.0
 text = "Movement Speed:"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Crosshair" type="TextureRect" parent="."]
+[node name="Crosshair" type="TextureRect" parent="HUDCanvas"]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -68,3 +166,88 @@ margin_right = 10.0
 margin_bottom = 10.0
 texture = ExtResource( 1 )
 expand = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ShaderMenu" type="VBoxContainer" parent="HUDCanvas"]
+anchor_left = 0.86
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -0.640015
+margin_right = -2.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ShaderPropLabel" type="Label" parent="HUDCanvas/ShaderMenu"]
+margin_right = 142.0
+margin_bottom = 14.0
+text = "Barrel Strength:"
+
+[node name="HSeparator" type="HSeparator" parent="HUDCanvas/ShaderMenu"]
+margin_top = 18.0
+margin_right = 142.0
+margin_bottom = 22.0
+
+[node name="BarrelPower" type="LineEdit" parent="HUDCanvas/ShaderMenu"]
+margin_top = 26.0
+margin_right = 142.0
+margin_bottom = 50.0
+caret_blink = true
+
+[node name="HSeparator2" type="HSeparator" parent="HUDCanvas/ShaderMenu"]
+margin_top = 54.0
+margin_right = 142.0
+margin_bottom = 58.0
+
+[node name="ShaderPropLabel2" type="Label" parent="HUDCanvas/ShaderMenu"]
+margin_top = 62.0
+margin_right = 142.0
+margin_bottom = 76.0
+text = "Cam FOV:"
+
+[node name="FOVSlider" type="HSlider" parent="HUDCanvas/ShaderMenu"]
+margin_top = 80.0
+margin_right = 142.0
+margin_bottom = 96.0
+min_value = 1.0
+max_value = 120.0
+value = 1.0
+ticks_on_borders = true
+
+[node name="HSeparator3" type="HSeparator" parent="HUDCanvas/ShaderMenu"]
+margin_top = 100.0
+margin_right = 142.0
+margin_bottom = 104.0
+
+[node name="ShaderPropLabel3" type="Label" parent="HUDCanvas/ShaderMenu"]
+margin_top = 108.0
+margin_right = 142.0
+margin_bottom = 122.0
+text = "Activate:"
+
+[node name="CheckButton" type="CheckButton" parent="HUDCanvas/ShaderMenu"]
+margin_top = 126.0
+margin_right = 142.0
+margin_bottom = 166.0
+
+[node name="HSeparator4" type="HSeparator" parent="HUDCanvas/ShaderMenu"]
+margin_top = 170.0
+margin_right = 142.0
+margin_bottom = 174.0
+
+[node name="ShaderPropLabel4" type="Label" parent="HUDCanvas/ShaderMenu"]
+margin_top = 178.0
+margin_right = 142.0
+margin_bottom = 192.0
+text = "Cylinder Ratio:"
+
+[node name="cylinratio" type="HSlider" parent="HUDCanvas/ShaderMenu"]
+margin_top = 196.0
+margin_right = 142.0
+margin_bottom = 212.0
+max_value = 4.0
+step = 0.1
+value = 0.3
+ticks_on_borders = true
