@@ -11,7 +11,7 @@ Written in C# using Godot game engine.
 
 # How to install
 
-1) Dowload and install Godot's Mono version with any required dependencies in a folder of your choice. We recommend using Godot version 3.1.2, for now, rather than the 3.2 branch or newer.
+1) Dowload and install Godot's Mono version with any required dependencies in a folder of your choice. We recommend the stable 3.2.x branch.
 2) Launch an operating system console/terminal.
 3) Run `git clone git@github.com:starandserpent/Voxel-demo.git --recursive` in a folder of your choice created for the purpose. If you get "command not found" error you need to install git command line client.
 4) `cd Voxel-demo` to switch to the freshly cloned folder.
