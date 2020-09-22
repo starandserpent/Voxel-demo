@@ -1,16 +1,16 @@
 using System;
 using Godot;
 
-public class Player : Spatial {
+public class Player : Spatial 
+{
     [Export] public float MOUSE_SENSITIVITY = 0.002F;
     [Export] public float MOVE_SPEED = 0.9F;
-    [Export] public int LOAD_RADIUS = 2;
+
     private Vector3 motion;
     private Vector3 initialRotation;
     private const float RAY_LENGHT = 10;
     private RayCast ray;
-    private GameController gameController;
-    private Camera camera;
+    public Camera camera;
     private Picker picker;
     private Label fps;
     private Label position;
@@ -19,7 +19,6 @@ public class Player : Spatial {
     private Label memory;
     private Label speed;
     private bool wireframe = false;
-    private LoadMarker marker;
 
     public override void _Input (InputEvent @event) {
         if (Input.IsActionPressed ("toggle_mouse_capture")) {
@@ -35,7 +34,6 @@ public class Player : Spatial {
 
             wireframe = !wireframe;
         } else if (Input.IsActionPressed ("ui_cancel")) {
-            gameController.Clear ();
             GetTree ().Quit ();
         } else if (@event is InputEventMouseMotion eventKey) {
 
@@ -47,8 +45,6 @@ public class Player : Spatial {
                     Rotation.z);
                 TerraBasis basis = new TerraBasis (Converter.ConvertVector (rotation));
 
-                marker.basis = basis;
-
                 Rotation = rotation;
             }
 
@@ -58,9 +54,9 @@ public class Player : Spatial {
             Vector3 from = camera.ProjectRayOrigin (eventMouseButton.Position);
             Vector3 to = camera.ProjectRayNormal (eventMouseButton.Position) * RAY_LENGHT;
             GD.Print (to);
-            ray.Translation = from;
-            ray.CastTo = to;
-            ray.Enabled = true;
+           // ray.Translation = from;
+            //ray.CastTo = to;
+            //ray.Enabled = true;
         }
     }
 
@@ -69,8 +65,6 @@ public class Player : Spatial {
         GD.Print (ConfigManager.BASE_DIRECTORY);
         GD.Print (ConfigManager.BASE_CONFIG_FILE_PATH);
         VisualServer.SetDebugGenerateWireframes (true);
-        gameController = (GameController) FindParent ("GameController");
-        ray = (RayCast) gameController.FindNode ("Picker");
         camera = (Camera) FindNode ("Camera");
         fps = (Label) camera.FindNode ("FPS");
         position = (Label) camera.FindNode ("Position");
@@ -81,23 +75,17 @@ public class Player : Spatial {
 
         initialRotation = new Vector3 ();
 
-        picker = gameController.GetPicker ();
-
         Input.SetMouseMode (Input.MouseMode.Captured);
 
         TerraVector3 origin = Converter.ConvertVector (GlobalTransform.origin);
         TerraBasis basis = Converter.ConvertBasis (GlobalTransform.basis);
-
-        marker = new LoadMarker (origin, basis);
-
-        gameController.Prepare (camera, marker);
     }
 
     public override void _PhysicsProcess (float delta) {
-        if (ray.IsColliding ()) {
+      /*  if (ray.IsColliding ()) {
             picker.Pick (ray.GetCollisionPoint (), ray.GetCollisionNormal ());
             ray.Enabled = false;
-        }
+        }*/
 
         chunks.Text = "Chunks: " + Foreman.chunksPlaced;
         vertices.Text = "Vertices: " + Performance.GetMonitor (Performance.Monitor.RenderVerticesInFrame);
@@ -150,9 +138,6 @@ public class Player : Spatial {
             Translation.z + velocity.z);
 
         Translation = translation;
-
-        TerraVector3 origin = Converter.ConvertVector (translation);
-        marker.MoveTo (origin);
     }
 
     public override void _ExitTree () {
