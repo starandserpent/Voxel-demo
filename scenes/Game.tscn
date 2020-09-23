@@ -13,6 +13,8 @@ script = ExtResource( 7 )
 
 [node name="GameClient" type="Spatial" parent="."]
 script = ExtResource( 1 )
+GENERATION_THREADS = 3
+LOAD_THREADS = 2
 
 [node name="Player" type="Spatial" parent="GameClient"]
 transform = Transform( -1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, 0, 10, 0 )
