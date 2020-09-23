@@ -24,7 +24,7 @@ public class GameClient : Node
 	private Thread[] loadThreads;
 	private Thread[] generationThreads;
 
-	private volatile ConcurrentQueue<Chunk> chunks;
+	private volatile ConcurrentQueue<Vector3> chunks;
 
 	private ArrayPool<Position> pool;
 
@@ -32,14 +32,20 @@ public class GameClient : Node
 
 	private int loadSize;
 
+	private Spatial spatial;
 	public override void _Ready()
     {
 
 		player = (Player) FindNode ("Player");
 
+		spatial = new Spatial();
+		AddChild(spatial, true);
+
+		player.AddShadow(spatial);
+
 		fov = player.camera.Fov;
 
-		chunks = new ConcurrentQueue<Chunk>();
+		chunks = new ConcurrentQueue<Vector3>();
 
 		runThread = true;
 
@@ -75,7 +81,7 @@ public class GameClient : Node
 			loadThreads[i].Start(this, nameof(LoadChunks));
 		}
 
-		lastPosition = player.Transform.origin;
+		lastPosition = spatial.Transform.origin;
 
 		GD.Print ("Using " + GENERATION_THREADS + " threads");
 	}
@@ -89,7 +95,7 @@ public class GameClient : Node
 
 	private void StartLoading()
 	{
-		chunks = new ConcurrentQueue<Chunk>();
+		chunks = new ConcurrentQueue<Vector3>();
 		loadSize = 0;
 		for(int i = 0; i < LOAD_THREADS; i++)
 		{
@@ -99,9 +105,9 @@ public class GameClient : Node
 
 	public override void _Process (float delta) 
 	{
-		if(lastPosition != player.Transform.origin)
+		if(lastPosition != spatial.Transform.origin)
 		{
-			lastPosition = player.Transform.origin;
+			lastPosition = spatial.Transform.origin;
 			StartLoading();
 		}
 	}
@@ -115,17 +121,12 @@ public class GameClient : Node
 				loadSize = 0;
 			}
 
-			foreach(Vector3 pos in chunkPoints)
-			{
-				Vector3 chunkPos = player.ToGlobal(pos) / Constants.CHUNK_LENGHT;
-				Chunk chunk = server.RequestChunk((int) chunkPos.x, (int) chunkPos.y,(int) chunkPos.z);
-				if(chunk != null && !chunk.IsGenerated)
-				{
-					chunks.Enqueue(chunk);
-					generationSemaphore.Post();
-				}
-				loadSize ++;
-			}
+			Vector3 pos = chunkPoints[loadSize];
+			loadSize ++;
+
+			Vector3 chunkPos = spatial.ToGlobal(pos) / Constants.CHUNK_LENGHT;
+			chunks.Enqueue(chunkPos);
+			generationSemaphore.Post();
 		}
 	}
 
@@ -133,12 +134,13 @@ public class GameClient : Node
 		{
 			while(runThread){
 				generationSemaphore.Wait();
-				Chunk chunk;
-				if(chunks != null && chunks.TryDequeue(out chunk)){
-					if(!chunk.IsEmpty)
+				Vector3 chunkPos;
+				if(chunks != null && chunks.TryDequeue(out chunkPos)){
+					Chunk chunk = server.RequestChunk((int) chunkPos.x, (int) chunkPos.y,(int) chunkPos.z);
+					if(chunk != null && !chunk.IsEmpty && chunk.IsFilled && !chunk.IsGenerated)
 					{
-						mesher.MeshChunk(chunk, pool);
 						chunk.IsGenerated = true;
+						mesher.MeshChunk(chunk, pool);
 					}
 				}
 			}

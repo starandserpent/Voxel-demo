@@ -18,6 +18,7 @@ public class Player : Spatial
     private Label vertices;
     private Label memory;
     private Label speed;
+    private Spatial shadow;
     private bool wireframe = false;
 
     public override void _Input (InputEvent @event) {
@@ -44,6 +45,8 @@ public class Player : Spatial
                     Rotation.y - eventKey.Relative.x * MOUSE_SENSITIVITY,
                     Rotation.z);
                 TerraBasis basis = new TerraBasis (Converter.ConvertVector (rotation));
+
+                shadow.Rotation = rotation;
 
                 Rotation = rotation;
             }
@@ -73,6 +76,8 @@ public class Player : Spatial
         memory = (Label) camera.FindNode ("Memory");
         speed = (Label) camera.FindNode ("Movement Speed");
 
+        shadow = (Spatial) FindNode ("Shadow");
+
         initialRotation = new Vector3 ();
 
         Input.SetMouseMode (Input.MouseMode.Captured);
@@ -87,7 +92,7 @@ public class Player : Spatial
             ray.Enabled = false;
         }*/
 
-        chunks.Text = "Chunks: " + Foreman.chunksPlaced;
+        chunks.Text = "Chunks: ";
         vertices.Text = "Vertices: " + Performance.GetMonitor (Performance.Monitor.RenderVerticesInFrame);
         fps.Text = "FPS: " + Performance.GetMonitor (Performance.Monitor.TimeFps);
         position.Text = "X: " + GlobalTransform.origin.x + "Y: " +
@@ -138,10 +143,17 @@ public class Player : Spatial
             Translation.z + velocity.z);
 
         Translation = translation;
+
+        shadow.Translation = Translation;
     }
 
     public override void _ExitTree () {
         Input.SetMouseMode (Input.MouseMode.Visible);
+    }
+
+    public void AddShadow(Spatial spatial)
+    {
+        shadow = spatial;
     }
 
     public override void _Process (float delta) {

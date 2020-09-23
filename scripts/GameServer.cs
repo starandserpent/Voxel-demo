@@ -69,8 +69,4 @@ public class GameServer : Node
 		}
 		return null;
 	}
-
-	public void Clear () {
-		foreman.Stop ();
-	}
 }
