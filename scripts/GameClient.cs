@@ -130,21 +130,110 @@ public class GameClient : Node
 		}
 	}
 
-		private void GenerateChunks(Godot.Object empty)
-		{
-			while(runThread){
-				generationSemaphore.Wait();
-				Vector3 chunkPos;
-				if(chunks != null && chunks.TryDequeue(out chunkPos)){
-					Chunk chunk = server.RequestChunk((int) chunkPos.x, (int) chunkPos.y,(int) chunkPos.z);
-					if(chunk != null && !chunk.IsEmpty && chunk.IsFilled && !chunk.IsGenerated)
-					{
-						chunk.IsGenerated = true;
-						mesher.MeshChunk(chunk, pool);
-					}
+	private void GenerateChunks(Godot.Object empty)
+	{
+		while(runThread){
+			generationSemaphore.Wait();
+			Vector3 chunkPos;
+			if(chunks != null && chunks.TryDequeue(out chunkPos)){
+				int posX = (int) chunkPos.x;
+				int posY = (int) chunkPos.y;
+				int posZ = (int) chunkPos.z;
+
+				Chunk chunk = server.RequestChunk(posX, posY, posZ);
+				Chunk[] neighbors = new Chunk[6];
+				if(chunk != null && !chunk.IsEmpty && chunk.IsFilled && !chunk.IsGenerated && SearchForNeighbors(posX, posY, posZ, neighbors))
+				{
+					chunk.IsGenerated = true;
+					mesher.MeshChunk(chunk, neighbors, pool);
 				}
 			}
 		}
+	}
+
+	private bool SearchForNeighbors(int posX, int posY, int posZ, Chunk[] neighbors)
+	{
+		Chunk chunk;
+		for(int i = 0; i < 6; i++)
+		{
+			switch(i)
+			{
+				//Front
+				case 0:
+				  	chunk =	server.RequestChunk(posX, posY, posZ - 1);
+					if(chunk != null && chunk.IsFilled){
+						neighbors[0] = chunk;
+					}
+					else
+					{
+						return false;
+					}
+				break;
+
+				//Back
+				case 1:
+					chunk =	server.RequestChunk(posX, posY, posZ + 1);
+					if(chunk != null && chunk.IsFilled){
+						neighbors[1] = chunk;
+					}
+					else
+					{
+						return false;
+					}
+				break;
+
+				//Right
+				case 2:
+					chunk =	server.RequestChunk(posX + 1, posY, posZ);
+					if(chunk != null && chunk.IsFilled){
+						neighbors[2] = chunk;
+					}
+					else
+					{
+						return false;
+					}
+				break;
+
+				//Left
+				case 3:
+					chunk =	server.RequestChunk(posX - 1, posY, posZ);
+					if(chunk != null && chunk.IsFilled){
+						neighbors[3] = chunk;
+					}
+					else
+					{
+						return false;
+					}
+				break;
+
+				//Top
+				case 4:
+					chunk =	server.RequestChunk(posX, posY + 1, posZ);
+					if(chunk != null && chunk.IsFilled){
+						neighbors[4] = chunk;
+					}
+					else
+					{
+						return false;
+					}
+				break;
+
+				//Bottom
+				case 5:
+					chunk = server.RequestChunk(posX, posY - 1, posZ);
+					if(chunk != null && chunk.IsFilled){
+						neighbors[5] = chunk;
+					}
+					else
+					{
+						return false;
+					}
+				break;
+			}
+		}
+
+		return true;
+	}
 
 	public void Stop()
 	{

@@ -39,7 +39,7 @@ public class SolidCameraPoint : Spatial {
 						chunk.z = (uint) z << Constants.CHUNK_EXPONENT;
 					}
 					if (!chunk.IsEmpty) {
-						mesher.MeshChunk (chunk, pool);
+						//mesher.MeshChunk (chunk, pool);
 					}
 				}
 			}
