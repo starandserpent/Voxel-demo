@@ -10,7 +10,6 @@
 
 [node name="GameServer" type="Spatial"]
 script = ExtResource( 7 )
-LOAD_RADIUS = 5
 
 [node name="GameClient" type="Spatial" parent="."]
 script = ExtResource( 1 )

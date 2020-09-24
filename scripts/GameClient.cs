@@ -18,6 +18,8 @@ public class GameClient : Node
 	private Player player;
 	private Vector3 lastPosition;
 
+	private Vector3 lastRotation;
+
 	private Semaphore generationSemaphore;
 	private Semaphore loadSemaphore;
 
@@ -81,7 +83,8 @@ public class GameClient : Node
 			loadThreads[i].Start(this, nameof(LoadChunks));
 		}
 
-		lastPosition = spatial.Transform.origin;
+		lastPosition = spatial.Translation;
+		lastPosition = spatial.Rotation;
 
 		GD.Print ("Using " + GENERATION_THREADS + " threads");
 	}
@@ -105,9 +108,10 @@ public class GameClient : Node
 
 	public override void _Process (float delta) 
 	{
-		if(lastPosition != spatial.Transform.origin)
+		if(lastPosition != spatial.Translation || lastRotation != spatial.Rotation)
 		{
-			lastPosition = spatial.Transform.origin;
+			lastPosition = spatial.Translation;
+			lastRotation = spatial.Rotation;
 			StartLoading();
 		}
 	}

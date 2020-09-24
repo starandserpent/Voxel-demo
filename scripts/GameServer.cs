@@ -10,7 +10,7 @@ public class GameServer : Node
 	[Export] public int LATITUDE = 1000;
 	[Export] public int MAX_ELEVATION = 1000;
 	[Export] public int MIN_ELEVATION = 1;
-	[Export] public int PROCESS_THREADS = 1;
+	[Export] public int FILLING_THREADS = 4;
 
 	private Weltschmerz weltschmerz;
 	private Registry registry;
@@ -18,6 +18,8 @@ public class GameServer : Node
 	private volatile Terra terra;
 
 	private Foreman foreman;
+
+	private Thread[] fillingThreads;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -30,6 +32,8 @@ public class GameServer : Node
 		config.elevation.min_elevation = MIN_ELEVATION;
 		config.map.latitude = LATITUDE;
 		config.map.longitude = LONGITUDE;
+
+		fillingThreads = new Thread[FILLING_THREADS];
 
 		if (LONGITUDE < 2) {
 			LONGITUDE = 2;
@@ -49,15 +53,37 @@ public class GameServer : Node
 		boundries.z = LATITUDE;
 
 		terra = new Terra (boundries, this);
-		GodotSemaphore semaphore1 = new GodotSemaphore ();
-		GodotSemaphore semaphore2 = new GodotSemaphore ();
 
 		foreman = new Foreman (weltschmerz, registry, terra, LOAD_RADIUS);
 
 		GameClient client = (GameClient) FindNode ("GameClient");
 		GodotMesher mesher = (GodotMesher) FindNode("GameMesher");
 		mesher.SetRegistry(registry);
+
+		foreman.SetOrigin(0, 0, 0);
+
+		GD.Print("Prefilling " + foreman.GetPrefillSize() + " chunks");
+
+		GD.Print("Using " + FILLING_THREADS + " to prefill chunk");
+
+		for(int i = 0; i < FILLING_THREADS; i++)
+		{
+			fillingThreads[i] = new Thread();
+			fillingThreads[i].Start(this, nameof(FillRadius));
+		}
+
+		for(int i = 0; i < FILLING_THREADS; i++)
+		{
+			fillingThreads[i].WaitToFinish();
+		}
+
+
 		client.AddServer(this, mesher);
+	}
+
+	private void FillRadius(Godot.Object empty)
+	{
+		foreman.Fill();
 	}
 
 	public Chunk RequestChunk(int x, int y, int z)
