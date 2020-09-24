@@ -1,16 +1,16 @@
 using System;
 using Godot;
 
-public class Player : Spatial {
+public class Player : Spatial 
+{
     [Export] public float MOUSE_SENSITIVITY = 0.002F;
     [Export] public float MOVE_SPEED = 0.9F;
-    [Export] public int LOAD_RADIUS = 2;
+
     private Vector3 motion;
     private Vector3 initialRotation;
     private const float RAY_LENGHT = 10;
     private RayCast ray;
-    private GameController gameController;
-    private Camera camera;
+    public Camera camera;
     private Picker picker;
     private Label fps;
     private Label position;
@@ -18,8 +18,8 @@ public class Player : Spatial {
     private Label vertices;
     private Label memory;
     private Label speed;
+    private Spatial shadow;
     private bool wireframe = false;
-    private LoadMarker marker;
 
     public override void _Input (InputEvent @event) {
         if (Input.IsActionPressed ("toggle_mouse_capture")) {
@@ -35,7 +35,6 @@ public class Player : Spatial {
 
             wireframe = !wireframe;
         } else if (Input.IsActionPressed ("ui_cancel")) {
-            gameController.Clear ();
             GetTree ().Quit ();
         } else if (@event is InputEventMouseMotion eventKey) {
 
@@ -47,7 +46,7 @@ public class Player : Spatial {
                     Rotation.z);
                 TerraBasis basis = new TerraBasis (Converter.ConvertVector (rotation));
 
-                marker.basis = basis;
+                shadow.Rotation = rotation;
 
                 Rotation = rotation;
             }
@@ -58,9 +57,9 @@ public class Player : Spatial {
             Vector3 from = camera.ProjectRayOrigin (eventMouseButton.Position);
             Vector3 to = camera.ProjectRayNormal (eventMouseButton.Position) * RAY_LENGHT;
             GD.Print (to);
-            ray.Translation = from;
-            ray.CastTo = to;
-            ray.Enabled = true;
+           // ray.Translation = from;
+            //ray.CastTo = to;
+            //ray.Enabled = true;
         }
     }
 
@@ -69,8 +68,6 @@ public class Player : Spatial {
         GD.Print (ConfigManager.BASE_DIRECTORY);
         GD.Print (ConfigManager.BASE_CONFIG_FILE_PATH);
         VisualServer.SetDebugGenerateWireframes (true);
-        gameController = (GameController) FindParent ("GameController");
-        ray = (RayCast) gameController.FindNode ("Picker");
         camera = (Camera) FindNode ("Camera");
         fps = (Label) camera.FindNode ("FPS");
         position = (Label) camera.FindNode ("Position");
@@ -79,27 +76,23 @@ public class Player : Spatial {
         memory = (Label) camera.FindNode ("Memory");
         speed = (Label) camera.FindNode ("Movement Speed");
 
-        initialRotation = new Vector3 ();
+        shadow = (Spatial) FindNode ("Shadow");
 
-        picker = gameController.GetPicker ();
+        initialRotation = new Vector3 ();
 
         Input.SetMouseMode (Input.MouseMode.Captured);
 
         TerraVector3 origin = Converter.ConvertVector (GlobalTransform.origin);
         TerraBasis basis = Converter.ConvertBasis (GlobalTransform.basis);
-
-        marker = new LoadMarker (origin, basis);
-
-        gameController.Prepare (camera, marker);
     }
 
     public override void _PhysicsProcess (float delta) {
-        if (ray.IsColliding ()) {
+      /*  if (ray.IsColliding ()) {
             picker.Pick (ray.GetCollisionPoint (), ray.GetCollisionNormal ());
             ray.Enabled = false;
-        }
+        }*/
 
-        chunks.Text = "Chunks: " + Foreman.chunksPlaced;
+        chunks.Text = "Chunks: ";
         vertices.Text = "Vertices: " + Performance.GetMonitor (Performance.Monitor.RenderVerticesInFrame);
         fps.Text = "FPS: " + Performance.GetMonitor (Performance.Monitor.TimeFps);
         position.Text = "X: " + GlobalTransform.origin.x + "Y: " +
@@ -151,12 +144,16 @@ public class Player : Spatial {
 
         Translation = translation;
 
-        TerraVector3 origin = Converter.ConvertVector (translation);
-        marker.MoveTo (origin);
+        shadow.Translation = Translation;
     }
 
     public override void _ExitTree () {
         Input.SetMouseMode (Input.MouseMode.Visible);
+    }
+
+    public void AddShadow(Spatial spatial)
+    {
+        shadow = spatial;
     }
 
     public override void _Process (float delta) {

@@ -1,37 +1,39 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
-[ext_resource path="res://scripts/GameController.cs" type="Script" id=1]
+[ext_resource path="res://scripts/GameClient.cs" type="Script" id=1]
 [ext_resource path="res://scripts/player/Player.cs" type="Script" id=2]
 [ext_resource path="res://scenes/reusable/GUI.tscn" type="PackedScene" id=3]
 [ext_resource path="res://scripts/utils/GodotMesher.cs" type="Script" id=4]
 [ext_resource path="res://default_env.tres" type="Environment" id=5]
 [ext_resource path="res://scripts/player/PlayerCamera.cs" type="Script" id=6]
+[ext_resource path="res://scripts/GameServer.cs" type="Script" id=7]
 
-[node name="GameController" type="Spatial"]
+[node name="GameServer" type="Spatial"]
+script = ExtResource( 7 )
+
+[node name="GameClient" type="Spatial" parent="."]
 script = ExtResource( 1 )
-VIEW_DISTANCE = 1000
-MAX_ELEVATION = 300
+GENERATION_THREADS = 3
+LOAD_THREADS = 2
 
-[node name="Player" type="Spatial" parent="."]
-transform = Transform( -1, 0, -3.25841e-07, 0, 1, 0, 3.25841e-07, 0, -1, 0, 10, 0 )
+[node name="Player" type="Spatial" parent="GameClient"]
+transform = Transform( -1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, 0, 10, 0 )
 script = ExtResource( 2 )
+MOVE_SPEED = 0.1
 
-[node name="Camera" type="Camera" parent="Player"]
+[node name="Camera" type="Camera" parent="GameClient/Player"]
 environment = ExtResource( 5 )
 current = true
 near = 0.01
 far = 8192.0
 script = ExtResource( 6 )
 
-[node name="GUI" parent="Player/Camera" instance=ExtResource( 3 )]
+[node name="GUI" parent="GameClient/Player/Camera" instance=ExtResource( 3 )]
 
-[node name="Picker" type="RayCast" parent="."]
+[node name="Picker" type="RayCast" parent="GameClient/Player"]
+transform = Transform( -1, 0, 3.25841e-07, 0, 1, 0, -3.25841e-07, 0, -1, 0, -10, 0 )
 enabled = true
 collide_with_areas = true
 
-[node name="GameMesher" type="Spatial" parent="."]
+[node name="GameMesher" type="Spatial" parent="GameClient"]
 script = ExtResource( 4 )
-
-[node name="Shadow" type="Spatial" parent="."]
-
-[editable path="Player/Camera/GUI"]

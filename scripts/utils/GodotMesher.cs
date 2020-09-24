@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
-public class GodotMesher : Spatial, ITerraMesher {
+public class GodotMesher : Spatial {
     private volatile Registry reg;
     public void SetRegistry (Registry reg) {
         this.reg = reg;
     }
 
-    public void MeshChunk (Chunk chunk, ArrayPool<Position> pool) {
+    public void MeshChunk (Chunk chunk, Chunk[] neighbors, ArrayPool<Position> pool) {
 
         RawChunk rawChunk = new RawChunk ();
 
@@ -17,10 +17,12 @@ public class GodotMesher : Spatial, ITerraMesher {
         rawChunk.materials = new SpatialMaterial[chunk.Materials - 1];
         rawChunk.colliderFaces = new Vector3[chunk.Materials - 1][];
 
-        if (chunk.Materials > 1) {
-            rawChunk = Meshing (chunk, rawChunk, pool);
-        } else {
-            rawChunk = FastGodotCube (chunk, rawChunk);
+        if (chunk.Materials > 1) 
+        {
+            rawChunk = Meshing (chunk, neighbors, rawChunk, pool);
+        } else 
+        {
+           // rawChunk = FastGodotCube (chunk, rawChunk);
         }
 
         RID meshID = VisualServer.MeshCreate ();
@@ -50,8 +52,8 @@ public class GodotMesher : Spatial, ITerraMesher {
         //   PhysicsServer.BodySetSpace (body, GetWorld ().Space);
     }
 
-    private RawChunk Meshing (Chunk chunk, RawChunk rawChunk, ArrayPool<Position> pool) {
-        Position[] values = MeshingUtils.NaiveGreedyMeshing (chunk, pool);
+    private RawChunk Meshing (Chunk chunk, Chunk[] neighbors, RawChunk rawChunk, ArrayPool<Position> pool) {
+        Position[] values = Mesher.NaiveGreedyMeshing (chunk, neighbors, pool);
         Queue<Position>[][] stacks = new Queue<Position>[6][];
         int[] size = new int[chunk.Materials - 1];
 
@@ -61,7 +63,7 @@ public class GodotMesher : Spatial, ITerraMesher {
                 stacks[side][t] = new Queue<Position> (Constants.CHUNK_SIZE3D);
             }
 
-            MeshingUtils.GreedyMeshing (values, side, stacks[side]);
+            Mesher.GreedyMeshing (values, side, stacks[side]);
             for (int t = 0; t < chunk.Materials - 1; t++) {
                 size[t] += stacks[side][t].Count;
             }
