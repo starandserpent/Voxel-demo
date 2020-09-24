@@ -44,7 +44,6 @@ public class Player : Spatial
                     (float) Math.Max (Math.Min (Rotation.x - eventKey.Relative.y * MOUSE_SENSITIVITY, Math.PI / 2), -Math.PI / 2),
                     Rotation.y - eventKey.Relative.x * MOUSE_SENSITIVITY,
                     Rotation.z);
-                TerraBasis basis = new TerraBasis (Converter.ConvertVector (rotation));
 
                 shadow.Rotation = rotation;
 
@@ -81,9 +80,6 @@ public class Player : Spatial
         initialRotation = new Vector3 ();
 
         Input.SetMouseMode (Input.MouseMode.Captured);
-
-        TerraVector3 origin = Converter.ConvertVector (GlobalTransform.origin);
-        TerraBasis basis = Converter.ConvertBasis (GlobalTransform.basis);
     }
 
     public override void _PhysicsProcess (float delta) {
