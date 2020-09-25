@@ -150,6 +150,7 @@ public class GameClient : Node
 				{
 					chunk.IsGenerated = true;
 					mesher.MeshChunk(chunk, neighbors, pool);
+					Godot.GD.Print(posX + " " + posY + " " + posZ);
 				}
 			}
 		}

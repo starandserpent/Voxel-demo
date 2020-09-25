@@ -22,7 +22,7 @@ public class GodotMesher : Spatial {
             rawChunk = Meshing (chunk, neighbors, rawChunk, pool);
         } else 
         {
-           // rawChunk = FastGodotCube (chunk, rawChunk);
+            rawChunk = FastGodotCube (chunk, rawChunk);
         }
 
         RID meshID = VisualServer.MeshCreate ();
