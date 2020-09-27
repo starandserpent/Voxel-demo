@@ -52,7 +52,7 @@ public class GameServer : Node
 		boundries.y = MAX_ELEVATION;
 		boundries.z = LATITUDE;
 
-		terra = new Terra (boundries, this);
+		terra = new Terra (new Position(0, 0 ,0), boundries, this);
 
 		foreman = new Foreman (weltschmerz, registry, terra, LOAD_RADIUS);
 

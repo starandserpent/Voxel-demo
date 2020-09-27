@@ -140,9 +140,9 @@ public class GameClient : Node
 			generationSemaphore.Wait();
 			Vector3 chunkPos;
 			if(chunks != null && chunks.TryDequeue(out chunkPos)){
-				int posX = (int) chunkPos.x;
-				int posY = (int) chunkPos.y;
-				int posZ = (int) chunkPos.z;
+				int posX = (int) (chunkPos.x * Constants.CHUNK_LENGHT);
+				int posY = (int) (chunkPos.y * Constants.CHUNK_LENGHT);
+				int posZ = (int) (chunkPos.z * Constants.CHUNK_LENGHT);
 
 				Chunk chunk = server.RequestChunk(posX, posY, posZ);
 				Chunk[] neighbors = new Chunk[6];
@@ -150,7 +150,6 @@ public class GameClient : Node
 				{
 					chunk.IsGenerated = true;
 					mesher.MeshChunk(chunk, neighbors, pool);
-					Godot.GD.Print(posX + " " + posY + " " + posZ);
 				}
 			}
 		}
@@ -165,7 +164,7 @@ public class GameClient : Node
 			{
 				//Front
 				case 0:
-				  	chunk =	server.RequestChunk(posX, posY, posZ - 1);
+				  	chunk =	server.RequestChunk(posX, posY, posZ - (int) Constants.CHUNK_LENGHT);
 					if(chunk != null && chunk.IsFilled){
 						neighbors[0] = chunk;
 					}
@@ -177,7 +176,7 @@ public class GameClient : Node
 
 				//Back
 				case 1:
-					chunk =	server.RequestChunk(posX, posY, posZ + 1);
+					chunk =	server.RequestChunk(posX, posY, posZ + (int) Constants.CHUNK_LENGHT);
 					if(chunk != null && chunk.IsFilled){
 						neighbors[1] = chunk;
 					}
@@ -189,7 +188,7 @@ public class GameClient : Node
 
 				//Right
 				case 2:
-					chunk =	server.RequestChunk(posX + 1, posY, posZ);
+					chunk =	server.RequestChunk(posX + (int) Constants.CHUNK_LENGHT, posY, posZ);
 					if(chunk != null && chunk.IsFilled){
 						neighbors[2] = chunk;
 					}
@@ -201,7 +200,7 @@ public class GameClient : Node
 
 				//Left
 				case 3:
-					chunk =	server.RequestChunk(posX - 1, posY, posZ);
+					chunk =	server.RequestChunk(posX - (int) Constants.CHUNK_LENGHT, posY, posZ);
 					if(chunk != null && chunk.IsFilled){
 						neighbors[3] = chunk;
 					}
@@ -213,7 +212,7 @@ public class GameClient : Node
 
 				//Top
 				case 4:
-					chunk =	server.RequestChunk(posX, posY + 1, posZ);
+					chunk =	server.RequestChunk(posX, posY + (int) Constants.CHUNK_LENGHT, posZ);
 					if(chunk != null && chunk.IsFilled){
 						neighbors[4] = chunk;
 					}
@@ -225,7 +224,7 @@ public class GameClient : Node
 
 				//Bottom
 				case 5:
-					chunk = server.RequestChunk(posX, posY - 1, posZ);
+					chunk = server.RequestChunk(posX, posY - (int) Constants.CHUNK_LENGHT, posZ);
 					if(chunk != null && chunk.IsFilled){
 						neighbors[5] = chunk;
 					}
