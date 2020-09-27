@@ -34,9 +34,9 @@ public class SolidCameraPoint : Spatial {
 				for (int z = 0; z < CHUNKS_TO_GENERATE; z++) {
 					Chunk chunk = new Chunk();
 					if (!chunk.IsSurface) {
-						chunk.x = (uint) x << Constants.CHUNK_EXPONENT;
-						chunk.y = (uint) y << Constants.CHUNK_EXPONENT;
-						chunk.z = (uint) z << Constants.CHUNK_EXPONENT;
+					//	chunk.x = (uint) x << Constants.CHUNK_EXPONENT;
+					//	chunk.y = (uint) y << Constants.CHUNK_EXPONENT;
+					//	chunk.z = (uint) z << Constants.CHUNK_EXPONENT;
 					}
 					if (!chunk.IsEmpty) {
 						//mesher.MeshChunk (chunk, pool);

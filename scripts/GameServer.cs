@@ -52,7 +52,7 @@ public class GameServer : Node
 		boundries.y = MAX_ELEVATION;
 		boundries.z = LATITUDE;
 
-		terra = new Terra (boundries, this);
+		terra = new Terra (new Position(0, 0 ,0), boundries, this);
 
 		foreman = new Foreman (weltschmerz, registry, terra, LOAD_RADIUS);
 
@@ -60,11 +60,13 @@ public class GameServer : Node
 		GodotMesher mesher = (GodotMesher) FindNode("GameMesher");
 		mesher.SetRegistry(registry);
 
+		GD.Print("Marking chunks for filling");	
+
 		foreman.SetOrigin(0, 0, 0);
 
-		GD.Print("Prefilling " + foreman.GetPrefillSize() + " chunks");
+		GD.Print("Filling " + foreman.GetPrefillSize() + " chunks");
 
-		GD.Print("Using " + FILLING_THREADS + " to prefill chunk");
+		GD.Print("Using " + FILLING_THREADS + " threads to fill chunks");
 
 		for(int i = 0; i < FILLING_THREADS; i++)
 		{
@@ -76,7 +78,6 @@ public class GameServer : Node
 		{
 			fillingThreads[i].WaitToFinish();
 		}
-
 
 		client.AddServer(this, mesher);
 	}
